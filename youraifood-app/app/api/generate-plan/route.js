@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { getUserFromToken, supabaseAdmin } from '../../../lib/supabaseAdmin';
 import { generateWeeklyPlan } from '../../../lib/anthropic';
 import { findRecipe, DAYS } from '../../../lib/recipes';
-
+// The Claude call can take 15-20+ seconds; Vercel's default function
+// timeout is shorter than that, so this must be set explicitly.
+export const maxDuration = 60;
 const FREE_MONTHLY_LIMIT = 5;
 
 function currentMonthKey(date = new Date()) {
