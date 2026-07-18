@@ -39,8 +39,10 @@ export default function AuthWidget({ user, onAuthChange }) {
     setError('');
     setLoading(true);
     try {
-      const fn = mode === 'signup' ? supabase.auth.signUp : supabase.auth.signInWithPassword;
-      const { data, error: authError } = await fn({ email, password });
+      const { data, error: authError } =
+        mode === 'signup'
+          ? await supabase.auth.signUp({ email, password })
+          : await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
       if (data.user) {
         onAuthChange(data.user, data.session);
