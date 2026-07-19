@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
 
-const MEALS = ['all', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
-const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium'];
+const MEALS = ['all', 'Breakfast', 'Lunch/Dinner', 'Snack'];
+const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
-export default function RecipeGallery({ isPremium }) {
+export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite }) {
   const [meal, setMeal] = useState('all');
   const [filter, setFilter] = useState('all');
   const [active, setActive] = useState(null);
@@ -18,7 +18,9 @@ export default function RecipeGallery({ isPremium }) {
       ? byMeal
       : filter === 'premium'
         ? byMeal.filter((r) => r.premium)
-        : byMeal.filter((r) => r.diets.includes(filter));
+        : filter === 'favorites'
+          ? byMeal.filter((r) => favorites?.has(r.id))
+          : byMeal.filter((r) => r.diets.includes(filter));
 
   function handleCardClick(r) {
     if (r.premium && !isPremium) {
@@ -26,6 +28,15 @@ export default function RecipeGallery({ isPremium }) {
       return;
     }
     setActive(r);
+  }
+
+  function handleHeartClick(e, r) {
+    e.stopPropagation();
+    if (!user) {
+      document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    onToggleFavorite?.(r.id);
   }
 
   return (
@@ -59,13 +70,14 @@ export default function RecipeGallery({ isPremium }) {
                   : 'border-white/25 bg-white/10 text-white'
               }`}
             >
-              {f === 'all' ? 'All' : f === 'premium' ? '⭐ Premium' : f}
+              {f === 'all' ? 'All' : f === 'premium' ? '⭐ Premium' : f === 'favorites' ? '❤️ Favorites' : f}
             </button>
           ))}
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-4">
           {list.map((r) => {
             const locked = r.premium && !isPremium;
+            const isFav = favorites?.has(r.id);
             return (
               <div
                 key={r.id}
@@ -74,6 +86,13 @@ export default function RecipeGallery({ isPremium }) {
                   locked ? 'overflow-hidden' : ''
                 }`}
               >
+                <button
+                  onClick={(e) => handleHeartClick(e, r)}
+                  className="absolute left-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm shadow"
+                  aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  {isFav ? '❤️' : '🤍'}
+                </button>
                 {r.premium && (
                   <span className="absolute right-3 top-3 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-amber-950">
                     PREMIUM
@@ -107,7 +126,12 @@ export default function RecipeGallery({ isPremium }) {
           })}
         </div>
       </div>
-      <RecipeModal recipe={active} onClose={() => setActive(null)} />
+      <RecipeModal
+        recipe={active}
+        onClose={() => setActive(null)}
+        isFavorite={active ? favorites?.has(active.id) : false}
+        onToggleFavorite={active ? (e) => handleHeartClick(e, active) : undefined}
+      />
     </section>
   );
 }
