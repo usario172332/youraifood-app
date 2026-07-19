@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { findRecipe } from '../lib/recipes';
+import { calculateTargets, ACTIVITY_OPTIONS } from '../lib/nutrition';
 import RecipeModal from './RecipeModal';
 
 const PRESETS = {
@@ -21,16 +22,48 @@ const DIET_OPTIONS = [
   { key: 'gluten-free', label: 'Gluten-free' },
 ];
 
+const DEFAULT_FORM = {
+  goal: 'lose',
+  weight: 75,
+  height: 175,
+  age: 30,
+  sex: 'male',
+  activityLevel: 'moderate',
+  protein: 120,
+  proteinTouched: false,
+  budget: 60,
+  time: 25,
+  family: 1,
+  diets: [],
+};
+
 export default function Planner({ user, session }) {
-  const [form, setForm] = useState({ goal: 'lose', protein: 120, budget: 60, time: 25, family: 1, diets: [] });
+  const [form, setForm] = useState(DEFAULT_FORM);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeRecipe, setActiveRecipe] = useState(null);
 
+  const targets = useMemo(
+    () =>
+      calculateTargets({
+        weight: form.weight,
+        height: form.height,
+        age: form.age,
+        sex: form.sex,
+        activityLevel: form.activityLevel,
+        goal: form.goal,
+      }),
+    [form.weight, form.height, form.age, form.sex, form.activityLevel, form.goal]
+  );
+
+  // Keep the protein field in sync with the calculated suggestion until the
+  // user manually edits it themselves — after that, we leave their number alone.
+  const proteinValue = form.proteinTouched ? form.protein : targets.proteinTarget;
+
   function applyPreset(key) {
     const p = PRESETS[key];
-    setForm({ goal: p.goal, protein: p.protein, budget: p.budget, time: p.time, family: p.family, diets: [] });
+    setForm((f) => ({ ...f, goal: p.goal, protein: p.protein, proteinTouched: true, budget: p.budget, time: p.time, family: p.family, diets: [] }));
   }
 
   function toggleDiet(key) {
@@ -54,7 +87,8 @@ export default function Planner({ user, session }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({
           goal: form.goal,
-          proteinTarget: form.protein,
+          proteinTarget: proteinValue,
+          calorieTarget: targets.calorieTarget,
           budget: form.budget,
           maxTime: form.time,
           family: form.family,
@@ -89,6 +123,69 @@ export default function Planner({ user, session }) {
         <PresetChip label="✨ All of the above" full onClick={() => applyPreset('all')} />
       </div>
 
+      <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-green-700">About you</h3>
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
+        <Field label="Current weight" hint="(kg)">
+          <input type="number" min={30} max={250} step={1} value={form.weight}
+            onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
+            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+        </Field>
+        <Field label="Height" hint="(cm)">
+          <input type="number" min={120} max={230} step={1} value={form.height}
+            onChange={(e) => setForm({ ...form, height: Number(e.target.value) })}
+            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+        </Field>
+        <Field label="Age">
+          <input type="number" min={14} max={100} step={1} value={form.age}
+            onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
+            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+        </Field>
+        <Field label="Sex">
+          <select
+            value={form.sex}
+            onChange={(e) => setForm({ ...form, sex: e.target.value })}
+            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </Field>
+        <Field label="Activity level">
+          <select
+            value={form.activityLevel}
+            onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
+            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
+          >
+            {ACTIVITY_OPTIONS.map((a) => (
+              <option key={a.key} value={a.key}>{a.label}</option>
+            ))}
+          </select>
+        </Field>
+      </div>
+
+      <div className="mb-6 rounded-xl bg-green-50 p-4 text-sm text-green-900">
+        <b className="mb-1 block">🔢 Your calculated daily targets</b>
+        <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
+        <span className="mx-2 text-green-700/50">·</span>
+        <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
+        <div className="mt-1 text-xs text-green-700">
+          BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
+          {form.proteinTouched && form.protein !== targets.proteinTarget && (
+            <>
+              {' '}
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, protein: targets.proteinTarget, proteinTouched: false }))}
+                className="font-bold underline"
+              >
+                Reset protein to suggested {targets.proteinTarget}g
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-green-700">Your plan</h3>
       <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3">
         <Field label="Fitness goal">
           <select
@@ -101,9 +198,9 @@ export default function Planner({ user, session }) {
             <option value="maintain">Maintain / general health</option>
           </select>
         </Field>
-        <Field label="Protein target" hint="(g/day)">
-          <input type="number" min={40} max={250} step={5} value={form.protein}
-            onChange={(e) => setForm({ ...form, protein: Number(e.target.value) })}
+        <Field label="Protein target" hint="(g/day, auto-suggested)">
+          <input type="number" min={40} max={300} step={5} value={proteinValue}
+            onChange={(e) => setForm({ ...form, protein: Number(e.target.value), proteinTouched: true })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
         <Field label="Weekly budget" hint="(€)">
@@ -150,7 +247,16 @@ export default function Planner({ user, session }) {
 
       {error && <p className="mt-2 text-sm font-semibold text-amber-700">{error}</p>}
 
-      {result && <PlanResults result={result} family={form.family} budget={form.budget} proteinTarget={form.protein} onOpenRecipe={setActiveRecipe} />}
+      {result && (
+        <PlanResults
+          result={result}
+          family={form.family}
+          budget={form.budget}
+          proteinTarget={proteinValue}
+          calorieTarget={targets.calorieTarget}
+          onOpenRecipe={setActiveRecipe}
+        />
+      )}
 
       <RecipeModal recipe={activeRecipe} onClose={() => setActiveRecipe(null)} />
     </div>
@@ -181,7 +287,7 @@ function Field({ label, hint, children }) {
   );
 }
 
-function PlanResults({ result, family, budget, proteinTarget, onOpenRecipe }) {
+function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onOpenRecipe }) {
   const { days, coachNote, groceries, stats, usage } = result;
   const overBudget = stats.totalCost > budget;
 
@@ -194,10 +300,10 @@ function PlanResults({ result, family, budget, proteinTarget, onOpenRecipe }) {
 
   return (
     <div className="mt-9 text-left">
-      <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-4">
+      <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-5">
         <Stat label={`Est. weekly cost (target €${budget})`} value={`€${stats.totalCost.toFixed(0)}`} tone={overBudget ? 'warn' : 'ok'} />
         <Stat label={`Avg daily protein (target ${proteinTarget}g)`} value={`${stats.avgProtein}g`} />
-        <Stat label="Avg daily calories" value={stats.avgCal} />
+        <Stat label={`Avg daily calories (target ${calorieTarget})`} value={stats.avgCal} />
         <Stat label={usage.isPremium ? 'Plans this month' : `Plans used (of ${usage.limit})`} value={usage.used} />
       </div>
 
