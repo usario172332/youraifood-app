@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../lib/AuthContext';
 
-export default function AuthWidget({ user, onAuthChange }) {
+export default function AuthWidget({ compact }) {
+  const { user, handleAuthChange, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [email, setEmail] = useState('');
@@ -19,13 +21,10 @@ export default function AuthWidget({ user, onAuthChange }) {
 
   if (user) {
     return (
-      <div className="flex items-center gap-3 text-sm">
-        <span className="text-ink-soft hidden sm:inline">{user.email}</span>
+      <div className={`flex ${compact ? 'flex-col items-start' : 'items-center'} gap-2 text-sm`}>
+        <span className="truncate text-ink-soft">{user.email}</span>
         <button
-          onClick={async () => {
-            await supabase.auth.signOut();
-            onAuthChange(null);
-          }}
+          onClick={signOut}
           className="font-semibold text-green-700 hover:text-green-900"
         >
           Sign out
@@ -45,7 +44,7 @@ export default function AuthWidget({ user, onAuthChange }) {
           : await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
       if (data.user) {
-        onAuthChange(data.user, data.session);
+        handleAuthChange(data.user, data.session);
         setOpen(false);
       } else if (mode === 'signup') {
         setError('Check your email to confirm your account, then sign in.');
@@ -61,12 +60,16 @@ export default function AuthWidget({ user, onAuthChange }) {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full bg-green-600 px-4 py-2 text-sm font-bold text-white hover:-translate-y-px transition"
+        className={`rounded-full bg-green-600 px-4 py-2 text-sm font-bold text-white hover:-translate-y-px transition ${compact ? 'w-full' : ''}`}
       >
         Sign in
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-xl z-50">
+        <div
+          className={`absolute mt-2 w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-xl z-50 ${
+            compact ? 'left-0' : 'right-0'
+          }`}
+        >
           <div className="flex gap-2 mb-3 text-sm font-semibold">
             <button
               className={mode === 'signin' ? 'text-green-700' : 'text-ink-soft'}
