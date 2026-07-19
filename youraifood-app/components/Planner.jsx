@@ -24,8 +24,7 @@ const DIET_OPTIONS = [
 
 const MEAL_OPTIONS = [
   { key: 'breakfast', label: 'Breakfast' },
-  { key: 'lunch', label: 'Lunch' },
-  { key: 'dinner', label: 'Dinner' },
+  { key: 'main', label: 'Lunch/Dinner' },
   { key: 'snack', label: 'Snack' },
 ];
 
@@ -42,10 +41,10 @@ const DEFAULT_FORM = {
   time: 25,
   family: 1,
   diets: [],
-  meals: ['breakfast', 'lunch', 'dinner', 'snack'],
+  meals: ['breakfast', 'main', 'snack'],
 };
 
-export default function Planner({ user, session }) {
+export default function Planner({ user, session, favorites, onToggleFavorite }) {
   const [form, setForm] = useState(DEFAULT_FORM);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -290,7 +289,19 @@ export default function Planner({ user, session }) {
         />
       )}
 
-      <RecipeModal recipe={activeRecipe} onClose={() => setActiveRecipe(null)} />
+      <RecipeModal
+        recipe={activeRecipe}
+        onClose={() => setActiveRecipe(null)}
+        isFavorite={activeRecipe ? favorites?.has(activeRecipe.id) : false}
+        onToggleFavorite={
+          activeRecipe
+            ? () => {
+                if (!user) return;
+                onToggleFavorite?.(activeRecipe.id);
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }
@@ -319,11 +330,11 @@ function Field({ label, hint, children }) {
   );
 }
 
-const MEAL_LABELS = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch/Dinner', snack: 'Snack' };
 
 function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onOpenRecipe }) {
   const { days, coachNote, groceries, stats, usage, meals } = result;
-  const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'lunch', 'dinner', 'snack'];
+  const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const overBudget = stats.totalCost > budget;
 
   const byCat = {};
