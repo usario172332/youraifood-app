@@ -61,7 +61,7 @@ export default function PrivacyPage() {
 
         <section>
           <h2 className="mb-2 text-lg font-bold text-green-900">8. Contact</h2>
-          <p>Questions about this policy or your data? Contact us at <b>privacy@youraifood.com</b>.</p>
+          <p>Questions about this policy or your data? Contact us at <b>adam.horvath1723@gmail.com</b>.</p>
         </section>
       </div>
 
