@@ -103,9 +103,13 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                   )}
                 </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
-                  <div className={`flex h-20 items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
-                    {hero.emoji}
-                  </div>
+                  {r.image ? (
+                    <img src={r.image} alt={r.name} className="h-20 w-full object-cover" />
+                  ) : (
+                    <div className={`flex h-20 items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
+                      {hero.emoji}
+                    </div>
+                  )}
                   <div className="p-4">
                     <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
                     <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
