@@ -51,15 +51,17 @@ export async function generateWeeklyPlan(inputs) {
     );
   }
 
-  const { goal, proteinTarget, budget, maxTime, family, diets } = inputs;
-  const catalog = catalogForPrompt();
+  const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, isPremium } = inputs;
+  const catalog = catalogForPrompt(isPremium);
 
   const system = `You are the meal-planning engine behind YourAiFood, a fitness recipe app.
 You will be given a recipe catalog (id, meal type, diet tags, cook time in minutes, cost per serving in EUR, protein in grams, calories) and a user's targets.
+The user's calorie and protein targets were calculated from their actual body stats (weight, height, age, sex, activity level) using the Mifflin-St Jeor formula, adjusted for their goal — treat them as real, meaningful targets, not rough guesses.
 Build a 7-day plan using ONLY recipe ids that appear in the catalog. Rules:
 - Respect every diet tag the user selected (a recipe must include ALL of them to qualify).
 - Respect the max cook time per meal.
-- Aim for the daily protein target on average across the week; add a snack on days that fall short.
+- Aim for the daily calorie target on average across the week (within roughly 10%) — this is the primary constraint, since it drives the user's weight loss/gain/maintenance goal.
+- Aim for the daily protein target on average across the week; add a snack on days that fall short on either calories or protein.
 - Aim to stay within the weekly budget (cost per serving × family size × meals planned).
 - Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking 21 different recipes.
 - Vary meals enough that it doesn't feel repetitive day to day.
@@ -70,6 +72,7 @@ ${JSON.stringify(catalog)}
 
 User targets:
 - Fitness goal: ${goal}
+- Daily calorie target: ${calorieTarget} kcal
 - Daily protein target: ${proteinTarget}g
 - Weekly grocery budget: €${budget} for ${family} ${family === 1 ? 'person' : 'people'}
 - Max cook time per meal: ${maxTime} minutes
