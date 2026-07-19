@@ -22,6 +22,13 @@ const DIET_OPTIONS = [
   { key: 'gluten-free', label: 'Gluten-free' },
 ];
 
+const MEAL_OPTIONS = [
+  { key: 'breakfast', label: 'Breakfast' },
+  { key: 'lunch', label: 'Lunch' },
+  { key: 'dinner', label: 'Dinner' },
+  { key: 'snack', label: 'Snack' },
+];
+
 const DEFAULT_FORM = {
   goal: 'lose',
   weight: 75,
@@ -35,6 +42,7 @@ const DEFAULT_FORM = {
   time: 25,
   family: 1,
   diets: [],
+  meals: ['breakfast', 'lunch', 'dinner', 'snack'],
 };
 
 export default function Planner({ user, session }) {
@@ -73,6 +81,14 @@ export default function Planner({ user, session }) {
     }));
   }
 
+  function toggleMeal(key) {
+    setForm((f) => {
+      const has = f.meals.includes(key);
+      if (has && f.meals.length === 1) return f; // keep at least one meal selected
+      return { ...f, meals: has ? f.meals.filter((m) => m !== key) : [...f.meals, key] };
+    });
+  }
+
   async function generate() {
     setError('');
     if (!user) {
@@ -93,6 +109,7 @@ export default function Planner({ user, session }) {
           maxTime: form.time,
           family: form.family,
           diets: form.diets,
+          meals: form.meals,
         }),
       });
       const data = await res.json();
@@ -233,6 +250,21 @@ export default function Planner({ user, session }) {
             ))}
           </div>
         </Field>
+        <Field label="Meals to include">
+          <div className="flex flex-wrap gap-1.5">
+            {MEAL_OPTIONS.map((m) => (
+              <label
+                key={m.key}
+                className={`cursor-pointer rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold ${
+                  form.meals.includes(m.key) ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
+                }`}
+              >
+                <input type="checkbox" className="mr-1" checked={form.meals.includes(m.key)} onChange={() => toggleMeal(m.key)} />
+                {m.label}
+              </label>
+            ))}
+          </div>
+        </Field>
       </div>
 
       <div className="mb-2 flex justify-end">
@@ -287,8 +319,11 @@ function Field({ label, hint, children }) {
   );
 }
 
+const MEAL_LABELS = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+
 function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onOpenRecipe }) {
-  const { days, coachNote, groceries, stats, usage } = result;
+  const { days, coachNote, groceries, stats, usage, meals } = result;
+  const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'lunch', 'dinner', 'snack'];
   const overBudget = stats.totalCost > budget;
 
   const byCat = {};
@@ -319,8 +354,9 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
         <table className="w-full border-collapse bg-white text-sm">
           <thead>
             <tr className="bg-green-50 text-left text-[11px] uppercase tracking-wide text-green-700">
-              {['Day', 'Breakfast', 'Lunch', 'Dinner', 'Snack'].map((h) => (
-                <th key={h} className="px-3 py-2.5">{h}</th>
+              <th className="px-3 py-2.5">Day</th>
+              {mealSlots.map((slot) => (
+                <th key={slot} className="px-3 py-2.5">{MEAL_LABELS[slot]}</th>
               ))}
             </tr>
           </thead>
@@ -328,7 +364,7 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
             {days.map((row) => (
               <tr key={row.day} className="border-t border-gray-100 align-top">
                 <td className="px-3 py-2.5 font-extrabold text-green-900">{row.day}</td>
-                {['breakfast', 'lunch', 'dinner', 'snack'].map((slot) => {
+                {mealSlots.map((slot) => {
                   const recipe = findRecipe(row[slot]);
                   return (
                     <td key={slot} className="px-3 py-2.5">
