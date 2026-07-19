@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
 
-const MEALS = ['all', 'Breakfast', 'Lunch/Dinner', 'Snack'];
+const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
 export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite }) {
