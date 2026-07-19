@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
+import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero } from '../lib/recipeMeta';
 
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
@@ -78,15 +79,16 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
           {list.map((r) => {
             const locked = r.premium && !isPremium;
             const isFav = favorites?.has(r.id);
+            const hero = getHero(r);
+            const difficulty = getDifficulty(r);
+            const highProtein = isHighProtein(r);
             return (
               <div
                 key={r.id}
                 onClick={() => handleCardClick(r)}
-                className={`relative cursor-pointer rounded-2xl bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-xl ${
-                  locked ? 'overflow-hidden' : ''
-                }`}
+                className="relative cursor-pointer overflow-hidden rounded-2xl bg-white transition hover:-translate-y-0.5 hover:shadow-xl"
               >
-                <div className="absolute right-3 top-3 z-10 flex flex-col items-end gap-1.5">
+                <div className="absolute right-2 top-2 z-10 flex flex-col items-end gap-1.5">
                   <button
                     onClick={(e) => handleHeartClick(e, r)}
                     className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm shadow"
@@ -101,28 +103,38 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                   )}
                 </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
-                  <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
-                  <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
-                  <div className="mb-2 flex flex-wrap gap-1">
-                    {r.diets.map((d) => (
-                      <span key={d} className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">
-                        {d}
-                      </span>
-                    ))}
+                  <div className={`flex h-20 items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
+                    {hero.emoji}
                   </div>
-                  <div className="flex justify-between border-t border-dashed border-gray-100 pt-2 text-xs text-ink-soft">
-                    <span>{r.time} min</span>
-                    <span>{r.protein}g protein</span>
-                    <span>€{r.cost.toFixed(2)}</span>
+                  <div className="p-4">
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
+                    <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
+                    <div className="mb-2 flex flex-wrap gap-1">
+                      {highProtein && (
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">💪 High Protein</span>
+                      )}
+                      {r.diets.map((d) => (
+                        <span key={d} className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex justify-between border-t border-dashed border-gray-100 pt-2 text-xs text-ink-soft">
+                      <span>{DIFFICULTY_ICON[difficulty]} {difficulty}</span>
+                      <span>{r.time} min</span>
+                      <span>€{r.cost.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
-                {locked ? (
-                  <span className="mt-2 flex items-center gap-1 text-xs font-bold text-amber-600">
-                    🔒 Unlock with Premium
-                  </span>
-                ) : (
-                  <span className="mt-2 block text-xs font-bold text-green-600">View recipe →</span>
-                )}
+                <div className="px-4 pb-3">
+                  {locked ? (
+                    <span className="flex items-center gap-1 text-xs font-bold text-amber-600">
+                      🔒 Unlock with Premium
+                    </span>
+                  ) : (
+                    <span className="block text-xs font-bold text-green-600">View recipe →</span>
+                  )}
+                </div>
               </div>
             );
           })}
