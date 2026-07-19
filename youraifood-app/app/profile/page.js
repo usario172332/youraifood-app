@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../lib/AuthContext';
 import { RECIPES, findRecipe } from '../../lib/recipes';
 import RecipeModal from '../../components/RecipeModal';
+import { getHero } from '../../lib/recipeMeta';
 
 export default function ProfilePage() {
   const { user, session, isPremium, favorites, toggleFavorite, authReady } = useAuth();
@@ -113,27 +114,35 @@ function FavoritesSection({ favorites, onToggleFavorite }) {
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {favRecipes.map((r) => (
-            <div
-              key={r.id}
-              onClick={() => setActive(r)}
-              className="relative cursor-pointer rounded-xl border border-gray-200 p-3 transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleFavorite?.(r.id);
-                }}
-                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs shadow"
-                aria-label="Remove from favorites"
+          {favRecipes.map((r) => {
+            const hero = getHero(r);
+            return (
+              <div
+                key={r.id}
+                onClick={() => setActive(r)}
+                className="relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 transition hover:-translate-y-0.5 hover:shadow-md"
               >
-                ❤️
-              </button>
-              <div className="text-[10px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
-              <div className="mt-1 text-sm font-bold text-green-900">{r.name}</div>
-              <div className="mt-1 text-xs text-ink-soft">{r.protein}g protein · {r.cal} kcal</div>
-            </div>
-          ))}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleFavorite?.(r.id);
+                  }}
+                  className="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-xs shadow"
+                  aria-label="Remove from favorites"
+                >
+                  ❤️
+                </button>
+                <div className={`flex h-14 items-center justify-center bg-gradient-to-br ${hero.gradient} text-2xl`}>
+                  {hero.emoji}
+                </div>
+                <div className="p-3">
+                  <div className="text-[10px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
+                  <div className="mt-1 text-sm font-bold text-green-900">{r.name}</div>
+                  <div className="mt-1 text-xs text-ink-soft">{r.protein}g protein · {r.cal} kcal</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
       <RecipeModal
