@@ -13,7 +13,7 @@ function getClient() {
 // We use tool-use (function calling) rather than free-text so the response
 // is guaranteed valid JSON with only ids that exist in our catalog — the
 // model never has to invent macros or prices, it just picks recipes.
-const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch/Dinner', snack: 'Snack' };
+const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 
 function buildPlanTool(meals) {
   const dayProps = { day: { type: 'string' } };
