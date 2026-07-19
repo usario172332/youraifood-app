@@ -132,9 +132,13 @@ function FavoritesSection({ favorites, onToggleFavorite }) {
                 >
                   ❤️
                 </button>
-                <div className={`flex h-14 items-center justify-center bg-gradient-to-br ${hero.gradient} text-2xl`}>
-                  {hero.emoji}
-                </div>
+                {r.image ? (
+                  <img src={r.image} alt={r.name} className="h-14 w-full object-cover" />
+                ) : (
+                  <div className={`flex h-14 items-center justify-center bg-gradient-to-br ${hero.gradient} text-2xl`}>
+                    {hero.emoji}
+                  </div>
+                )}
                 <div className="p-3">
                   <div className="text-[10px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
                   <div className="mt-1 text-sm font-bold text-green-900">{r.name}</div>
