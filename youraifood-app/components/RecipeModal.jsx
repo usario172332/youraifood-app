@@ -1,6 +1,6 @@
 'use client';
 
-export default function RecipeModal({ recipe, onClose }) {
+export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavorite }) {
   if (!recipe) return null;
   return (
     <div
@@ -8,6 +8,15 @@ export default function RecipeModal({ recipe, onClose }) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-7">
+        {onToggleFavorite && (
+          <button
+            onClick={onToggleFavorite}
+            className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-green-50 text-sm"
+            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            {isFavorite ? '❤️' : '🤍'}
+          </button>
+        )}
         <button
           onClick={onClose}
           className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-green-50 font-bold text-green-700"
