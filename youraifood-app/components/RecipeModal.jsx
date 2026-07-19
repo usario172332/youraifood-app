@@ -42,9 +42,17 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white">
-        {/* Hero banner — stand-in "photography" until real images are wired up */}
-        <div className={`relative flex h-36 items-center justify-center rounded-t-2xl bg-gradient-to-br ${hero.gradient}`}>
-          <span className="text-6xl drop-shadow-sm">{hero.emoji}</span>
+        {/* Hero banner — real photo if generated, otherwise a styled placeholder */}
+        <div
+          className={`relative flex h-36 items-center justify-center overflow-hidden rounded-t-2xl ${
+            recipe.image ? '' : `bg-gradient-to-br ${hero.gradient}`
+          }`}
+        >
+          {recipe.image ? (
+            <img src={recipe.image} alt={recipe.name} className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-6xl drop-shadow-sm">{hero.emoji}</span>
+          )}
 
           <div className="absolute right-4 top-4 flex items-center gap-2">
             {onToggleFavorite && (
