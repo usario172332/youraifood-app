@@ -86,18 +86,20 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                   locked ? 'overflow-hidden' : ''
                 }`}
               >
-                <button
-                  onClick={(e) => handleHeartClick(e, r)}
-                  className="absolute left-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm shadow"
-                  aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                  {isFav ? '❤️' : '🤍'}
-                </button>
-                {r.premium && (
-                  <span className="absolute right-3 top-3 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-amber-950">
-                    PREMIUM
-                  </span>
-                )}
+                <div className="absolute right-3 top-3 z-10 flex flex-col items-end gap-1.5">
+                  <button
+                    onClick={(e) => handleHeartClick(e, r)}
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm shadow"
+                    aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {isFav ? '❤️' : '🤍'}
+                  </button>
+                  {r.premium && (
+                    <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-amber-950">
+                      PREMIUM
+                    </span>
+                  )}
+                </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
                   <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
                   <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
