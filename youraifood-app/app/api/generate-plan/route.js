@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { getUserFromToken, supabaseAdmin } from '../../../lib/supabaseAdmin';
 import { generateWeeklyPlan } from '../../../lib/anthropic';
 import { findRecipe, DAYS } from '../../../lib/recipes';
+
 // The Claude call can take 15-20+ seconds; Vercel's default function
 // timeout is shorter than that, so this must be set explicitly.
 export const maxDuration = 60;
+
 const FREE_MONTHLY_LIMIT = 5;
 
 function currentMonthKey(date = new Date()) {
@@ -120,15 +122,16 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { goal, proteinTarget, budget, maxTime, family, diets } = body;
+    const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets } = body;
 
-    if (!goal || !proteinTarget || !budget || !maxTime || !family) {
+    if (!goal || !proteinTarget || !calorieTarget || !budget || !maxTime || !family) {
       return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 400 });
     }
 
     const aiResult = await generateWeeklyPlan({
       goal,
       proteinTarget,
+      calorieTarget,
       budget,
       maxTime,
       family,
@@ -155,7 +158,7 @@ export async function POST(req) {
 
     await admin.from('saved_plans').insert({
       user_id: user.id,
-      inputs: { goal, proteinTarget, budget, maxTime, family, diets },
+      inputs: { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets },
       plan_days: days,
       coach_note: aiResult.coachNote,
     });
