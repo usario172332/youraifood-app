@@ -1,5 +1,6 @@
 import './globals.css';
 import CookieBanner from '../components/CookieBanner';
+import AppShell from '../components/AppShell';
 
 export const metadata = {
   title: 'YourAiFood — Fitness Recipes & Personalized Meal Plans',
@@ -11,7 +12,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        {children}
+        <AppShell>{children}</AppShell>
         <CookieBanner />
       </body>
     </html>
