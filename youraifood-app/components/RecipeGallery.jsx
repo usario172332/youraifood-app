@@ -4,18 +4,21 @@ import { useState } from 'react';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
 
+const MEALS = ['all', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium'];
 
 export default function RecipeGallery({ isPremium }) {
+  const [meal, setMeal] = useState('all');
   const [filter, setFilter] = useState('all');
   const [active, setActive] = useState(null);
 
+  const byMeal = meal === 'all' ? RECIPES : RECIPES.filter((r) => r.meal === meal);
   const list =
     filter === 'all'
-      ? RECIPES
+      ? byMeal
       : filter === 'premium'
-        ? RECIPES.filter((r) => r.premium)
-        : RECIPES.filter((r) => r.diets.includes(filter));
+        ? byMeal.filter((r) => r.premium)
+        : byMeal.filter((r) => r.diets.includes(filter));
 
   function handleCardClick(r) {
     if (r.premium && !isPremium) {
@@ -30,6 +33,21 @@ export default function RecipeGallery({ isPremium }) {
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-white">Browse the recipe library</h2>
         <p className="mb-8 text-center text-white/70">A taste of what YourAiFood pulls from when building your plan</p>
+        <div className="mb-3 flex flex-wrap justify-center gap-2">
+          {MEALS.map((m) => (
+            <button
+              key={m}
+              onClick={() => setMeal(m)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                meal === m
+                  ? 'border-green-500 bg-green-500 text-white'
+                  : 'border-white/25 bg-white/10 text-white'
+              }`}
+            >
+              {m === 'all' ? 'All meals' : m}
+            </button>
+          ))}
+        </div>
         <div className="mb-8 flex flex-wrap justify-center gap-2">
           {FILTERS.map((f) => (
             <button
