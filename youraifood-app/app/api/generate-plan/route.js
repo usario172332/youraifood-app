@@ -136,16 +136,26 @@ export async function POST(req) {
       maxTime,
       family,
       diets: Array.isArray(diets) ? diets : [],
+      isPremium: profile.is_premium,
     });
 
     // Validate + hydrate: the model only returns ids, we look up the real
     // recipe objects so nutrition/cost/instructions are never hallucinated.
+    // The premium check here is defense-in-depth — the model was never shown
+    // Premium recipe ids for a free user, but we double-check anyway in case
+    // it somehow guessed one.
+    const resolveRecipe = (id) => {
+      const recipe = findRecipe(id);
+      if (!recipe) return null;
+      if (recipe.premium && !profile.is_premium) return null;
+      return recipe.id;
+    };
     const days = aiResult.days.map((row, i) => ({
       day: row.day || DAYS[i],
-      breakfast: findRecipe(row.breakfast)?.id || null,
-      lunch: findRecipe(row.lunch)?.id || null,
-      dinner: findRecipe(row.dinner)?.id || null,
-      snack: row.snack ? findRecipe(row.snack)?.id || null : null,
+      breakfast: resolveRecipe(row.breakfast),
+      lunch: resolveRecipe(row.lunch),
+      dinner: resolveRecipe(row.dinner),
+      snack: row.snack ? resolveRecipe(row.snack) : null,
     }));
 
     const groceries = buildGroceryList(days, family);
