@@ -1,4 +1,5 @@
 import './globals.css';
+import CookieBanner from '../components/CookieBanner';
 
 export const metadata = {
   title: 'YourAiFood — Fitness Recipes & Personalized Meal Plans',
@@ -9,7 +10,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }
