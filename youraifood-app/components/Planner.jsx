@@ -24,7 +24,7 @@ const DIET_OPTIONS = [
 
 const MEAL_OPTIONS = [
   { key: 'breakfast', label: 'Breakfast' },
-  { key: 'main', label: 'Lunch/Dinner' },
+  { key: 'main', label: 'Lunch & Dinner' },
   { key: 'snack', label: 'Snack' },
 ];
 
@@ -330,7 +330,7 @@ function Field({ label, hint, children }) {
   );
 }
 
-const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch/Dinner', snack: 'Snack' };
+const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 
 function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onOpenRecipe }) {
   const { days, coachNote, groceries, stats, usage, meals } = result;
