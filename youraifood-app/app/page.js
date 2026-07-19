@@ -1,113 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import AuthWidget from '../components/AuthWidget';
 import Planner from '../components/Planner';
 import RecipeGallery from '../components/RecipeGallery';
 import Pricing from '../components/Pricing';
+import { useAuth } from '../lib/AuthContext';
 
 export default function Home() {
-  const [user, setUser] = useState(null);
-  const [session, setSession] = useState(null);
-  const [isPremium, setIsPremium] = useState(false);
-  const [favorites, setFavorites] = useState(new Set());
-
-  useEffect(() => {
-    if (!supabase) return;
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setSession(data.session);
-        setUser(data.session.user);
-      }
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user || null);
-    });
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!supabase || !user) {
-      setIsPremium(false);
-      return;
-    }
-    supabase
-      .from('profiles')
-      .select('is_premium')
-      .eq('id', user.id)
-      .maybeSingle()
-      .then(({ data }) => setIsPremium(!!data?.is_premium));
-  }, [user]);
-
-  useEffect(() => {
-    if (!user || !session) {
-      setFavorites(new Set());
-      return;
-    }
-    fetch('/api/favorites', {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    })
-      .then((res) => (res.ok ? res.json() : { recipeIds: [] }))
-      .then((data) => setFavorites(new Set(data.recipeIds || [])))
-      .catch(() => setFavorites(new Set()));
-  }, [user, session]);
-
-  async function toggleFavorite(recipeId) {
-    if (!user || !session) return;
-    const isFav = favorites.has(recipeId);
-
-    // Optimistic update so the heart flips instantly.
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      isFav ? next.delete(recipeId) : next.add(recipeId);
-      return next;
-    });
-
-    try {
-      if (isFav) {
-        await fetch(`/api/favorites?recipeId=${encodeURIComponent(recipeId)}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-      } else {
-        await fetch('/api/favorites', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-          body: JSON.stringify({ recipeId }),
-        });
-      }
-    } catch (err) {
-      // Roll back on failure.
-      setFavorites((prev) => {
-        const next = new Set(prev);
-        isFav ? next.add(recipeId) : next.delete(recipeId);
-        return next;
-      });
-    }
-  }
+  const { user, session, isPremium, favorites, toggleFavorite } = useAuth();
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur">
-        <nav className="mx-auto flex max-w-[1120px] items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2 text-xl font-extrabold text-green-900">
-            <span className="inline-block h-2.5 w-2.5 rounded-full bg-green-500" />
-            YourAiFood
-          </div>
-          <div className="hidden gap-7 text-sm font-semibold text-ink-soft sm:flex">
-            <a href="#planner" className="hover:text-green-700">Plan my week</a>
-            <a href="#recipes" className="hover:text-green-700">Recipes</a>
-            <a href="#pricing" className="hover:text-green-700">Pricing</a>
-          </div>
-          <AuthWidget user={user} onAuthChange={(u, s) => { setUser(u); if (s) setSession(s); }} />
-        </nav>
-      </header>
-
       <section className="px-6 pb-10 pt-16">
         <div className="mx-auto max-w-[1120px] text-center">
           <span className="mb-4 inline-block rounded-full bg-green-50 px-3.5 py-1.5 text-[13px] font-bold text-green-700">
