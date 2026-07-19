@@ -11,6 +11,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
+  const [favorites, setFavorites] = useState(new Set());
 
   useEffect(() => {
     if (!supabase) return;
@@ -43,6 +44,53 @@ export default function Home() {
       .then(({ data }) => setIsPremium(!!data?.is_premium));
   }, [user]);
 
+  useEffect(() => {
+    if (!user || !session) {
+      setFavorites(new Set());
+      return;
+    }
+    fetch('/api/favorites', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then((res) => (res.ok ? res.json() : { recipeIds: [] }))
+      .then((data) => setFavorites(new Set(data.recipeIds || [])))
+      .catch(() => setFavorites(new Set()));
+  }, [user, session]);
+
+  async function toggleFavorite(recipeId) {
+    if (!user || !session) return;
+    const isFav = favorites.has(recipeId);
+
+    // Optimistic update so the heart flips instantly.
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      isFav ? next.delete(recipeId) : next.add(recipeId);
+      return next;
+    });
+
+    try {
+      if (isFav) {
+        await fetch(`/api/favorites?recipeId=${encodeURIComponent(recipeId)}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ recipeId }),
+        });
+      }
+    } catch (err) {
+      // Roll back on failure.
+      setFavorites((prev) => {
+        const next = new Set(prev);
+        isFav ? next.add(recipeId) : next.delete(recipeId);
+        return next;
+      });
+    }
+  }
+
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur">
@@ -73,11 +121,11 @@ export default function Home() {
             weekly menu, an optimized grocery list, and a full nutritional breakdown — with minimal waste and smart
             ingredient reuse.
           </p>
-          <Planner user={user} session={session} />
+          <Planner user={user} session={session} favorites={favorites} onToggleFavorite={toggleFavorite} />
         </div>
       </section>
 
-      <RecipeGallery isPremium={isPremium} />
+      <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} />
       <Pricing session={session} isPremium={isPremium} />
 
       <footer className="border-t border-gray-100 px-6 py-9 text-center text-sm text-ink-soft">
