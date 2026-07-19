@@ -32,7 +32,7 @@ async function getOrCreateProfile(admin, user) {
   return created;
 }
 
-const MEAL_SLOTS = ['breakfast', 'lunch', 'dinner', 'snack'];
+const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 
 function buildGroceryList(days, family, meals) {
   const groceries = {};
