@@ -13,7 +13,7 @@ function getClient() {
 // We use tool-use (function calling) rather than free-text so the response
 // is guaranteed valid JSON with only ids that exist in our catalog — the
 // model never has to invent macros or prices, it just picks recipes.
-const MEAL_LABELS = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch/Dinner', snack: 'Snack' };
 
 function buildPlanTool(meals) {
   const dayProps = { day: { type: 'string' } };
@@ -56,7 +56,7 @@ export async function generateWeeklyPlan(inputs) {
 
   const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, isPremium, meals } = inputs;
   const catalog = catalogForPrompt(isPremium);
-  const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'lunch', 'dinner', 'snack'];
+  const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
 
   const system = `You are the meal-planning engine behind YourAiFood, a fitness recipe app.
