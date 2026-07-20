@@ -7,7 +7,7 @@ import { useAuth } from '../lib/AuthContext';
 
 const LINKS = [
   { href: '/profile', label: '👤 My Profile' },
-  { href: '/#recipes', label: '🍽️ Recipes' },
+  { href: '/recipes', label: '🍽️ Recipes' },
   { href: '/#planner', label: '📅 Plan my week' },
   { href: '/#pricing', label: '💳 Pricing' },
 ];

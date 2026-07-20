@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
 import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero } from '../lib/recipeMeta';
@@ -8,13 +9,18 @@ import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero } from '../lib/r
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
-export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite }) {
+// Hand-picked homepage teaser — a couple of free recipes to prove quality,
+// plus several premium ones (shown locked/blurred) to create FOMO toward
+// upgrading. Mixes across meal types and diets on purpose.
+const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6'];
+
+export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite, compact = false }) {
   const [meal, setMeal] = useState('all');
   const [filter, setFilter] = useState('all');
   const [active, setActive] = useState(null);
 
   const byMeal = meal === 'all' ? RECIPES : RECIPES.filter((r) => r.meal === meal);
-  const list =
+  const filtered =
     filter === 'all'
       ? byMeal
       : filter === 'premium'
@@ -23,9 +29,24 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
           ? byMeal.filter((r) => favorites?.has(r.id))
           : byMeal.filter((r) => r.diets.includes(filter));
 
+  const list = compact
+    ? TEASER_IDS.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean)
+    : filtered;
+
+  const premiumCount = RECIPES.filter((r) => r.premium).length;
+
+  function goTo(hash) {
+    const el = document.getElementById(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.href = `/#${hash}`;
+    }
+  }
+
   function handleCardClick(r) {
     if (r.premium && !isPremium) {
-      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+      goTo('pricing');
       return;
     }
     setActive(r);
@@ -34,7 +55,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   function handleHeartClick(e, r) {
     e.stopPropagation();
     if (!user) {
-      document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' });
+      goTo('planner');
       return;
     }
     onToggleFavorite?.(r.id);
@@ -43,38 +64,50 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   return (
     <section id="recipes" className="bg-green-900 px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
-        <h2 className="text-center text-2xl font-extrabold text-white">Browse the recipe library</h2>
-        <p className="mb-8 text-center text-white/70">A taste of what YourAiFood pulls from when building your plan</p>
-        <div className="mb-3 flex flex-wrap justify-center gap-2">
-          {MEALS.map((m) => (
-            <button
-              key={m}
-              onClick={() => setMeal(m)}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold ${
-                meal === m
-                  ? 'border-green-500 bg-green-500 text-white'
-                  : 'border-white/25 bg-white/10 text-white'
-              }`}
-            >
-              {m === 'all' ? 'All meals' : m}
-            </button>
-          ))}
-        </div>
-        <div className="mb-8 flex flex-wrap justify-center gap-2">
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold ${
-                filter === f
-                  ? 'border-green-500 bg-green-500 text-white'
-                  : 'border-white/25 bg-white/10 text-white'
-              }`}
-            >
-              {f === 'all' ? 'All' : f === 'premium' ? '⭐ Premium' : f === 'favorites' ? '❤️ Favorites' : f}
-            </button>
-          ))}
-        </div>
+        <h2 className="text-center text-2xl font-extrabold text-white">
+          {compact ? 'A taste of the recipe library' : 'Browse the recipe library'}
+        </h2>
+        <p className="mb-8 text-center text-white/70">
+          {compact
+            ? `${RECIPES.length} fitness recipes with real photos, full macros and AI meal planning behind them`
+            : 'A taste of what YourAiFood pulls from when building your plan'}
+        </p>
+
+        {!compact && (
+          <>
+            <div className="mb-3 flex flex-wrap justify-center gap-2">
+              {MEALS.map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMeal(m)}
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                    meal === m
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-white/25 bg-white/10 text-white'
+                  }`}
+                >
+                  {m === 'all' ? 'All meals' : m}
+                </button>
+              ))}
+            </div>
+            <div className="mb-8 flex flex-wrap justify-center gap-2">
+              {FILTERS.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                    filter === f
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-white/25 bg-white/10 text-white'
+                  }`}
+                >
+                  {f === 'all' ? 'All' : f === 'premium' ? '⭐ Premium' : f === 'favorites' ? '❤️ Favorites' : f}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-4">
           {list.map((r) => {
             const locked = r.premium && !isPremium;
@@ -143,6 +176,30 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
             );
           })}
         </div>
+
+        {compact && (
+          <div className="mt-10 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
+            <p className="mb-1 text-lg font-extrabold text-white">🔒 {premiumCount}+ premium recipes are waiting</p>
+            <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
+              Unlock the full library — every macro-tracked recipe, meal-prep and freezer tags, ingredient swaps, and
+              AI photography, plus unlimited AI-generated meal plans for €7.99/mo.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link
+                href="/recipes"
+                className="rounded-full bg-white px-6 py-3 text-sm font-bold text-green-900 transition hover:bg-gray-100"
+              >
+                Browse all {RECIPES.length} recipes →
+              </Link>
+              <button
+                onClick={() => goTo('pricing')}
+                className="rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-green-400"
+              >
+                Go Premium — €7.99/mo
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       <RecipeModal
         recipe={active}
