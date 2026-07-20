@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AuthWidget from './AuthWidget';
 import { useAuth } from '../lib/AuthContext';
@@ -13,8 +13,19 @@ const LINKS = [
 ];
 
 export default function Sidebar() {
-  const { isPremium } = useAuth();
+  const { isPremium, signInPrompt } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // When something elsewhere on the site asks the visitor to sign in (e.g. an
+  // unauthenticated "Go Premium" click), open the mobile menu if it's
+  // collapsed and scroll the sign-in box into view so it's obvious where to go.
+  useEffect(() => {
+    if (!signInPrompt) return;
+    setMobileOpen(true);
+    requestAnimationFrame(() => {
+      document.getElementById('auth-widget')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }, [signInPrompt]);
 
   return (
     <>
@@ -61,8 +72,8 @@ export default function Sidebar() {
           </span>
         )}
 
-        <div className="mt-8 border-t border-gray-100 pt-5">
-          <AuthWidget compact />
+        <div id="auth-widget" className="mt-8 border-t border-gray-100 pt-5">
+          <AuthWidget compact openSignal={signInPrompt} />
         </div>
       </aside>
     </>
