@@ -9,7 +9,7 @@ plans, Supabase accounts, and Stripe subscriptions.
 - `app/api/generate-plan` — calls Claude to pick a 7-day plan from the recipe
   catalog (the model only returns recipe ids; this app computes every number
   itself, so nutrition/cost is never hallucinated)
-- `app/api/stripe/*` — checkout, billing portal, and webhook for the €7.99/mo plan
+- `app/api/stripe/*` — checkout, billing portal, and webhook for the €7.77/mo (or €76/yr) plan
 - `lib/recipes.js` — the same 20-recipe catalog from the demo
 - `supabase/schema.sql` — the database schema (run this once in Supabase)
 
@@ -25,7 +25,7 @@ accounts or enter payment details on your behalf):
    → Create Key. Add a small amount of credit (a few euros covers thousands of
    plan generations at Sonnet pricing).
 3. **Stripe** — [dashboard.stripe.com](https://dashboard.stripe.com) → Product
-   catalog → add a product "YourAiFood Premium" with a recurring price of €7.99/month.
+   catalog → add a product "YourAiFood Premium" with a recurring price of €7.77/month, and optionally a second recurring price of €76/year for the yearly plan.
    Copy the Price ID (`price_...`). Then get your Secret key from Developers → API keys.
    You'll add the webhook secret after deploying (step 3 below).
 
