@@ -27,7 +27,7 @@ export default function Home() {
         </div>
       </section>
 
-      <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} />
+      <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
       <Pricing session={session} isPremium={isPremium} />
 
       <footer className="border-t border-gray-100 px-6 py-9 text-center text-sm text-ink-soft">
