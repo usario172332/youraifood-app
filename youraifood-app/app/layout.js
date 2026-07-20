@@ -2,10 +2,34 @@ import './globals.css';
 import CookieBanner from '../components/CookieBanner';
 import AppShell from '../components/AppShell';
 
+const SITE_URL = 'https://youraifood.com';
+const SITE_TITLE = 'YourAiFood — Fitness Recipes & Personalized Meal Plans';
+const SITE_DESCRIPTION =
+  'Tell us your goal, diet, budget and time. YourAiFood builds a real AI-generated weekly menu, grocery list, and nutrition breakdown.';
+const SOCIAL_IMAGE = `${SITE_URL}/recipes/nb50.jpg`;
+
 export const metadata = {
-  title: 'YourAiFood — Fitness Recipes & Personalized Meal Plans',
-  description:
-    'Tell us your goal, diet, budget and time. YourAiFood builds a real AI-generated weekly menu, grocery list, and nutrition breakdown.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: '%s',
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: 'YourAiFood',
+    images: [{ url: SOCIAL_IMAGE, width: 1200, height: 900, alt: 'A YourAiFood meal plan recipe' }],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [SOCIAL_IMAGE],
+  },
 };
 
 export default function RootLayout({ children }) {
