@@ -1,5 +1,6 @@
 export const metadata = {
   title: 'Privacy Policy — YourAiFood',
+  description: 'What personal data YourAiFood collects, why, and how you can control it.',
 };
 
 export default function PrivacyPage() {
