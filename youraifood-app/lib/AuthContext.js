@@ -11,6 +11,14 @@ export function AuthProvider({ children }) {
   const [isPremium, setIsPremium] = useState(false);
   const [favorites, setFavorites] = useState(new Set());
   const [authReady, setAuthReady] = useState(false);
+  // Bumped whenever something wants to prompt the visitor to sign in (e.g. an
+  // unauthenticated "Go Premium" click). Sidebar/AuthWidget listen for this
+  // to open the sign-in box and scroll it into view, instead of a jarring
+  // native alert().
+  const [signInPrompt, setSignInPrompt] = useState(0);
+  function requestSignIn() {
+    setSignInPrompt((n) => n + 1);
+  }
 
   useEffect(() => {
     if (!supabase) {
@@ -108,7 +116,18 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, session, isPremium, favorites, toggleFavorite, signOut, handleAuthChange, authReady }}
+      value={{
+        user,
+        session,
+        isPremium,
+        favorites,
+        toggleFavorite,
+        signOut,
+        handleAuthChange,
+        authReady,
+        signInPrompt,
+        requestSignIn,
+      }}
     >
       {children}
     </AuthContext.Provider>
