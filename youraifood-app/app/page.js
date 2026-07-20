@@ -12,7 +12,7 @@ export default function Home() {
 
   return (
     <>
-      <section className="px-6 pb-10 pt-16">
+      <section className="px-6 pb-4 pt-16">
         <div className="mx-auto max-w-[1120px] text-center">
           <span className="mb-4 inline-block rounded-full bg-green-50 px-3.5 py-1.5 text-[13px] font-bold text-green-700">
             Real AI-generated meal plans, built around you
@@ -25,11 +25,17 @@ export default function Home() {
             weekly menu, an optimized grocery list, and a full nutritional breakdown — with minimal waste and smart
             ingredient reuse.
           </p>
-          <Planner user={user} session={session} favorites={favorites} onToggleFavorite={toggleFavorite} />
         </div>
       </section>
 
       <HowItWorks />
+
+      <section className="px-6 pb-10 pt-6">
+        <div className="mx-auto max-w-[1120px] text-center">
+          <Planner user={user} session={session} favorites={favorites} onToggleFavorite={toggleFavorite} />
+        </div>
+      </section>
+
       <SamplePlan />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
       <Pricing session={session} isPremium={isPremium} />
