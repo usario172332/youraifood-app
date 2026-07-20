@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-const MONTHLY_PRICE = 7.99;
+const MONTHLY_PRICE = 7.77;
 const YEARLY_PRICE = 76;
 const YEARLY_MONTHLY_EQUIVALENT = (YEARLY_PRICE / 12).toFixed(2);
 const YEARLY_SAVINGS_PCT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) * 100);
