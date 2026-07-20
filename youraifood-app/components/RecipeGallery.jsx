@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
@@ -18,6 +18,14 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   const [meal, setMeal] = useState('all');
   const [filter, setFilter] = useState('all');
   const [active, setActive] = useState(null);
+  const [reviewSummaries, setReviewSummaries] = useState({});
+
+  useEffect(() => {
+    fetch('/api/reviews?summary=1')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setReviewSummaries(data.summaries || {}))
+      .catch(() => {});
+  }, []);
 
   const byMeal = meal === 'all' ? RECIPES : RECIPES.filter((r) => r.meal === meal);
   const filtered =
@@ -115,6 +123,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
             const hero = getHero(r);
             const difficulty = getDifficulty(r);
             const highProtein = isHighProtein(r);
+            const summary = reviewSummaries[r.id];
             return (
               <div
                 key={r.id}
@@ -144,7 +153,15 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                     </div>
                   )}
                   <div className="p-4">
-                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
+                      {summary && summary.count > 0 && (
+                        <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600">
+                          <span>⭐ {summary.average}</span>
+                          <span className="text-ink-soft">({summary.count})</span>
+                        </div>
+                      )}
+                    </div>
                     <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
                     <div className="mb-2 flex flex-wrap gap-1">
                       {highProtein && (
