@@ -140,6 +140,14 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
       </div>
 
       <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-green-700">About you</h3>
+      <div className="mb-4 flex items-start gap-2 rounded-lg bg-gray-50 px-3.5 py-2.5 text-xs text-ink-soft">
+        <span>🔒</span>
+        <span>
+          Your weight, height, age, and sex are used only in your browser to calculate the targets below — the raw
+          numbers are never sent to our servers or to the AI that builds your plan.{' '}
+          <a href="/privacy" className="font-semibold text-green-700 underline">Read our privacy policy</a>.
+        </span>
+      </div>
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
         <Field label="Current weight" hint="(kg)">
           <input type="number" min={30} max={250} step={1} value={form.weight}
