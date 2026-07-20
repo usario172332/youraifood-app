@@ -93,7 +93,7 @@ function AccountCard({ user, session, isPremium }) {
             disabled={loading}
             className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
           >
-            {loading ? 'Redirecting…' : 'Go Premium — €7.99/mo'}
+            {loading ? 'Redirecting…' : 'Start free trial — then €7.77/mo'}
           </button>
         )}
       </div>
