@@ -124,6 +124,8 @@ select recipe_id, count(*)::int as review_count, round(avg(rating)::numeric, 2) 
 from public.recipe_reviews
 group by recipe_id;
 
+alter view public.recipe_review_stats set (security_invoker = true);
+
 -- Keep a profile row's email in sync and auto-create one on signup.
 create or replace function public.handle_new_user()
 returns trigger as $$
