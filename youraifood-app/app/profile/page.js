@@ -80,21 +80,27 @@ function AccountCard({ user, session, isPremium }) {
           </span>
         </div>
         {isPremium ? (
-          <button
-            onClick={manageSubscription}
-            disabled={loading}
-            className="rounded-full bg-green-100 px-5 py-2.5 text-sm font-bold text-green-700"
-          >
-            Manage subscription
-          </button>
+          <div className="text-right">
+            <button
+              onClick={manageSubscription}
+              disabled={loading}
+              className="rounded-full bg-green-100 px-5 py-2.5 text-sm font-bold text-green-700"
+            >
+              Manage subscription
+            </button>
+            <p className="mt-1.5 text-[11px] text-ink-soft">Cancel anytime, no fees</p>
+          </div>
         ) : (
-          <button
-            onClick={goPremium}
-            disabled={loading}
-            className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
-          >
-            {loading ? 'Redirecting…' : 'Start free trial — then €7.77/mo'}
-          </button>
+          <div className="text-right">
+            <button
+              onClick={goPremium}
+              disabled={loading}
+              className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+            >
+              {loading ? 'Redirecting…' : 'Start free trial — then €7.77/mo'}
+            </button>
+            <p className="mt-1.5 text-[11px] text-ink-soft">7 days free. Cancel anytime, no fees.</p>
+          </div>
         )}
       </div>
     </section>
