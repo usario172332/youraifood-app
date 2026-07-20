@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../lib/AuthContext';
 
-export default function AuthWidget({ compact }) {
+export default function AuthWidget({ compact, openSignal }) {
   const { user, handleAuthChange, signOut } = useAuth();
   const [open, setOpen] = useState(false);
+
+  // A parent (Sidebar) bumps openSignal when something elsewhere on the site
+  // wants to prompt the visitor to sign in — pop the box open in response.
+  useEffect(() => {
+    if (openSignal) setOpen(true);
+  }, [openSignal]);
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
