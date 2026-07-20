@@ -16,9 +16,21 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
     }
 
-    const priceId = process.env.STRIPE_PREMIUM_PRICE_ID;
+    let { plan } = {};
+    try {
+      const body = await req.json();
+      plan = body?.plan;
+    } catch {
+      // No JSON body sent — default to monthly for backwards compatibility.
+    }
+    const isYearly = plan === 'yearly';
+
+    const priceId = isYearly ? process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID : process.env.STRIPE_PREMIUM_PRICE_ID;
     if (!priceId) {
-      return NextResponse.json({ error: 'STRIPE_PREMIUM_PRICE_ID is not set.' }, { status: 500 });
+      return NextResponse.json(
+        { error: `${isYearly ? 'STRIPE_PREMIUM_YEARLY_PRICE_ID' : 'STRIPE_PREMIUM_PRICE_ID'} is not set.` },
+        { status: 500 }
+      );
     }
 
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL;
@@ -31,6 +43,10 @@ export async function POST(req) {
       .eq('id', user.id)
       .maybeSingle();
 
+    // 7-day free trial on the monthly plan only — yearly is a bigger up-front
+    // commitment already, so it starts billing immediately.
+    const subscriptionData = isYearly ? undefined : { trial_period_days: 7 };
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
@@ -39,7 +55,8 @@ export async function POST(req) {
       client_reference_id: user.id,
       success_url: `${origin}/?upgraded=1`,
       cancel_url: `${origin}/?upgrade_cancelled=1`,
-      metadata: { supabase_user_id: user.id },
+      metadata: { supabase_user_id: user.id, plan: isYearly ? 'yearly' : 'monthly' },
+      subscription_data: subscriptionData,
     });
 
     return NextResponse.json({ url: session.url });
