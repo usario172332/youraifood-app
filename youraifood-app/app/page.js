@@ -1,6 +1,8 @@
 'use client';
 
 import Planner from '../components/Planner';
+import HowItWorks from '../components/HowItWorks';
+import SamplePlan from '../components/SamplePlan';
 import RecipeGallery from '../components/RecipeGallery';
 import Pricing from '../components/Pricing';
 import { useAuth } from '../lib/AuthContext';
@@ -27,6 +29,8 @@ export default function Home() {
         </div>
       </section>
 
+      <HowItWorks />
+      <SamplePlan />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
       <Pricing session={session} isPremium={isPremium} />
 
