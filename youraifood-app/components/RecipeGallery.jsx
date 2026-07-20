@@ -215,6 +215,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 Go Premium — €7.77/mo
               </button>
             </div>
+            <p className="mt-3 text-center text-xs text-white/60">7 days free · Cancel anytime, no fees</p>
           </div>
         )}
       </div>
