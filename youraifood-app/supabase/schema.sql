@@ -22,8 +22,43 @@ create table if not exists public.saved_plans (
   created_at timestamptz not null default now()
 );
 
+-- Recipes a user has favorited/saved. recipe_id refers to an id in the
+-- static lib/recipes.js catalog, not a database row, so no foreign key here.
+create table if not exists public.favorites (
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  recipe_id text not null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, recipe_id)
+);
+
+-- Personal weight diary entries shown on the profile page.
+create table if not exists public.weight_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  weight numeric not null,
+  logged_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+-- Ratings & written reviews users leave on individual recipes, shown on the
+-- recipe cards and modal as social proof. recipe_id refers to an id in the
+-- static lib/recipes.js catalog, not a database row, so no foreign key here.
+create table if not exists public.recipe_reviews (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  recipe_id text not null,
+  rating smallint not null check (rating between 1 and 5),
+  comment text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, recipe_id)
+);
+
 alter table public.profiles enable row level security;
 alter table public.saved_plans enable row level security;
+alter table public.favorites enable row level security;
+alter table public.weight_logs enable row level security;
+alter table public.recipe_reviews enable row level security;
 
 -- Users can read/update only their own profile. The server API routes use
 -- the service role key (which bypasses RLS) for the usage-limit checks and
@@ -39,6 +74,55 @@ create policy "Users can update their own profile"
 create policy "Users can view their own saved plans"
   on public.saved_plans for select
   using (auth.uid() = user_id);
+
+create policy "Users can view their own favorites"
+  on public.favorites for select
+  using (auth.uid() = user_id);
+
+create policy "Users can add their own favorites"
+  on public.favorites for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can remove their own favorites"
+  on public.favorites for delete
+  using (auth.uid() = user_id);
+
+create policy "Users can view their own weight logs"
+  on public.weight_logs for select
+  using (auth.uid() = user_id);
+
+create policy "Users can add their own weight logs"
+  on public.weight_logs for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can delete their own weight logs"
+  on public.weight_logs for delete
+  using (auth.uid() = user_id);
+
+-- Reviews are public (they're the whole point — social proof for visitors
+-- who aren't signed in yet), but only the author can write/edit/delete theirs.
+create policy "Anyone can view recipe reviews"
+  on public.recipe_reviews for select
+  using (true);
+
+create policy "Users can add their own reviews"
+  on public.recipe_reviews for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update their own reviews"
+  on public.recipe_reviews for update
+  using (auth.uid() = user_id);
+
+create policy "Users can delete their own reviews"
+  on public.recipe_reviews for delete
+  using (auth.uid() = user_id);
+
+-- Aggregated per-recipe rating stats, used for star badges on cards without
+-- pulling every individual review row.
+create or replace view public.recipe_review_stats as
+select recipe_id, count(*)::int as review_count, round(avg(rating)::numeric, 2) as average_rating
+from public.recipe_reviews
+group by recipe_id;
 
 -- Keep a profile row's email in sync and auto-create one on signup.
 create or replace function public.handle_new_user()
