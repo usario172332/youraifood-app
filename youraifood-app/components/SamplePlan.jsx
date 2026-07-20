@@ -1,17 +1,26 @@
+'use client';
+
+import { useState } from 'react';
 import { findRecipe, DAYS } from '../lib/recipes';
 
-// A realistic 7-day plan built entirely from real, free-tier recipes — the
-// nutrition, cost and grocery list below are computed live from the actual
-// recipe data, the same way a real generated plan works. This is a sample
-// so visitors can see exactly what they'll get before signing up.
+// A realistic 7-day plan built entirely from real recipes — the nutrition,
+// cost and grocery list below are computed live from the actual recipe
+// data, the same way a real generated plan works. This is a sample so
+// visitors can see exactly what they'll get before signing up.
+//
+// Picked from the higher-calorie end of each meal category on purpose: with
+// only 3 recipe slots a day (breakfast, one combined lunch/dinner dish,
+// snack), this is close to the realistic ceiling the current catalog can
+// hit. A user with a higher calorie target than this should expect their
+// real generated plan to land in a similar range.
 const SAMPLE_DAYS = [
-  { day: 'Monday', breakfast: 'b1', main: 'nr1', snack: 's1' },
-  { day: 'Tuesday', breakfast: 'b2', main: 'nr2', snack: 's2' },
-  { day: 'Wednesday', breakfast: 'b4', main: 'nr4', snack: 's3' },
-  { day: 'Thursday', breakfast: 'b6', main: 'nr7', snack: 's4' },
-  { day: 'Friday', breakfast: 'b9', main: 'nr10', snack: 's1' },
-  { day: 'Saturday', breakfast: 'b3', main: 'nr5', snack: 's3' },
-  { day: 'Sunday', breakfast: 'b7', main: 'nr8', snack: 's2' },
+  { day: 'Monday', breakfast: 'nb50', main: 'nr1', snack: 'ps1' },
+  { day: 'Tuesday', breakfast: 'nb46', main: 'nr19', snack: 'ps2' },
+  { day: 'Wednesday', breakfast: 'nb16', main: 'nr16', snack: 's4' },
+  { day: 'Thursday', breakfast: 'nb42', main: 'nr36', snack: 's1' },
+  { day: 'Friday', breakfast: 'nb26', main: 'nr56', snack: 's3' },
+  { day: 'Saturday', breakfast: 'nb1', main: 'nr30', snack: 's2' },
+  { day: 'Sunday', breakfast: 'nb24', main: 'nr33', snack: 'ps4' },
 ];
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
@@ -55,7 +64,10 @@ function buildStats() {
   };
 }
 
+const PREVIEW_ITEMS_PER_CATEGORY = 4;
+
 export default function SamplePlan() {
+  const [groceriesExpanded, setGroceriesExpanded] = useState(false);
   const groceries = buildGroceryList();
   const stats = buildStats();
 
@@ -65,6 +77,7 @@ export default function SamplePlan() {
     byCat[info.cat].push({ name, ...info });
   });
   const catOrder = ['Protein', 'Produce', 'Pantry', 'Dairy/Alt', 'Spices'].filter((c) => byCat[c]);
+  const totalItems = Object.values(byCat).reduce((sum, items) => sum + items.length, 0);
 
   return (
     <section className="px-6 py-16">
@@ -135,20 +148,38 @@ export default function SamplePlan() {
 
         <h3 className="mb-3 mt-9 text-lg font-extrabold text-green-900">Optimized grocery list for this week</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {catOrder.map((cat) => (
-            <div key={cat} className="rounded-xl border border-gray-200 bg-white p-4">
-              <h4 className="mb-2.5 text-sm font-bold text-green-700">{cat}</h4>
-              <ul>
-                {byCat[cat].sort((a, b) => a.name.localeCompare(b.name)).map((i) => (
-                  <li key={i.name} className="flex justify-between border-b border-dashed border-gray-100 py-1.5 text-sm">
-                    <span>{i.name}</span>
-                    <span className="text-ink-soft">{Math.round(i.qty)}{i.unit}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {catOrder.map((cat) => {
+            const items = byCat[cat].sort((a, b) => a.name.localeCompare(b.name));
+            const visible = groceriesExpanded ? items : items.slice(0, PREVIEW_ITEMS_PER_CATEGORY);
+            const hidden = items.length - visible.length;
+            return (
+              <div key={cat} className="rounded-xl border border-gray-200 bg-white p-4">
+                <h4 className="mb-2.5 text-sm font-bold text-green-700">{cat}</h4>
+                <ul>
+                  {visible.map((i) => (
+                    <li key={i.name} className="flex justify-between border-b border-dashed border-gray-100 py-1.5 text-sm">
+                      <span>{i.name}</span>
+                      <span className="text-ink-soft">{Math.round(i.qty)}{i.unit}</span>
+                    </li>
+                  ))}
+                </ul>
+                {!groceriesExpanded && hidden > 0 && (
+                  <p className="pt-1.5 text-xs text-ink-soft">+{hidden} more</p>
+                )}
+              </div>
+            );
+          })}
         </div>
+        {!groceriesExpanded && totalItems > catOrder.length * PREVIEW_ITEMS_PER_CATEGORY && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setGroceriesExpanded(true)}
+              className="rounded-full border border-gray-200 px-5 py-2 text-sm font-bold text-green-700 hover:bg-green-50"
+            >
+              Show full grocery list ({totalItems} items) ↓
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
