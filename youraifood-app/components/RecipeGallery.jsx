@@ -199,7 +199,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
             <p className="mb-1 text-lg font-extrabold text-white">🔒 {premiumCount}+ premium recipes are waiting</p>
             <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
               Unlock the full library — every macro-tracked recipe, meal-prep and freezer tags, ingredient swaps, and
-              AI photography, plus unlimited AI-generated meal plans for €7.99/mo.
+              AI photography, plus unlimited AI-generated meal plans for €7.77/mo.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link
@@ -212,7 +212,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 onClick={() => goTo('pricing')}
                 className="rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-green-400"
               >
-                Go Premium — €7.99/mo
+                Go Premium — €7.77/mo
               </button>
             </div>
           </div>
