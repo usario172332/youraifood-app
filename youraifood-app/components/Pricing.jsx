@@ -116,18 +116,24 @@ export default function Pricing({ session, isPremium }) {
                 'Family planning tools',
                 'Ingredient substitutions',
                 'Save unlimited recipes',
+                'Free cancellation, anytime',
               ].map((f) => (
                 <li key={f} className="flex gap-2"><span className="font-bold text-green-600">✓</span>{f}</li>
               ))}
             </ul>
             {isPremium ? (
-              <button
-                onClick={manageSubscription}
-                disabled={loading}
-                className="w-full rounded-full bg-green-100 py-2.5 text-sm font-bold text-green-700"
-              >
-                Manage subscription
-              </button>
+              <>
+                <button
+                  onClick={manageSubscription}
+                  disabled={loading}
+                  className="w-full rounded-full bg-green-100 py-2.5 text-sm font-bold text-green-700"
+                >
+                  Manage subscription
+                </button>
+                <p className="mt-2 text-center text-[11px] text-ink-soft">
+                  Cancel anytime from the billing portal — no fees, no phone calls.
+                </p>
+              </>
             ) : (
               <>
                 <button
