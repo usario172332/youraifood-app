@@ -2,22 +2,22 @@ const STEPS = [
   {
     icon: '🎯',
     title: 'Tell us your goal',
-    text: 'Fitness goal, weight, activity level, dietary needs, weekly budget, and how much time you have to cook.',
+    text: 'Fat loss, muscle gain, or just eating better — plus your diet, budget, and time to cook. Takes about 30 seconds.',
   },
   {
     icon: '🤖',
     title: 'AI builds your week',
-    text: 'Real AI picks 7 days of meals from our recipe library that hit your calorie and protein targets — nothing hallucinated, every number is computed from the actual recipe.',
+    text: 'No more "what\'s for dinner" panic. Real AI picks 7 days of meals that hit your calorie and protein targets — every number computed from the actual recipe, nothing hallucinated.',
   },
   {
     icon: '🛒',
     title: 'Get your grocery list',
-    text: 'Ingredients are combined and organized by aisle, with quantities scaled to your family size and minimal waste built in.',
+    text: 'Skip the extra trip to the store. Ingredients are combined, organized by aisle, and scaled to your family size automatically.',
   },
   {
     icon: '👨‍🍳',
     title: 'Cook, track, and rate',
-    text: 'Follow the recipes, log your weight, save favorites, and rate what you tried — your feedback shapes what shows up next time.',
+    text: 'Follow along, log your weight, and rate what you tried — so next week\'s plan gets even better.',
   },
 ];
 
@@ -26,7 +26,7 @@ export default function HowItWorks() {
     <section className="bg-gray-50 px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">How it works</h2>
-        <p className="mb-10 text-center text-ink-soft">From goal to grocery list in four steps</p>
+        <p className="mb-10 text-center text-ink-soft">From goal to grocery list — no spreadsheets, no guesswork.</p>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
           {STEPS.map((s, i) => (
             <div key={s.title} className="relative rounded-2xl border border-gray-200 bg-white p-6">
