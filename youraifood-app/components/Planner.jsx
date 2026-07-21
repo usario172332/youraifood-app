@@ -442,7 +442,7 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
   });
   const catOrder = ['Protein', 'Produce', 'Pantry', 'Dairy/Alt', 'Spices'].filter((c) => byCat[c]);
 
-  async function handleDownloadPdf() {
+  async function handleDownloadCsv() { const { downloadGroceryCsv } = await import('../lib/pdfExport'); downloadGroceryCsv({ groceries }); } async function handleDownloadPdf() {
     setDownloading(true);
     try {
       const { downloadPlanPdf } = await import('../lib/pdfExport');
@@ -456,7 +456,7 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
 
   return (
     <div className="mt-9 text-left">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-end gap-2"><button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60">📄 Download grocery list (CSV)</button>
         <button
           type="button"
           onClick={handleDownloadPdf}
