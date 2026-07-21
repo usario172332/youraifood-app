@@ -369,6 +369,10 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
       )}
 
       <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Your 7-day menu</h3>
+      <p className="mb-3 text-xs text-ink-soft">
+        Recipes are sometimes scaled to 1.5× or 2× servings (shown as a badge) — or paired with an extra snack — to help
+        each day reach your calorie target.
+      </p>
       <div className="overflow-x-auto rounded-xl border border-gray-200">
         <table className="w-full border-collapse bg-white text-sm">
           <thead>
@@ -385,22 +389,42 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
                 <td className="px-3 py-2.5 font-extrabold text-green-900">{row.day}</td>
                 {mealSlots.map((slot) => {
                   const recipe = findRecipe(row[slot]);
+                  const servings = row[`${slot}Servings`] > 1 ? row[`${slot}Servings`] : null;
+                  const extra = slot === 'snack' ? findRecipe(row.extraSnack) : null;
                   return (
                     <td key={slot} className="px-3 py-2.5">
                       {recipe ? (
-                        <>
+                        <div className={extra ? 'mb-2.5' : ''}>
                           <div
                             onClick={() => onOpenRecipe(recipe)}
                             className="cursor-pointer font-semibold underline decoration-dotted underline-offset-2 hover:text-green-700"
                           >
                             {recipe.name}
+                            {servings && (
+                              <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-extrabold text-green-700">
+                                ×{servings}
+                              </span>
+                            )}
                           </div>
                           <div className="text-xs text-ink-soft">
-                            {recipe.protein}g protein · {recipe.time}min · €{recipe.cost.toFixed(2)}
+                            {Math.round(recipe.protein * (servings || 1))}g protein · {recipe.time}min · €{(recipe.cost * (servings || 1)).toFixed(2)}
                           </div>
-                        </>
+                        </div>
                       ) : (
                         <span className="text-ink-soft">—</span>
+                      )}
+                      {extra && (
+                        <div className="border-t border-dashed border-gray-100 pt-2">
+                          <div
+                            onClick={() => onOpenRecipe(extra)}
+                            className="cursor-pointer text-sm font-semibold underline decoration-dotted underline-offset-2 hover:text-green-700"
+                          >
+                            + {extra.name}
+                          </div>
+                          <div className="text-xs text-ink-soft">
+                            {extra.protein}g protein · {extra.time}min · €{extra.cost.toFixed(2)}
+                          </div>
+                        </div>
                       )}
                     </td>
                   );
@@ -413,8 +437,8 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
 
       <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Nutritional breakdown</h3>
       <div className="grid grid-cols-2 gap-3.5 md:grid-cols-4">
-        <NutriBar label="Calories" val={stats.avgCal} unit="kcal" max={2600} />
-        <NutriBar label="Protein" val={stats.avgProtein} unit="g" max={200} />
+        <NutriBar label="Calories" val={stats.avgCal} unit="kcal" max={3200} />
+        <NutriBar label="Protein" val={stats.avgProtein} unit="g" max={260} />
         <NutriBar label="Carbs" val={stats.avgCarbs} unit="g" max={260} />
         <NutriBar label="Fat" val={stats.avgFat} unit="g" max={100} />
       </div>
