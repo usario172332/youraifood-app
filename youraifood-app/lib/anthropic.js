@@ -15,27 +15,56 @@ function getClient() {
 // model never has to invent macros or prices, it just picks recipes.
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 const SERVINGS_OPTIONS = [1, 1.5, 2];
+// When a day's total dish count must be split across meal slots, extra
+// dishes are handed out in this priority order — lunch/dinner benefits most
+// from a second dish, then breakfast, snacks last.
+const SPLIT_PRIORITY = ['main', 'breakfast', 'snack'];
 
-function buildPlanTool(meals) {
+export function splitDishes(total, slots) {
+  const active = SPLIT_PRIORITY.filter((s) => slots.includes(s));
+  const n = active.length;
+  const counts = {};
+  if (!n) return counts;
+  const base = Math.floor(total / n);
+  let remainder = total % n;
+  active.forEach((s) => {
+    counts[s] = base;
+  });
+  active.forEach((s) => {
+    if (remainder > 0) {
+      counts[s] += 1;
+      remainder -= 1;
+    }
+  });
+  return counts;
+}
+
+function buildPlanTool(meals, dishCounts) {
   const dayProps = { day: { type: 'string' } };
-  const required = ['day', ...meals];
+  const required = ['day', ...meals.map((s) => `${s}Dishes`)];
 
   meals.forEach((slot) => {
-    dayProps[slot] = { type: 'string', description: `${MEAL_LABELS[slot]} recipe id from the catalog` };
-    dayProps[`${slot}Servings`] = {
-      type: 'number',
-      enum: SERVINGS_OPTIONS,
-      description: `Serving multiplier for the ${MEAL_LABELS[slot]} recipe: 1, 1.5, or 2. Use 1 by default — only scale above 1 when a single serving across all included meals wouldn't reach the daily calorie target.`,
+    const count = dishCounts[slot] || 1;
+    dayProps[`${slot}Dishes`] = {
+      type: 'array',
+      minItems: count,
+      maxItems: count,
+      description: `Exactly ${count} ${MEAL_LABELS[slot]} dish${count > 1 ? 'es' : ''} for this day. Each item is a different recipe id from the catalog matching this meal type — never repeat a recipe id within the same slot on the same day.`,
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Recipe id from the catalog' },
+          servings: {
+            type: 'number',
+            enum: SERVINGS_OPTIONS,
+            description:
+              'Serving multiplier for this dish: 1, 1.5, or 2. Use 1 by default — only scale a dish up when it helps close a gap to the daily calorie target.',
+          },
+        },
+        required: ['id', 'servings'],
+      },
     };
   });
-
-  if (meals.includes('snack')) {
-    dayProps.extraSnack = {
-      type: 'string',
-      description:
-        'Optional id of a second, different snack recipe for this day. Only set this if, even after scaling every meal to 2x servings, the day would still fall short of the calorie target by more than roughly 15%. Omit this field entirely otherwise.',
-    };
-  }
 
   return {
     name: 'build_weekly_plan',
@@ -70,25 +99,29 @@ export async function generateWeeklyPlan(inputs) {
     );
   }
 
-  const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, isPremium, meals } = inputs;
+  const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, isPremium, meals, dishesPerDay } = inputs;
   const catalog = catalogForPrompt(isPremium);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
+  const total = Number(dishesPerDay) || mealSlots.length;
+  const dishCounts = splitDishes(total, mealSlots);
+  const dishSummary = mealSlots.map((s) => `${dishCounts[s]} ${MEAL_LABELS[s]}`).join(', ');
 
   const system = `You are the meal-planning engine behind YourAiFood, a fitness recipe app.
 You will be given a recipe catalog (id, meal type, diet tags, cook time in minutes, cost per serving in EUR, protein in grams, calories) and a user's targets.
 The user's calorie and protein targets were calculated from their actual body stats (weight, height, age, sex, activity level) using the Mifflin-St Jeor formula, adjusted for their goal — treat them as real, meaningful targets, not rough guesses.
-The user only wants these meal types included in their plan: ${mealList}. Build a 7-day plan using ONLY recipe ids that appear in the catalog, filling exactly these meal slots every day. Rules:
+The user only wants these meal types included in their plan: ${mealList}. The user has chosen ${total} dishes per day in total, split as: ${dishSummary}. Build a 7-day plan using ONLY recipe ids that appear in the catalog, filling exactly this many dishes per meal slot every day — never more, never fewer. Rules:
+- Each dish within a meal slot must be a DIFFERENT recipe id (no duplicates within the same slot on the same day). The same recipe id may reappear on other days or in other slots.
 - Respect every diet tag the user selected (a recipe must include ALL of them to qualify).
 - Respect the max cook time per meal.
 - Aim for the daily calorie target on average across the week (within roughly 10%) — this is the primary constraint, since it drives the user's weight loss/gain/maintenance goal.
-- A single serving of each meal often won't add up to the calorie target on its own. You have two tools to close the gap, and should use whichever (or both) get you closest:
-  1. Serving multipliers — set "<slot>Servings" to 1.5 or 2 to scale up a recipe's calories, protein and cost proportionally. Use this first.
-  2. An extra snack — only if scaling every meal to 2x servings still leaves the day well short of target, add a second, different snack recipe via "extraSnack".
-  Never scale below 1x or above 2x, and don't add an extra snack unless it's genuinely needed to reach the target.
+- You have two levers to hit the calorie target, and should use whichever (or both) get you closest:
+  1. Dish count is already fixed by the user's choice above (${dishSummary}) — always fill every dish slot.
+  2. Serving multipliers — set "servings" on any individual dish to 1.5 or 2 to scale up that dish's calories, protein and cost proportionally. Use 1 by default; only scale up a dish when the fixed dish count still leaves the day short of target.
+  Never scale a dish below 1x or above 2x.
 - Aim for the daily protein target on average across the week.
-- Aim to stay within the weekly budget (cost per serving × family size × meals planned, including any scaling or extra snack).
-- Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking a totally different recipe for every slot.
+- Aim to stay within the weekly budget (cost per serving × family size × all dishes, including any scaling).
+- Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking a totally different recipe for every dish.
 - Vary meals enough that it doesn't feel repetitive day to day.
 Call the build_weekly_plan tool with your answer. Do not include any text outside the tool call.`;
 
@@ -102,14 +135,15 @@ User targets:
 - Weekly grocery budget: €${budget} for ${family} ${family === 1 ? 'person' : 'people'}
 - Max cook time per meal: ${maxTime} minutes
 - Dietary needs: ${diets.length ? diets.join(', ') : 'none'}
-- Meals to include each day: ${mealList}`;
+- Meals to include each day: ${mealList}
+- Dishes per day: ${total} (${dishSummary})`;
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-5',
-    max_tokens: 2000,
+    max_tokens: 3200,
     system,
     messages: [{ role: 'user', content: user }],
-    tools: [buildPlanTool(mealSlots)],
+    tools: [buildPlanTool(mealSlots, dishCounts)],
     tool_choice: { type: 'tool', name: 'build_weekly_plan' },
   });
 
