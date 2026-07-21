@@ -111,7 +111,7 @@ export default function Pricing({ session, isPremium }) {
             <ul className="mb-6 space-y-1.5 text-sm">
               {[
                 'Unlimited AI meal plans',
-                'Personalized calorie targets',
+                'Full recipe library access',
                 'Macro tracking',
                 'Pantry management',
                 'Grocery list optimization',
