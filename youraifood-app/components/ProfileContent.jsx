@@ -165,9 +165,12 @@ function FavoritesSection({ favorites, onToggleFavorite }) {
   );
 }
 
+const PAST_PLANS_PREVIEW_COUNT = 5;
+
 function PastPlansSection({ session }) {
   const [plans, setPlans] = useState(null);
   const [expanded, setExpanded] = useState(null);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     if (!session) return;
@@ -177,6 +180,9 @@ function PastPlansSection({ session }) {
       .catch(() => setPlans([]));
   }, [session]);
 
+  const visiblePlans = plans ? (showAll ? plans : plans.slice(0, PAST_PLANS_PREVIEW_COUNT)) : [];
+  const hiddenCount = plans ? plans.length - visiblePlans.length : 0;
+
   return (
     <section className="mb-10">
       <h2 className="mb-4 text-lg font-extrabold text-green-900">Past generated plans</h2>
@@ -185,55 +191,65 @@ function PastPlansSection({ session }) {
       ) : plans.length === 0 ? (
         <p className="text-sm text-ink-soft">No plans generated yet — build one from the planner to see it here.</p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {plans.map((p) => {
-            const isOpen = expanded === p.id;
-            return (
-              <div key={p.id} className="rounded-xl border border-gray-200 p-4">
-                <button
-                  onClick={() => setExpanded(isOpen ? null : p.id)}
-                  className="flex w-full items-center justify-between text-left"
-                >
-                  <div>
-                    <div className="text-sm font-bold text-green-900">
-                      {new Date(p.created_at).toLocaleDateString()} · {p.inputs?.goal || 'plan'}
+        <>
+          <div className="flex flex-col gap-3">
+            {visiblePlans.map((p) => {
+              const isOpen = expanded === p.id;
+              return (
+                <div key={p.id} className="rounded-xl border border-gray-200 p-4">
+                  <button
+                    onClick={() => setExpanded(isOpen ? null : p.id)}
+                    className="flex w-full items-center justify-between text-left"
+                  >
+                    <div>
+                      <div className="text-sm font-bold text-green-900">
+                        {new Date(p.created_at).toLocaleDateString()} · {p.inputs?.goal || 'plan'}
+                      </div>
+                      {p.coach_note && <div className="mt-0.5 text-xs text-ink-soft line-clamp-1">{p.coach_note}</div>}
                     </div>
-                    {p.coach_note && <div className="mt-0.5 text-xs text-ink-soft line-clamp-1">{p.coach_note}</div>}
-                  </div>
-                  <span className="text-xs font-bold text-green-600">{isOpen ? 'Hide' : 'View'}</span>
-                </button>
-                {isOpen && (
-                  <div className="mt-3 space-y-2 border-t border-dashed border-gray-100 pt-3">
-                    {(p.plan_days || []).map((row, i) => {
-                      // Supports both the current format (arrays of dishes
-                      // per slot, e.g. breakfastDishes: [{id, servings}]) and
-                      // older saved plans (a single recipe id string per slot).
-                      const names = [];
-                      Object.entries(row).forEach(([key, value]) => {
-                        if (key === 'day') return;
-                        if (Array.isArray(value)) {
-                          value.forEach((dish) => {
-                            const name = findRecipe(dish?.id)?.name;
-                            if (name) names.push(dish.servings > 1 ? `${name} (×${dish.servings})` : name);
-                          });
-                        } else {
-                          const name = findRecipe(value)?.name;
-                          if (name) names.push(name);
-                        }
-                      });
-                      return (
-                        <div key={row.day || i} className="text-sm">
-                          <span className="font-semibold text-green-900">{row.day}: </span>
-                          {names.join(' · ')}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                    <span className="text-xs font-bold text-green-600">{isOpen ? 'Hide' : 'View'}</span>
+                  </button>
+                  {isOpen && (
+                    <div className="mt-3 space-y-2 border-t border-dashed border-gray-100 pt-3">
+                      {(p.plan_days || []).map((row, i) => {
+                        // Supports both the current format (arrays of dishes
+                        // per slot, e.g. breakfastDishes: [{id, servings}]) and
+                        // older saved plans (a single recipe id string per slot).
+                        const names = [];
+                        Object.entries(row).forEach(([key, value]) => {
+                          if (key === 'day') return;
+                          if (Array.isArray(value)) {
+                            value.forEach((dish) => {
+                              const name = findRecipe(dish?.id)?.name;
+                              if (name) names.push(dish.servings > 1 ? `${name} (×${dish.servings})` : name);
+                            });
+                          } else {
+                            const name = findRecipe(value)?.name;
+                            if (name) names.push(name);
+                          }
+                        });
+                        return (
+                          <div key={row.day || i} className="text-sm">
+                            <span className="font-semibold text-green-900">{row.day}: </span>
+                            {names.join(' · ')}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {!showAll && hiddenCount > 0 && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="mt-3 rounded-full border border-gray-200 px-4 py-2 text-xs font-bold text-green-700 hover:bg-green-50"
+            >
+              Show {hiddenCount} more {hiddenCount === 1 ? 'plan' : 'plans'} ↓
+            </button>
+          )}
+        </>
       )}
     </section>
   );
