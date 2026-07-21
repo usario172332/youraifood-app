@@ -62,13 +62,27 @@ const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 const FAMILY_SIZE = 1;
 
+// Some recipes reference what's really the same shopping-list item under
+// slightly different names (e.g. "Cooked chicken breast" vs "Chicken
+// breast", "Greek yogurt (0%)" vs "Greek yogurt"). Grouping by a normalized
+// key — stripping parenthetical qualifiers and a leading "cooked " — merges
+// those into one line, matching the same normalization used server-side.
+function groceryKey(name) {
+  return name
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(/^\s*cooked\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function buildGroceryList() {
   const groceries = {};
   const addIngredients = (recipe, multiplier) => {
     if (!recipe) return;
     recipe.ingredients.forEach((ing) => {
-      if (!groceries[ing.n]) groceries[ing.n] = { qty: 0, unit: ing.u, cat: ing.cat };
-      groceries[ing.n].qty += ing.q * FAMILY_SIZE * multiplier;
+      const key = groceryKey(ing.n);
+      if (!groceries[key]) groceries[key] = { qty: 0, unit: ing.u, cat: ing.cat };
+      groceries[key].qty += ing.q * FAMILY_SIZE * multiplier;
     });
   };
   SAMPLE_DAYS.forEach((row) => {
@@ -155,7 +169,8 @@ export default function SamplePlan() {
 
         <p className="mb-3 text-xs text-ink-soft">
           This example uses 4 dishes/day (1 breakfast, 2 lunch/dinner, 1 snack) — you can choose 3 to 6 dishes per day,
-          and dishes are sometimes scaled to 1.5× servings (shown as a badge), to fit your own calorie target.
+          and dishes are sometimes scaled to 1.5× servings (shown as a badge), to fit your calculated (or your own
+          custom) calorie target.
         </p>
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full border-collapse bg-white text-sm">
