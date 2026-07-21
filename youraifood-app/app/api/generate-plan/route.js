@@ -34,16 +34,18 @@ async function getOrCreateProfile(admin, user) {
 
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const SERVINGS_OPTIONS = [1, 1.5, 2];
+const MIN_DISHES_PER_DAY = 3;
+const MAX_DISHES_PER_DAY = 6;
 
-// Recipes are scaled up to 1.5x or 2x servings (calories/protein/cost/
-// ingredient quantities all scale proportionally) to help a day's plan
-// reach the user's real calorie target, instead of being capped at
-// whatever a single serving of each meal adds up to.
-function servingsFor(row, slot) {
-  const raw = Number(row[`${slot}Servings`]);
-  return SERVINGS_OPTIONS.includes(raw) ? raw : 1;
+function servingsValue(raw) {
+  const n = Number(raw);
+  return SERVINGS_OPTIONS.includes(n) ? n : 1;
 }
 
+// Each day/slot now holds an array of dishes (`${slot}Dishes`), each with its
+// own serving multiplier — letting a plan reach the calorie target by adding
+// more dishes to a meal, scaling portions, or both, instead of being capped
+// at one fixed-size recipe per slot.
 function buildGroceryList(days, family, meals) {
   const groceries = {};
   const addIngredients = (recipe, multiplier) => {
@@ -56,9 +58,10 @@ function buildGroceryList(days, family, meals) {
   };
   days.forEach((row) => {
     meals.forEach((slot) => {
-      addIngredients(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
+      (row[`${slot}Dishes`] || []).forEach((dish) => {
+        addIngredients(findRecipe(dish.id), dish.servings || 1);
+      });
     });
-    if (row.extraSnack) addIngredients(findRecipe(row.extraSnack), 1);
   });
   return groceries;
 }
@@ -83,9 +86,10 @@ function buildNutritionAndCost(days, family, meals) {
 
   days.forEach((row) => {
     meals.forEach((slot) => {
-      addRecipe(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
+      (row[`${slot}Dishes`] || []).forEach((dish) => {
+        addRecipe(findRecipe(dish.id), dish.servings || 1);
+      });
     });
-    if (row.extraSnack) addRecipe(findRecipe(row.extraSnack), 1);
   });
 
   return {
@@ -141,7 +145,7 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, meals } = body;
+    const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, meals, dishesPerDay } = body;
 
     if (!goal || !proteinTarget || !calorieTarget || !budget || !maxTime || !family) {
       return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 400 });
@@ -151,6 +155,11 @@ export async function POST(req) {
     if (!mealSlots.length) {
       return NextResponse.json({ error: 'Select at least one meal type to include.' }, { status: 400 });
     }
+
+    const rawDishes = Number(dishesPerDay);
+    const totalDishes = Number.isFinite(rawDishes) && rawDishes > 0
+      ? Math.min(MAX_DISHES_PER_DAY, Math.max(MIN_DISHES_PER_DAY, Math.round(rawDishes)))
+      : Math.max(MIN_DISHES_PER_DAY, mealSlots.length);
 
     const aiResult = await generateWeeklyPlan({
       goal,
@@ -162,32 +171,36 @@ export async function POST(req) {
       diets: Array.isArray(diets) ? diets : [],
       isPremium: profile.is_premium,
       meals: mealSlots,
+      dishesPerDay: totalDishes,
     });
 
     // Validate + hydrate: the model only returns ids, we look up the real
     // recipe objects so nutrition/cost/instructions are never hallucinated.
     // The premium check here is defense-in-depth — the model was never shown
     // Premium recipe ids for a free user, but we double-check anyway in case
-    // it somehow guessed one.
+    // it somehow guessed one. We also drop any duplicate id within the same
+    // slot/day, since the model is asked not to repeat but we don't rely on it.
     const resolveRecipe = (id) => {
       const recipe = findRecipe(id);
       if (!recipe) return null;
       if (recipe.premium && !profile.is_premium) return null;
       return recipe.id;
     };
+
     const days = aiResult.days.map((row, i) => {
       const dayRow = { day: row.day || DAYS[i] };
       mealSlots.forEach((slot) => {
-        const resolvedId = row[slot] ? resolveRecipe(row[slot]) : null;
-        dayRow[slot] = resolvedId;
-        dayRow[`${slot}Servings`] = resolvedId ? servingsFor(row, slot) : 1;
+        const rawSlotDishes = Array.isArray(row[`${slot}Dishes`]) ? row[`${slot}Dishes`] : [];
+        const seen = new Set();
+        const resolved = [];
+        rawSlotDishes.forEach((d) => {
+          const id = resolveRecipe(d && d.id);
+          if (!id || seen.has(id)) return;
+          seen.add(id);
+          resolved.push({ id, servings: servingsValue(d && d.servings) });
+        });
+        dayRow[`${slot}Dishes`] = resolved;
       });
-      if (mealSlots.includes('snack') && row.extraSnack) {
-        const resolvedExtra = resolveRecipe(row.extraSnack);
-        if (resolvedExtra && resolvedExtra !== dayRow.snack) {
-          dayRow.extraSnack = resolvedExtra;
-        }
-      }
       return dayRow;
     });
 
@@ -201,7 +214,7 @@ export async function POST(req) {
 
     await admin.from('saved_plans').insert({
       user_id: user.id,
-      inputs: { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, meals: mealSlots },
+      inputs: { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes },
       plan_days: days,
       coach_note: aiResult.coachNote,
     });
@@ -209,6 +222,7 @@ export async function POST(req) {
     return NextResponse.json({
       days,
       meals: mealSlots,
+      dishesPerDay: totalDishes,
       coachNote: aiResult.coachNote,
       groceries,
       stats,
