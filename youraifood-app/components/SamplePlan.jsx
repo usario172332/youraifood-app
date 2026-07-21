@@ -8,19 +8,19 @@ import { findRecipe, DAYS } from '../lib/recipes';
 // data, the same way a real generated plan works. This is a sample so
 // visitors can see exactly what they'll get before signing up.
 //
-// Picked from the higher-calorie end of each meal category on purpose: with
-// only 3 recipe slots a day (breakfast, one combined lunch/dinner dish,
-// snack), this is close to the realistic ceiling the current catalog can
-// hit. A user with a higher calorie target than this should expect their
-// real generated plan to land in a similar range.
+// A single serving of each of the 3 meal slots (breakfast, one combined
+// lunch/dinner dish, snack) doesn't always add up to a realistic calorie
+// target on its own — so, like a real generated plan, some days here scale
+// a recipe to 1.5x/2x servings, and one day adds a second snack, to reach a
+// more typical daily calorie target.
 const SAMPLE_DAYS = [
-  { day: 'Monday', breakfast: 'nb50', main: 'nr1', snack: 'ps1' },
-  { day: 'Tuesday', breakfast: 'nb46', main: 'nr19', snack: 'ps2' },
-  { day: 'Wednesday', breakfast: 'nb16', main: 'nr16', snack: 's4' },
-  { day: 'Thursday', breakfast: 'nb42', main: 'nr36', snack: 's1' },
-  { day: 'Friday', breakfast: 'nb26', main: 'nr56', snack: 's3' },
-  { day: 'Saturday', breakfast: 'nb1', main: 'nr30', snack: 's2' },
-  { day: 'Sunday', breakfast: 'nb24', main: 'nr33', snack: 'ps4' },
+  { day: 'Monday', breakfast: 'nb50', main: 'nr1', mainServings: 1.5, snack: 'ps1' },
+  { day: 'Tuesday', breakfast: 'nb46', breakfastServings: 1.5, main: 'nr19', snack: 'ps2' },
+  { day: 'Wednesday', breakfast: 'nb16', main: 'nr16', mainServings: 1.5, snack: 's4', snackServings: 1.5 },
+  { day: 'Thursday', breakfast: 'nb42', breakfastServings: 1.5, main: 'nr36', mainServings: 1.5, snack: 's1' },
+  { day: 'Friday', breakfast: 'nb26', main: 'nr56', mainServings: 2, snack: 's3' },
+  { day: 'Saturday', breakfast: 'nb1', breakfastServings: 1.5, main: 'nr30', snack: 's2', extraSnack: 'ps1' },
+  { day: 'Sunday', breakfast: 'nb24', breakfastServings: 1.5, main: 'nr33', mainServings: 1.5, snack: 'ps4' },
 ];
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
@@ -28,15 +28,18 @@ const FAMILY_SIZE = 1;
 
 function buildGroceryList() {
   const groceries = {};
+  const addIngredients = (recipe, multiplier) => {
+    if (!recipe) return;
+    recipe.ingredients.forEach((ing) => {
+      if (!groceries[ing.n]) groceries[ing.n] = { qty: 0, unit: ing.u, cat: ing.cat };
+      groceries[ing.n].qty += ing.q * FAMILY_SIZE * multiplier;
+    });
+  };
   SAMPLE_DAYS.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
-      const recipe = findRecipe(row[slot]);
-      if (!recipe) return;
-      recipe.ingredients.forEach((ing) => {
-        if (!groceries[ing.n]) groceries[ing.n] = { qty: 0, unit: ing.u, cat: ing.cat };
-        groceries[ing.n].qty += ing.q * FAMILY_SIZE;
-      });
+      addIngredients(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
     });
+    if (row.extraSnack) addIngredients(findRecipe(row.extraSnack), 1);
   });
   return groceries;
 }
@@ -46,15 +49,18 @@ function buildStats() {
   let totalProtein = 0;
   let totalCal = 0;
   const usedRecipeIds = new Set();
+  const addRecipe = (recipe, multiplier) => {
+    if (!recipe) return;
+    totalCost += recipe.cost * FAMILY_SIZE * multiplier;
+    totalProtein += recipe.protein * multiplier;
+    totalCal += recipe.cal * multiplier;
+    usedRecipeIds.add(recipe.id);
+  };
   SAMPLE_DAYS.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
-      const recipe = findRecipe(row[slot]);
-      if (!recipe) return;
-      totalCost += recipe.cost * FAMILY_SIZE;
-      totalProtein += recipe.protein;
-      totalCal += recipe.cal;
-      usedRecipeIds.add(recipe.id);
+      addRecipe(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
     });
+    if (row.extraSnack) addRecipe(findRecipe(row.extraSnack), 1);
   });
   return {
     totalCost,
@@ -125,17 +131,34 @@ export default function SamplePlan() {
                   <td className="px-3 py-2.5 font-extrabold text-green-900">{row.day}</td>
                   {MEAL_SLOTS.map((slot) => {
                     const recipe = findRecipe(row[slot]);
+                    const servings = row[`${slot}Servings`] > 1 ? row[`${slot}Servings`] : null;
+                    const extra = slot === 'snack' ? findRecipe(row.extraSnack) : null;
                     return (
                       <td key={slot} className="px-3 py-2.5">
                         {recipe ? (
-                          <>
-                            <div className="font-semibold">{recipe.name}</div>
-                            <div className="text-xs text-ink-soft">
-                              {recipe.protein}g protein · {recipe.time}min · €{recipe.cost.toFixed(2)}
+                          <div className={extra ? 'mb-2.5' : ''}>
+                            <div className="font-semibold">
+                              {recipe.name}
+                              {servings && (
+                                <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-extrabold text-green-700">
+                                  ×{servings}
+                                </span>
+                              )}
                             </div>
-                          </>
+                            <div className="text-xs text-ink-soft">
+                              {Math.round(recipe.protein * (servings || 1))}g protein · {recipe.time}min · €{(recipe.cost * (servings || 1)).toFixed(2)}
+                            </div>
+                          </div>
                         ) : (
                           <span className="text-ink-soft">—</span>
+                        )}
+                        {extra && (
+                          <div className="border-t border-dashed border-gray-100 pt-2">
+                            <div className="text-sm font-semibold">+ {extra.name}</div>
+                            <div className="text-xs text-ink-soft">
+                              {extra.protein}g protein · {extra.time}min · €{extra.cost.toFixed(2)}
+                            </div>
+                          </div>
                         )}
                       </td>
                     );
