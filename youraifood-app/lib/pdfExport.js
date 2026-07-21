@@ -1,4 +1,4 @@
-// Client-side PDF export for a generated weekly plan + grocery list.
+// Client-side PDF/CSV export for a generated weekly plan + grocery list.
 // jsPDF and its autotable plugin are only pulled in when this module is
 // actually imported (Planner.jsx does that lazily, on click), so the PDF
 // libraries never bloat the main bundle for people who don't use the button.
@@ -87,7 +87,8 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
 
   y = doc.lastAutoTable.finalY + 26;
 
-  // Grocery list, grouped by category
+  // Grocery list, grouped by category — each item gets a printable checkbox
+  // so the PDF doubles as a physical shopping-list you can tick off in-store.
   if (y > pageHeight - 120) {
     doc.addPage();
     y = 48;
@@ -105,10 +106,10 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
       .sort((a, b) => a[0].localeCompare(b[0]));
     if (!items.length) return;
     groceryBody.push([
-      { content: cat, colSpan: 2, styles: { fillColor: [223, 245, 227], textColor: [20, 83, 45], fontStyle: 'bold' } },
+      { content: cat, colSpan: 3, styles: { fillColor: [223, 245, 227], textColor: [20, 83, 45], fontStyle: 'bold' } },
     ]);
     items.forEach(([name, info]) => {
-      groceryBody.push([name, `${Math.round(info.qty)}${info.unit}`]);
+      groceryBody.push(['', name, `${Math.round(info.qty)}${info.unit}`]);
     });
   });
 
@@ -117,8 +118,21 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
     body: groceryBody,
     theme: 'grid',
     styles: { fontSize: 9, cellPadding: 4.5 },
-    columnStyles: { 0: { cellWidth: pageWidth - margin * 2 - 100 }, 1: { cellWidth: 100, halign: 'right' } },
+    columnStyles: {
+      0: { cellWidth: 20 },
+      1: { cellWidth: pageWidth - margin * 2 - 120 },
+      2: { cellWidth: 100, halign: 'right' },
+    },
     margin: { left: margin, right: margin },
+    didDrawCell: (data) => {
+      if (data.section === 'body' && data.column.index === 0 && data.cell.raw === '') {
+        const size = 9;
+        const boxX = data.cell.x + (data.cell.width - size) / 2;
+        const boxY = data.cell.y + (data.cell.height - size) / 2;
+        doc.setDrawColor(120, 120, 120);
+        doc.rect(boxX, boxY, size, size);
+      }
+    },
   });
 
   doc.setFont('helvetica', 'normal');
@@ -127,4 +141,37 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
   doc.text('YourAiFood — AI-generated meal plan. Not medical or dietary advice.', margin, pageHeight - 20);
 
   doc.save('youraifood-weekly-plan.pdf');
+}
+
+function escapeCsvCell(value) {
+  const str = String(value ?? '');
+  if (/[",\n]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+// CSV export of just the grocery list, with a blank "Checked" column so it
+// opens cleanly in Numbers/Excel/Sheets for people who'd rather tick boxes
+// digitally than print the PDF.
+export function downloadGroceryCsv({ groceries }) {
+  const rows = [['Category', 'Item', 'Quantity', 'Checked']];
+  CAT_ORDER.forEach((cat) => {
+    Object.entries(groceries)
+      .filter(([, info]) => info.cat === cat)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .forEach(([name, info]) => {
+        rows.push([cat, name, `${Math.round(info.qty)}${info.unit}`, '']);
+      });
+  });
+  const csv = rows.map((r) => r.map(escapeCsvCell).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'youraifood-grocery-list.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
