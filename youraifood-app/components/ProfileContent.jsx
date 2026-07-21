@@ -151,7 +151,7 @@ function FavoritesSection({ favorites, onToggleFavorite }) {
                   <div className="mt-1 text-xs text-ink-soft">{r.protein}g protein · {r.cal} kcal</div>
                 </div>
               </div>
-            );
+          );
           })}
         </div>
       )}
@@ -204,16 +204,30 @@ function PastPlansSection({ session }) {
                 </button>
                 {isOpen && (
                   <div className="mt-3 space-y-2 border-t border-dashed border-gray-100 pt-3">
-                    {(p.plan_days || []).map((row, i) => (
-                      <div key={row.day || i} className="text-sm">
-                        <span className="font-semibold text-green-900">{row.day}: </span>
-                        {Object.entries(row)
-                          .filter(([k]) => k !== 'day')
-                          .map(([, id]) => findRecipe(id)?.name)
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </div>
-                    ))}
+                    {(p.plan_days || []).map((row, i) => {
+                      // Supports both the current format (arrays of dishes
+                      // per slot, e.g. breakfastDishes: [{id, servings}]) and
+                      // older saved plans (a single recipe id string per slot).
+                      const names = [];
+                      Object.entries(row).forEach(([key, value]) => {
+                        if (key === 'day') return;
+                        if (Array.isArray(value)) {
+                          value.forEach((dish) => {
+                            const name = findRecipe(dish?.id)?.name;
+                            if (name) names.push(dish.servings > 1 ? `${name} (×${dish.servings})` : name);
+                          });
+                        } else {
+                          const name = findRecipe(value)?.name;
+                          if (name) names.push(name);
+                        }
+                      });
+                      return (
+                        <div key={row.day || i} className="text-sm">
+                          <span className="font-semibold text-green-900">{row.day}: </span>
+                          {names.join(' · ')}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
