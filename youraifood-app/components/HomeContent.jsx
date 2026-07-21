@@ -2,8 +2,12 @@
 
 import Planner from './Planner';
 import HowItWorks from './HowItWorks';
+import UseCases from './UseCases';
+import EcosystemDiagram from './EcosystemDiagram';
 import SamplePlan from './SamplePlan';
 import RecipeGallery from './RecipeGallery';
+import EmailCapture from './EmailCapture';
+import Roadmap from './Roadmap';
 import Pricing from './Pricing';
 import { useAuth } from '../lib/AuthContext';
 
@@ -19,26 +23,36 @@ export default function HomeContent() {
       <section className="px-6 pb-4 pt-16">
         <div className="mx-auto max-w-[1120px] text-center">
           <span className="mb-4 inline-block rounded-full bg-green-50 px-3.5 py-1.5 text-[13px] font-bold text-green-700">
-            Real AI-generated meal plans, built around you
+            🤖 Meet your AI nutrition coach
           </span>
           <h1 className="mx-auto mb-4 max-w-3xl text-4xl font-extrabold leading-tight text-green-900 sm:text-5xl">
-            Tell us your goal. Get a <span className="text-green-600">week of meals</span> that fit it.
+            From meal ideas to your <span className="text-green-600">shopping basket</span>, in minutes.
           </h1>
-          <p className="mx-auto mb-8 max-w-xl text-lg text-ink-soft">
-            Set a fitness goal, dietary needs, budget, and time you have to cook. YourAiFood builds a personalized
-            weekly menu, an optimized grocery list, and a full nutritional breakdown — with minimal waste and smart
-            ingredient reuse.
+          <p className="mx-auto mb-6 max-w-xl text-lg text-ink-soft">
+            Reach your fitness goals without spending hours on meal prep. Real AI plans your week, tracks your
+            macros, and builds your grocery list — so all that's left to do is cook.
           </p>
           <button
             onClick={scrollToPlanner}
             className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white transition hover:-translate-y-px hover:bg-green-700"
           >
-            Build my plan →
+            Generate My Meal Plan →
           </button>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
+            <span>✓ High-protein recipes</span>
+            <span>✓ Grocery lists</span>
+            <span>✓ AI meal planner</span>
+            <span>✓ Macro tracking</span>
+          </div>
+          <p className="mx-auto mt-4 max-w-lg text-xs text-ink-soft">
+            🔍 Nutrition numbers are computed directly from real recipe data — never estimated or hallucinated by AI.
+          </p>
         </div>
       </section>
 
       <HowItWorks />
+      <UseCases />
+      <EcosystemDiagram />
 
       <section className="px-6 pb-10 pt-6">
         <div className="mx-auto max-w-[1120px] text-center">
@@ -48,6 +62,8 @@ export default function HomeContent() {
 
       <SamplePlan />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
+      <EmailCapture />
+      <Roadmap />
       <Pricing session={session} isPremium={isPremium} />
     </>
   );
