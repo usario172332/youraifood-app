@@ -70,13 +70,22 @@ const FAMILY_SIZE = 1;
 function groceryKey(name) {
   const cleaned = name
     .replace(/\s*\([^)]*\)\s*/g, ' ')
-    .replace(/^\s*cooked\s+/i, '')
+    // Strip common prep-method prefixes (e.g. "Grilled chicken breast",
+    // "Chopped walnuts", "Roasted potatoes") — these describe how a recipe
+    // uses the ingredient, not a different product to shop for, so they
+    // shouldn't split one item across multiple grocery-list rows.
+    .replace(/^\s*(cooked|grilled|roasted|baked|sliced|diced|chopped|shredded|steamed|boiled|minced|grated)\s+/i, '')
     .replace(/\s+/g, ' ')
     .trim();
   // Also fold case differences (e.g. "chicken breast" vs "Chicken breast")
   // into the same row, so inconsistent capitalization in the recipe data
   // doesn't split one ingredient across two grocery-list lines.
-  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+  const titled = cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+  // A few ingredients are named in singular or plural form depending on how
+  // many the recipe needs (e.g. "Egg" for a 1-egg recipe, "Eggs" for a
+  // 2-egg recipe) — fold those onto one form so they merge correctly.
+  if (titled === 'Eggs') return 'Egg';
+  return titled;
 }
 
 function buildGroceryList() {
