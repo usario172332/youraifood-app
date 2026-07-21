@@ -42,6 +42,50 @@ function servingsValue(raw) {
   return SERVINGS_OPTIONS.includes(n) ? n : 1;
 }
 
+function nextServing(s) {
+  const idx = SERVINGS_OPTIONS.indexOf(s);
+  if (idx === -1 || idx === SERVINGS_OPTIONS.length - 1) return null;
+  return SERVINGS_OPTIONS[idx + 1];
+}
+
+// The model is instructed to hit the calorie target by scaling serving
+// sizes, but with very few dishes/day (e.g. the 3-dish minimum — one dish
+// per meal) it sometimes under-scales and leaves a day meaningfully below
+// target. Rather than relying on the model's arithmetic alone, top up any
+// day that's still under ~90% of the target here: bump the currently
+// lowest-scaled dish up a tier (1x -> 1.5x -> 2x) and repeat until the day
+// clears the threshold or every dish is already maxed at 2x. This runs
+// after resolveRecipe/dedup so it only ever touches real, hydrated dishes.
+function enforceCalorieTarget(days, meals, calorieTarget) {
+  const threshold = calorieTarget * 0.9;
+  days.forEach((dayRow) => {
+    const dishRefs = [];
+    meals.forEach((slot) => {
+      (dayRow[`${slot}Dishes`] || []).forEach((dish) => {
+        const recipe = findRecipe(dish.id);
+        if (recipe) dishRefs.push({ dish, recipe });
+      });
+    });
+    if (!dishRefs.length) return;
+
+    let total = dishRefs.reduce((sum, { dish, recipe }) => sum + recipe.cal * dish.servings, 0);
+    if (total >= threshold) return;
+
+    let guard = 0;
+    while (total < threshold && guard < 50) {
+      guard += 1;
+      const candidate = dishRefs
+        .filter(({ dish }) => nextServing(dish.servings) !== null)
+        .sort((a, b) => a.dish.servings - b.dish.servings)[0];
+      if (!candidate) break; // every dish already maxed at 2x
+      const before = candidate.dish.servings;
+      const after = nextServing(before);
+      total += candidate.recipe.cal * (after - before);
+      candidate.dish.servings = after;
+    }
+  });
+}
+
 // Some recipes reference what's really the same shopping-list item under
 // slightly different names (e.g. "Cooked chicken breast" vs "Chicken
 // breast", "Greek yogurt (0%)" vs "Greek yogurt"). Grouping the grocery list
@@ -221,6 +265,8 @@ export async function POST(req) {
       });
       return dayRow;
     });
+
+    enforceCalorieTarget(days, mealSlots, calorieTarget);
 
     const groceries = buildGroceryList(days, family, mealSlots);
     const stats = buildNutritionAndCost(days, family, mealSlots);
