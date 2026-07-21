@@ -42,6 +42,20 @@ function servingsValue(raw) {
   return SERVINGS_OPTIONS.includes(n) ? n : 1;
 }
 
+// Some recipes reference what's really the same shopping-list item under
+// slightly different names (e.g. "Cooked chicken breast" vs "Chicken
+// breast", "Greek yogurt (0%)" vs "Greek yogurt"). Grouping the grocery list
+// by a normalized key — stripping parenthetical qualifiers and a leading
+// "cooked " — merges those into one line so the list stays genuinely
+// optimized instead of splitting one ingredient across two rows.
+function groceryKey(name) {
+  return name
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(/^\s*cooked\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Each day/slot now holds an array of dishes (`${slot}Dishes`), each with its
 // own serving multiplier — letting a plan reach the calorie target by adding
 // more dishes to a meal, scaling portions, or both, instead of being capped
@@ -51,7 +65,7 @@ function buildGroceryList(days, family, meals) {
   const addIngredients = (recipe, multiplier) => {
     if (!recipe) return;
     recipe.ingredients.forEach((ing) => {
-      const key = ing.n;
+      const key = groceryKey(ing.n);
       if (!groceries[key]) groceries[key] = { qty: 0, unit: ing.u, cat: ing.cat };
       groceries[key].qty += ing.q * family * multiplier;
     });
