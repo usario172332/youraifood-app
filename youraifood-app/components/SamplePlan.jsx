@@ -1,26 +1,62 @@
 'use client';
 
 import { useState } from 'react';
-import { findRecipe, DAYS } from '../lib/recipes';
+import { findRecipe } from '../lib/recipes';
 
 // A realistic 7-day plan built entirely from real recipes — the nutrition,
 // cost and grocery list below are computed live from the actual recipe
 // data, the same way a real generated plan works. This is a sample so
 // visitors can see exactly what they'll get before signing up.
 //
-// A single serving of each of the 3 meal slots (breakfast, one combined
-// lunch/dinner dish, snack) doesn't always add up to a realistic calorie
-// target on its own — so, like a real generated plan, some days here scale
-// a recipe to 1.5x/2x servings, and one day adds a second snack, to reach a
-// more typical daily calorie target.
+// This example uses 4 dishes/day (a "standard" choice in the real planner):
+// 1 breakfast, 2 lunch/dinner dishes, 1 snack. Individual dishes are
+// sometimes also scaled to 1.5x servings (shown as a badge) — like a real
+// generated plan, both extra dishes and portion scaling are used to reach a
+// realistic daily calorie target instead of being capped at one small
+// recipe per meal slot.
 const SAMPLE_DAYS = [
-  { day: 'Monday', breakfast: 'nb50', main: 'nr1', mainServings: 1.5, snack: 'ps1' },
-  { day: 'Tuesday', breakfast: 'nb46', breakfastServings: 1.5, main: 'nr19', snack: 'ps2' },
-  { day: 'Wednesday', breakfast: 'nb16', main: 'nr16', mainServings: 1.5, snack: 's4', snackServings: 1.5 },
-  { day: 'Thursday', breakfast: 'nb42', breakfastServings: 1.5, main: 'nr36', mainServings: 1.5, snack: 's1' },
-  { day: 'Friday', breakfast: 'nb26', main: 'nr56', mainServings: 2, snack: 's3' },
-  { day: 'Saturday', breakfast: 'nb1', breakfastServings: 1.5, main: 'nr30', snack: 's2', extraSnack: 'ps1' },
-  { day: 'Sunday', breakfast: 'nb24', breakfastServings: 1.5, main: 'nr33', mainServings: 1.5, snack: 'ps4' },
+  {
+    day: 'Monday',
+    breakfastDishes: [{ id: 'nb50', servings: 1 }],
+    mainDishes: [{ id: 'nr1', servings: 1 }, { id: 'nr19', servings: 1 }],
+    snackDishes: [{ id: 'ps1', servings: 1 }],
+  },
+  {
+    day: 'Tuesday',
+    breakfastDishes: [{ id: 'nb46', servings: 1.5 }],
+    mainDishes: [{ id: 'nr16', servings: 1 }, { id: 'nr36', servings: 1 }],
+    snackDishes: [{ id: 'ps2', servings: 1 }],
+  },
+  {
+    day: 'Wednesday',
+    breakfastDishes: [{ id: 'nb16', servings: 1 }],
+    mainDishes: [{ id: 'nr56', servings: 1 }, { id: 'nr30', servings: 1 }],
+    snackDishes: [{ id: 's4', servings: 1.5 }],
+  },
+  {
+    day: 'Thursday',
+    breakfastDishes: [{ id: 'nb42', servings: 1 }],
+    mainDishes: [{ id: 'nr33', servings: 1.5 }, { id: 'nr1', servings: 1 }],
+    snackDishes: [{ id: 's1', servings: 1 }],
+  },
+  {
+    day: 'Friday',
+    breakfastDishes: [{ id: 'nb26', servings: 1 }],
+    mainDishes: [{ id: 'nr19', servings: 1 }, { id: 'nr16', servings: 1 }],
+    snackDishes: [{ id: 's3', servings: 1 }],
+  },
+  {
+    day: 'Saturday',
+    breakfastDishes: [{ id: 'nb1', servings: 1.5 }],
+    mainDishes: [{ id: 'nr36', servings: 1 }, { id: 'nr56', servings: 1 }],
+    snackDishes: [{ id: 's2', servings: 1 }],
+  },
+  {
+    day: 'Sunday',
+    breakfastDishes: [{ id: 'nb24', servings: 1 }],
+    mainDishes: [{ id: 'nr30', servings: 1 }, { id: 'nr33', servings: 1 }],
+    snackDishes: [{ id: 'ps4', servings: 1.5 }],
+  },
 ];
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
@@ -37,9 +73,10 @@ function buildGroceryList() {
   };
   SAMPLE_DAYS.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
-      addIngredients(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
+      (row[`${slot}Dishes`] || []).forEach((dish) => {
+        addIngredients(findRecipe(dish.id), dish.servings || 1);
+      });
     });
-    if (row.extraSnack) addIngredients(findRecipe(row.extraSnack), 1);
   });
   return groceries;
 }
@@ -58,9 +95,10 @@ function buildStats() {
   };
   SAMPLE_DAYS.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
-      addRecipe(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
+      (row[`${slot}Dishes`] || []).forEach((dish) => {
+        addRecipe(findRecipe(dish.id), dish.servings || 1);
+      });
     });
-    if (row.extraSnack) addRecipe(findRecipe(row.extraSnack), 1);
   });
   return {
     totalCost,
@@ -115,6 +153,10 @@ export default function SamplePlan() {
           </div>
         </div>
 
+        <p className="mb-3 text-xs text-ink-soft">
+          This example uses 4 dishes/day (1 breakfast, 2 lunch/dinner, 1 snack) — you can choose 3 to 6 dishes per day,
+          and dishes are sometimes scaled to 1.5× servings (shown as a badge), to fit your own calorie target.
+        </p>
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full border-collapse bg-white text-sm">
             <thead>
@@ -130,36 +172,31 @@ export default function SamplePlan() {
                 <tr key={row.day} className="border-t border-gray-100 align-top">
                   <td className="px-3 py-2.5 font-extrabold text-green-900">{row.day}</td>
                   {MEAL_SLOTS.map((slot) => {
-                    const recipe = findRecipe(row[slot]);
-                    const servings = row[`${slot}Servings`] > 1 ? row[`${slot}Servings`] : null;
-                    const extra = slot === 'snack' ? findRecipe(row.extraSnack) : null;
+                    const dishes = (row[`${slot}Dishes`] || [])
+                      .map((d) => ({ ...d, recipe: findRecipe(d.id) }))
+                      .filter((d) => d.recipe);
                     return (
                       <td key={slot} className="px-3 py-2.5">
-                        {recipe ? (
-                          <div className={extra ? 'mb-2.5' : ''}>
+                        {dishes.length === 0 && <span className="text-ink-soft">—</span>}
+                        {dishes.map((d, idx) => (
+                          <div
+                            key={`${slot}-${d.id}`}
+                            className={idx > 0 ? 'mt-2.5 border-t border-dashed border-gray-100 pt-2' : ''}
+                          >
                             <div className="font-semibold">
-                              {recipe.name}
-                              {servings && (
+                              {idx > 0 && '+ '}
+                              {d.recipe.name}
+                              {d.servings > 1 && (
                                 <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-extrabold text-green-700">
-                                  ×{servings}
+                                  ×{d.servings}
                                 </span>
                               )}
                             </div>
                             <div className="text-xs text-ink-soft">
-                              {Math.round(recipe.protein * (servings || 1))}g protein · {recipe.time}min · €{(recipe.cost * (servings || 1)).toFixed(2)}
+                              {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min · €{(d.recipe.cost * d.servings).toFixed(2)}
                             </div>
                           </div>
-                        ) : (
-                          <span className="text-ink-soft">—</span>
-                        )}
-                        {extra && (
-                          <div className="border-t border-dashed border-gray-100 pt-2">
-                            <div className="text-sm font-semibold">+ {extra.name}</div>
-                            <div className="text-xs text-ink-soft">
-                              {extra.protein}g protein · {extra.time}min · €{extra.cost.toFixed(2)}
-                            </div>
-                          </div>
-                        )}
+                        ))}
                       </td>
                     );
                   })}
