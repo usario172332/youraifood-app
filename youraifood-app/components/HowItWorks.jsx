@@ -1,23 +1,23 @@
-const STEPS = [
+const BENEFITS = [
   {
-    icon: '🎯',
-    title: 'Tell us your goal',
-    text: 'Fat loss, muscle gain, or just eating better — plus your diet, budget, and time to cook. Takes about 30 seconds.',
+    icon: '🥩',
+    title: 'Hit Your Protein Goals',
+    text: 'Every meal is built to hit your calorie and protein targets — no more guessing, no more falling short by dinner.',
   },
   {
-    icon: '🤖',
-    title: 'AI builds your week',
-    text: 'No more "what\'s for dinner" panic. Real AI picks 7 days of meals that hit your calorie and protein targets — every number computed from the actual recipe, nothing hallucinated.',
+    icon: '⚡',
+    title: 'Save Hours Every Week',
+    text: 'Stop scrolling recipe sites and rewriting shopping lists by hand. Your whole week is planned in seconds, not hours.',
   },
   {
     icon: '🛒',
-    title: 'Get your grocery list',
-    text: 'Skip the extra trip to the store. Ingredients are combined, organized by aisle, and scaled to your family size automatically.',
+    title: 'Never Forget Ingredients',
+    text: 'Every plan comes with a grocery list already combined and organized by aisle — one trip, nothing missed.',
   },
   {
-    icon: '👨‍🍳',
-    title: 'Cook, track, and rate',
-    text: 'Follow along, log your weight, and rate what you tried — so next week\'s plan gets even better.',
+    icon: '🥗',
+    title: 'Eat Healthier Without Thinking',
+    text: 'No more "what should I eat" decision fatigue. Open the app, follow the plan, and feel better by Friday.',
   },
 ];
 
@@ -25,10 +25,10 @@ export default function HowItWorks() {
   return (
     <section className="bg-gray-50 px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
-        <h2 className="text-center text-2xl font-extrabold text-green-900">How it works</h2>
-        <p className="mb-10 text-center text-ink-soft">From goal to grocery list — no spreadsheets, no guesswork.</p>
+        <h2 className="text-center text-2xl font-extrabold text-green-900">Why people choose YourAiFood</h2>
+        <p className="mb-10 text-center text-ink-soft">Less deciding, less searching, more just... eating well.</p>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
-          {STEPS.map((s, i) => (
+          {BENEFITS.map((s, i) => (
             <div key={s.title} className="relative rounded-2xl border border-gray-200 bg-white p-6">
               <span className="absolute right-4 top-4 text-xs font-extrabold text-gray-300">0{i + 1}</span>
               <div className="mb-3 text-3xl">{s.icon}</div>
