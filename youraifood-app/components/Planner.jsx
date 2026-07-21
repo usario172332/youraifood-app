@@ -383,6 +383,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
           budget={form.budget}
           proteinTarget={proteinValue}
           calorieTarget={calorieValue}
+          goal={form.goal}
           onOpenRecipe={setActiveRecipe}
         />
       )}
@@ -428,10 +429,11 @@ function Field({ label, hint, children }) {
   );
 }
 
-function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onOpenRecipe }) {
+function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goal, onOpenRecipe }) {
   const { days, coachNote, groceries, stats, usage, meals } = result;
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const overBudget = stats.totalCost > budget;
+  const [downloading, setDownloading] = useState(false);
 
   const byCat = {};
   Object.entries(groceries).forEach(([name, info]) => {
@@ -440,8 +442,30 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
   });
   const catOrder = ['Protein', 'Produce', 'Pantry', 'Dairy/Alt', 'Spices'].filter((c) => byCat[c]);
 
+  async function handleDownloadPdf() {
+    setDownloading(true);
+    try {
+      const { downloadPlanPdf } = await import('../lib/pdfExport');
+      await downloadPlanPdf({ days, mealSlots, groceries, stats, coachNote, goal, proteinTarget, calorieTarget, budget });
+    } catch (err) {
+      console.error('PDF export failed', err);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="mt-9 text-left">
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={handleDownloadPdf}
+          disabled={downloading}
+          className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60"
+        >
+          {downloading ? 'Preparing PDF…' : '⬇️ Download plan & grocery list (PDF)'}
+        </button>
+      </div>
       <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-5">
         <Stat label={`Est. weekly cost (target €${budget})`} value={`€${stats.totalCost.toFixed(0)}`} tone={overBudget ? 'warn' : 'ok'} />
         <Stat label={`Avg daily protein (target ${proteinTarget}g)`} value={`${stats.avgProtein}g`} />
