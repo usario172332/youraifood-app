@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '../lib/AuthContext';
 
 const MONTHLY_PRICE = 7.77;
 const YEARLY_PRICE = 76;
@@ -8,12 +9,13 @@ const YEARLY_MONTHLY_EQUIVALENT = (YEARLY_PRICE / 12).toFixed(2);
 const YEARLY_SAVINGS_PCT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) * 100);
 
 export default function Pricing({ session, isPremium }) {
+  const { requestSignIn } = useAuth();
   const [loading, setLoading] = useState(false);
   const [yearly, setYearly] = useState(false);
 
   async function goPremium() {
     if (!session) {
-      alert('Sign in first, then hit Go Premium again.');
+      requestSignIn();
       return;
     }
     setLoading(true);
