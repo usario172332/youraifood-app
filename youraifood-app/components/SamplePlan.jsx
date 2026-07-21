@@ -68,11 +68,15 @@ const FAMILY_SIZE = 1;
 // key — stripping parenthetical qualifiers and a leading "cooked " — merges
 // those into one line, matching the same normalization used server-side.
 function groceryKey(name) {
-  return name
+  const cleaned = name
     .replace(/\s*\([^)]*\)\s*/g, ' ')
     .replace(/^\s*cooked\s+/i, '')
     .replace(/\s+/g, ' ')
     .trim();
+  // Also fold case differences (e.g. "chicken breast" vs "Chicken breast")
+  // into the same row, so inconsistent capitalization in the recipe data
+  // doesn't split one ingredient across two grocery-list lines.
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
 }
 
 function buildGroceryList() {
