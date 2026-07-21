@@ -1,7 +1,7 @@
 'use client';
 
 import Planner from './Planner';
-import HowItWorks from './HowItWorks';
+import HowItWorks from './HowItWorks'; import WhyYourAiFood from './WhyYourAiFood';
 import ComparisonTable from './ComparisonTable';
 import UseCases from './UseCases';
 import EcosystemDiagram from './EcosystemDiagram';
@@ -51,7 +51,7 @@ export default function HomeContent() {
         </div>
       </section>
 
-      <HowItWorks />
+      <HowItWorks /> <WhyYourAiFood />
 
       <section className="px-6 pb-10 pt-6">
         <div className="mx-auto max-w-[1120px] text-center">
