@@ -58,7 +58,7 @@ function buildPlanTool(meals, dishCounts) {
             type: 'number',
             enum: SERVINGS_OPTIONS,
             description:
-              'Serving multiplier for this dish: 1, 1.5, or 2. Use 1 by default — only scale a dish up when it helps close a gap to the daily calorie target.',
+              'Serving multiplier for this dish: 1, 1.5, or 2. Scale confidently whenever the day would otherwise fall short of the calorie target — most dishes across the week are expected to end up above 1x.',
           },
         },
         required: ['id', 'servings'],
@@ -111,16 +111,17 @@ export async function generateWeeklyPlan(inputs) {
 You will be given a recipe catalog (id, meal type, diet tags, cook time in minutes, cost per serving in EUR, protein in grams, calories) and a user's targets.
 The user's calorie and protein targets were calculated from their actual body stats (weight, height, age, sex, activity level) using the Mifflin-St Jeor formula, adjusted for their goal — treat them as real, meaningful targets, not rough guesses.
 The user only wants these meal types included in their plan: ${mealList}. The user has chosen ${total} dishes per day in total, split as: ${dishSummary}. Build a 7-day plan using ONLY recipe ids that appear in the catalog, filling exactly this many dishes per meal slot every day — never more, never fewer. Rules:
+- HITTING THE DAILY CALORIE TARGET IS YOUR TOP PRIORITY — more important than variety, budget, or reuse. Before finalizing each day, mentally sum that day's calories (each dish's calories × its servings). If that sum is more than ~10% below the ${calorieTarget} kcal target, you MUST scale up dishes (set "servings" to 1.5 or 2) until the day is within range — do not submit a day left significantly under target. It is normal and expected for MOST dishes to end up scaled above 1x whenever the target is high relative to a single serving of each dish, especially with fewer dishes per day or a higher-calorie goal like muscle gain.
 - Each dish within a meal slot must be a DIFFERENT recipe id (no duplicates within the same slot on the same day). The same recipe id may reappear on other days or in other slots.
 - Respect every diet tag the user selected (a recipe must include ALL of them to qualify).
 - Respect the max cook time per meal.
-- Aim for the daily calorie target on average across the week (within roughly 10%) — this is the primary constraint, since it drives the user's weight loss/gain/maintenance goal.
-- You have two levers to hit the calorie target, and should use whichever (or both) get you closest:
+- Aim to land within roughly 10% of the daily calorie target on EVERY day, not just on average across the week.
+- You have two levers to hit the calorie target, and should combine them as needed:
   1. Dish count is already fixed by the user's choice above (${dishSummary}) — always fill every dish slot.
-  2. Serving multipliers — set "servings" on any individual dish to 1.5 or 2 to scale up that dish's calories, protein and cost proportionally. Use 1 by default; only scale up a dish when the fixed dish count still leaves the day short of target.
+  2. Serving multipliers — set "servings" on any individual dish to 1.5 or 2 to scale up that dish's calories, protein and cost proportionally. Do not default to 1x out of caution — scale confidently whenever the math calls for it.
   Never scale a dish below 1x or above 2x.
 - Aim for the daily protein target on average across the week.
-- Aim to stay within the weekly budget (cost per serving × family size × all dishes, including any scaling).
+- Aim to stay within the weekly budget (cost per serving × family size × all dishes, including any scaling) — but if budget and the calorie target conflict, the calorie target wins.
 - Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking a totally different recipe for every dish.
 - Vary meals enough that it doesn't feel repetitive day to day.
 Call the build_weekly_plan tool with your answer. Do not include any text outside the tool call.`;
