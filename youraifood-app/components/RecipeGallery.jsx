@@ -9,10 +9,10 @@ import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero } from '../lib/r
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
-// Hand-picked homepage teaser — a couple of free recipes to prove quality,
+// Hand-picked homepage teaser — a mix of free recipes to prove quality,
 // plus several premium ones (shown locked/blurred) to create FOMO toward
 // upgrading. Mixes across meal types and diets on purpose.
-const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6'];
+const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6', 'nr19', 'nr16', 'nb50', 'nb46'];
 
 export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite, compact = false }) {
   const [meal, setMeal] = useState('all');
@@ -196,44 +196,26 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
 
         {compact && (
           <div className="mt-10 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
-            {isPremium ? (
-              <>
-                <p className="mb-1 text-lg font-extrabold text-white">⭐ You have full access to the library</p>
-                <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
-                  Every macro-tracked recipe, meal-prep and freezer tags, ingredient swaps, and AI photography are
-                  already unlocked on your Premium plan.
-                </p>
-                <Link
-                  href="/recipes"
-                  className="rounded-full bg-white px-6 py-3 text-sm font-bold text-green-900 transition hover:bg-gray-100"
-                >
-                  Browse all {RECIPES.length} recipes →
-                </Link>
-              </>
-            ) : (
-              <>
-                <p className="mb-1 text-lg font-extrabold text-white">🔒 {premiumCount}+ premium recipes are waiting</p>
-                <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
-                  Unlock the full library — every macro-tracked recipe, meal-prep and freezer tags, ingredient swaps, and
-                  AI photography, plus unlimited AI-generated meal plans for €7.77/mo.
-                </p>
-                <div className="flex flex-wrap justify-center gap-3">
-                  <Link
-                    href="/recipes"
-                    className="rounded-full bg-white px-6 py-3 text-sm font-bold text-green-900 transition hover:bg-gray-100"
-                  >
-                    Browse all {RECIPES.length} recipes →
-                  </Link>
-                  <button
-                    onClick={() => goTo('pricing')}
-                    className="rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-green-400"
-                  >
-                    Go Premium — €7.77/mo
-                  </button>
-                </div>
-                <p className="mt-3 text-center text-xs text-white/60">7 days free · Cancel anytime, no fees</p>
-              </>
-            )}
+            <p className="mb-1 text-lg font-extrabold text-white">🔒 {premiumCount}+ premium recipes are waiting</p>
+            <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
+              Unlock the full library — every macro-tracked recipe, meal-prep and freezer tags, ingredient swaps, and
+              AI photography, plus unlimited AI-generated meal plans for €7.77/mo.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link
+                href="/recipes"
+                className="rounded-full bg-white px-6 py-3 text-sm font-bold text-green-900 transition hover:bg-gray-100"
+              >
+                Browse all {RECIPES.length} recipes →
+              </Link>
+              <button
+                onClick={() => goTo('pricing')}
+                className="rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-green-400"
+              >
+                Go Premium — €7.77/mo
+              </button>
+            </div>
+            <p className="mt-3 text-center text-xs text-white/60">7 days free · Cancel anytime, no fees</p>
           </div>
         )}
       </div>
