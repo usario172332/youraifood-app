@@ -68,6 +68,8 @@ const DEFAULT_FORM = {
   activityLevel: 'moderate',
   protein: 120,
   proteinTouched: false,
+  calorieTouched: false,
+  customCalorieTarget: null,
   budget: 60,
   time: 25,
   family: 1,
@@ -99,6 +101,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
   // Keep the protein field in sync with the calculated suggestion until the
   // user manually edits it themselves — after that, we leave their number alone.
   const proteinValue = form.proteinTouched ? form.protein : targets.proteinTarget;
+  const calorieValue = form.calorieTouched && form.customCalorieTarget ? form.customCalorieTarget : targets.calorieTarget;
   const dishSplit = useMemo(() => splitDishes(form.dishesPerDay, form.meals), [form.dishesPerDay, form.meals]);
 
   function applyPreset(key) {
@@ -136,7 +139,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         body: JSON.stringify({
           goal: form.goal,
           proteinTarget: proteinValue,
-          calorieTarget: targets.calorieTarget,
+          calorieTarget: calorieValue,
           budget: form.budget,
           maxTime: form.time,
           family: form.family,
@@ -223,7 +226,8 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
 
       <div className="mb-6 rounded-xl bg-green-50 p-4 text-sm text-green-900">
         <b className="mb-1 block">🔢 Your calculated daily targets</b>
-        <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
+        <span className="text-lg font-extrabold">{calorieValue} kcal</span>
+        {form.calorieTouched && <span className="ml-1.5 rounded-full bg-green-200 px-1.5 py-0.5 text-[10px] font-extrabold text-green-800">custom</span>}
         <span className="mx-2 text-green-700/50">·</span>
         <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
         <div className="mt-1 text-xs text-green-700">
@@ -239,6 +243,39 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
                 Reset protein to suggested {targets.proteinTarget}g
               </button>
             </>
+          )}
+        </div>
+        <div className="mt-2 text-xs text-green-700">
+          {!form.calorieTouched ? (
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, calorieTouched: true, customCalorieTarget: targets.calorieTarget }))}
+              className="font-bold underline"
+            >
+              + Add your own calorie target
+            </button>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="font-bold" htmlFor="customCalorieInput">Your calorie target:</label>
+              <input
+                id="customCalorieInput"
+                type="number"
+                min={800}
+                max={6000}
+                step={50}
+                value={form.customCalorieTarget ?? targets.calorieTarget}
+                onChange={(e) => setForm((f) => ({ ...f, customCalorieTarget: Number(e.target.value) }))}
+                className="w-24 rounded-lg border-[1.5px] border-green-300 bg-white px-2 py-1 text-sm text-ink"
+              />
+              <span>kcal</span>
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, calorieTouched: false, customCalorieTarget: null }))}
+                className="font-bold underline"
+              >
+                Reset to calculated {targets.calorieTarget}
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -345,7 +382,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
           family={form.family}
           budget={form.budget}
           proteinTarget={proteinValue}
-          calorieTarget={targets.calorieTarget}
+          calorieTarget={calorieValue}
           onOpenRecipe={setActiveRecipe}
         />
       )}
