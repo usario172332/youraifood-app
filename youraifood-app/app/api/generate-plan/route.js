@@ -49,11 +49,15 @@ function servingsValue(raw) {
 // "cooked " — merges those into one line so the list stays genuinely
 // optimized instead of splitting one ingredient across two rows.
 function groceryKey(name) {
-  return name
+  const cleaned = name
     .replace(/\s*\([^)]*\)\s*/g, ' ')
     .replace(/^\s*cooked\s+/i, '')
     .replace(/\s+/g, ' ')
     .trim();
+  // Also fold case differences (e.g. "chicken breast" vs "Chicken breast")
+  // into the same row, so inconsistent capitalization in the recipe data
+  // doesn't split one ingredient across two grocery-list lines.
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
 }
 
 // Each day/slot now holds an array of dishes (`${slot}Dishes`), each with its
