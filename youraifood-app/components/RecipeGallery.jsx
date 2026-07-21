@@ -194,7 +194,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
           })}
         </div>
 
-        {compact && (
+        {compact && !isPremium && (
           <div className="mt-10 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
             <p className="mb-1 text-lg font-extrabold text-white">🔒 {premiumCount}+ premium recipes are waiting</p>
             <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
