@@ -182,8 +182,7 @@ export default function SamplePlan() {
 
         <p className="mb-3 text-xs text-ink-soft">
           This example uses 4 dishes/day (1 breakfast, 2 lunch/dinner, 1 snack) — you can choose 3 to 6 dishes per day,
-          and dishes are sometimes scaled to 1.5× servings (shown as a badge), to fit your calculated (or your own
-          custom) calorie target.
+          and portions are sometimes scaled up, to fit your calculated (or your own custom) calorie target.
         </p>
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full border-collapse bg-white text-sm">
@@ -214,11 +213,6 @@ export default function SamplePlan() {
                             <div className="font-semibold">
                               {idx > 0 && '+ '}
                               {d.recipe.name}
-                              {d.servings > 1 && (
-                                <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-extrabold text-green-700">
-                                  ×{d.servings}
-                                </span>
-                              )}
                             </div>
                             <div className="text-xs text-ink-soft">
                               {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min · €{(d.recipe.cost * d.servings).toFixed(2)}
