@@ -28,6 +28,37 @@ const MEAL_OPTIONS = [
   { key: 'snack', label: 'Snack' },
 ];
 
+const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
+
+const DISH_PRESETS = [
+  { value: 3, label: '3', hint: '1 per meal' },
+  { value: 4, label: '4', hint: 'standard' },
+  { value: 5, label: '5', hint: 'hearty' },
+  { value: 6, label: '6', hint: 'max variety' },
+];
+
+// Mirrors the server-side split in lib/anthropic.js — used here only to show
+// a live preview of how the chosen dish count breaks down per meal type.
+const SPLIT_PRIORITY = ['main', 'breakfast', 'snack'];
+function splitDishes(total, slots) {
+  const active = SPLIT_PRIORITY.filter((s) => slots.includes(s));
+  const n = active.length;
+  const counts = {};
+  if (!n) return counts;
+  const base = Math.floor(total / n);
+  let remainder = total % n;
+  active.forEach((s) => {
+    counts[s] = base;
+  });
+  active.forEach((s) => {
+    if (remainder > 0) {
+      counts[s] += 1;
+      remainder -= 1;
+    }
+  });
+  return counts;
+}
+
 const DEFAULT_FORM = {
   goal: 'lose',
   weight: 75,
@@ -42,6 +73,7 @@ const DEFAULT_FORM = {
   family: 1,
   diets: [],
   meals: ['breakfast', 'main', 'snack'],
+  dishesPerDay: 3,
 };
 
 export default function Planner({ user, session, favorites, onToggleFavorite }) {
@@ -67,6 +99,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
   // Keep the protein field in sync with the calculated suggestion until the
   // user manually edits it themselves — after that, we leave their number alone.
   const proteinValue = form.proteinTouched ? form.protein : targets.proteinTarget;
+  const dishSplit = useMemo(() => splitDishes(form.dishesPerDay, form.meals), [form.dishesPerDay, form.meals]);
 
   function applyPreset(key) {
     const p = PRESETS[key];
@@ -109,6 +142,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
           family: form.family,
           diets: form.diets,
           meals: form.meals,
+          dishesPerDay: form.dishesPerDay,
         }),
       });
       const data = await res.json();
@@ -272,6 +306,25 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             ))}
           </div>
         </Field>
+        <Field label="Dishes per day" hint="(across your selected meals)">
+          <div className="flex flex-wrap gap-1.5">
+            {DISH_PRESETS.map((d) => (
+              <button
+                key={d.value}
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, dishesPerDay: d.value }))}
+                className={`rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold ${
+                  form.dishesPerDay === d.value ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
+                }`}
+              >
+                {d.label} <span className="font-normal">({d.hint})</span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-1.5 text-[11px] text-ink-soft">
+            ≈ {form.meals.map((s) => `${dishSplit[s] || 0} ${MEAL_LABELS[s]}`).join(' · ')}
+          </p>
+        </Field>
       </div>
 
       <div className="mb-2 flex justify-end">
@@ -338,8 +391,6 @@ function Field({ label, hint, children }) {
   );
 }
 
-const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
-
 function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onOpenRecipe }) {
   const { days, coachNote, groceries, stats, usage, meals } = result;
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
@@ -370,8 +421,8 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
 
       <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Your 7-day menu</h3>
       <p className="mb-3 text-xs text-ink-soft">
-        Recipes are sometimes scaled to 1.5× or 2× servings (shown as a badge) — or paired with an extra snack — to help
-        each day reach your calorie target.
+        Some meals include more than one dish, and individual dishes are sometimes scaled to 1.5× or 2× servings
+        (shown as a badge) — both help each day reach your calorie target.
       </p>
       <div className="overflow-x-auto rounded-xl border border-gray-200">
         <table className="w-full border-collapse bg-white text-sm">
@@ -388,44 +439,34 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
               <tr key={row.day} className="border-t border-gray-100 align-top">
                 <td className="px-3 py-2.5 font-extrabold text-green-900">{row.day}</td>
                 {mealSlots.map((slot) => {
-                  const recipe = findRecipe(row[slot]);
-                  const servings = row[`${slot}Servings`] > 1 ? row[`${slot}Servings`] : null;
-                  const extra = slot === 'snack' ? findRecipe(row.extraSnack) : null;
+                  const dishes = (row[`${slot}Dishes`] || [])
+                    .map((d) => ({ ...d, recipe: findRecipe(d.id) }))
+                    .filter((d) => d.recipe);
                   return (
                     <td key={slot} className="px-3 py-2.5">
-                      {recipe ? (
-                        <div className={extra ? 'mb-2.5' : ''}>
+                      {dishes.length === 0 && <span className="text-ink-soft">—</span>}
+                      {dishes.map((d, idx) => (
+                        <div
+                          key={`${slot}-${d.id}`}
+                          className={idx > 0 ? 'mt-2.5 border-t border-dashed border-gray-100 pt-2' : ''}
+                        >
                           <div
-                            onClick={() => onOpenRecipe(recipe)}
+                            onClick={() => onOpenRecipe(d.recipe)}
                             className="cursor-pointer font-semibold underline decoration-dotted underline-offset-2 hover:text-green-700"
                           >
-                            {recipe.name}
-                            {servings && (
+                            {idx > 0 && '+ '}
+                            {d.recipe.name}
+                            {d.servings > 1 && (
                               <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-extrabold text-green-700">
-                                ×{servings}
+                                ×{d.servings}
                               </span>
                             )}
                           </div>
                           <div className="text-xs text-ink-soft">
-                            {Math.round(recipe.protein * (servings || 1))}g protein · {recipe.time}min · €{(recipe.cost * (servings || 1)).toFixed(2)}
+                            {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min · €{(d.recipe.cost * d.servings).toFixed(2)}
                           </div>
                         </div>
-                      ) : (
-                        <span className="text-ink-soft">—</span>
-                      )}
-                      {extra && (
-                        <div className="border-t border-dashed border-gray-100 pt-2">
-                          <div
-                            onClick={() => onOpenRecipe(extra)}
-                            className="cursor-pointer text-sm font-semibold underline decoration-dotted underline-offset-2 hover:text-green-700"
-                          >
-                            + {extra.name}
-                          </div>
-                          <div className="text-xs text-ink-soft">
-                            {extra.protein}g protein · {extra.time}min · €{extra.cost.toFixed(2)}
-                          </div>
-                        </div>
-                      )}
+                      ))}
                     </td>
                   );
                 })}
@@ -437,10 +478,10 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
 
       <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Nutritional breakdown</h3>
       <div className="grid grid-cols-2 gap-3.5 md:grid-cols-4">
-        <NutriBar label="Calories" val={stats.avgCal} unit="kcal" max={3200} />
-        <NutriBar label="Protein" val={stats.avgProtein} unit="g" max={260} />
-        <NutriBar label="Carbs" val={stats.avgCarbs} unit="g" max={260} />
-        <NutriBar label="Fat" val={stats.avgFat} unit="g" max={100} />
+        <NutriBar label="Calories" val={stats.avgCal} unit="kcal" max={3600} />
+        <NutriBar label="Protein" val={stats.avgProtein} unit="g" max={280} />
+        <NutriBar label="Carbs" val={stats.avgCarbs} unit="g" max={320} />
+        <NutriBar label="Fat" val={stats.avgFat} unit="g" max={120} />
       </div>
 
       <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimized grocery list</h3>
