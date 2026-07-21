@@ -54,11 +54,22 @@ create table if not exists public.recipe_reviews (
   unique (user_id, recipe_id)
 );
 
+-- Email leads captured from the homepage "Free 7-Day High-Protein Meal Plan"
+-- lead magnet. Not a user account — just an email address for future
+-- marketing follow-up.
+create table if not exists public.email_subscribers (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  source text not null default 'homepage_lead_magnet',
+  created_at timestamptz not null default now()
+);
+
 alter table public.profiles enable row level security;
 alter table public.saved_plans enable row level security;
 alter table public.favorites enable row level security;
 alter table public.weight_logs enable row level security;
 alter table public.recipe_reviews enable row level security;
+alter table public.email_subscribers enable row level security;
 
 -- Users can read/update only their own profile. The server API routes use
 -- the service role key (which bypasses RLS) for the usage-limit checks and
@@ -116,6 +127,11 @@ create policy "Users can update their own reviews"
 create policy "Users can delete their own reviews"
   on public.recipe_reviews for delete
   using (auth.uid() = user_id);
+
+-- No public select/insert policies on email_subscribers: it's only ever
+-- written to via the /api/subscribe route using the service-role key
+-- (bypasses RLS), so email addresses aren't readable or writable directly
+-- from the browser.
 
 -- Aggregated per-recipe rating stats, used for star badges on cards without
 -- pulling every individual review row.
