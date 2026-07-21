@@ -245,17 +245,17 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             </>
           )}
         </div>
-        <div className="mt-2 text-xs text-green-700">
+        <div className="mt-3 text-xs text-green-700">
           {!form.calorieTouched ? (
             <button
               type="button"
               onClick={() => setForm((f) => ({ ...f, calorieTouched: true, customCalorieTarget: targets.calorieTarget }))}
-              className="font-bold underline"
+              className="rounded-full border-[1.5px] border-green-600 bg-white px-3.5 py-1.5 text-xs font-bold text-green-700 shadow-sm hover:bg-green-100"
             >
-              + Add your own calorie target
+              ✏️ Add your own calorie target
             </button>
           ) : (
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border-[1.5px] border-green-300 bg-white/60 p-2.5">
               <label className="font-bold" htmlFor="customCalorieInput">Your calorie target:</label>
               <input
                 id="customCalorieInput"
@@ -265,7 +265,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
                 step={50}
                 value={form.customCalorieTarget ?? targets.calorieTarget}
                 onChange={(e) => setForm((f) => ({ ...f, customCalorieTarget: Number(e.target.value) }))}
-                className="w-24 rounded-lg border-[1.5px] border-green-300 bg-white px-2 py-1 text-sm text-ink"
+                className="w-24 rounded-lg border-[1.5px] border-green-400 bg-white px-2 py-1.5 text-sm font-bold text-ink"
               />
               <span>kcal</span>
               <button
