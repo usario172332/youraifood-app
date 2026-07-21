@@ -33,19 +33,32 @@ async function getOrCreateProfile(admin, user) {
 }
 
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
+const SERVINGS_OPTIONS = [1, 1.5, 2];
+
+// Recipes are scaled up to 1.5x or 2x servings (calories/protein/cost/
+// ingredient quantities all scale proportionally) to help a day's plan
+// reach the user's real calorie target, instead of being capped at
+// whatever a single serving of each meal adds up to.
+function servingsFor(row, slot) {
+  const raw = Number(row[`${slot}Servings`]);
+  return SERVINGS_OPTIONS.includes(raw) ? raw : 1;
+}
 
 function buildGroceryList(days, family, meals) {
   const groceries = {};
+  const addIngredients = (recipe, multiplier) => {
+    if (!recipe) return;
+    recipe.ingredients.forEach((ing) => {
+      const key = ing.n;
+      if (!groceries[key]) groceries[key] = { qty: 0, unit: ing.u, cat: ing.cat };
+      groceries[key].qty += ing.q * family * multiplier;
+    });
+  };
   days.forEach((row) => {
     meals.forEach((slot) => {
-      const recipe = findRecipe(row[slot]);
-      if (!recipe) return;
-      recipe.ingredients.forEach((ing) => {
-        const key = ing.n;
-        if (!groceries[key]) groceries[key] = { qty: 0, unit: ing.u, cat: ing.cat };
-        groceries[key].qty += ing.q * family;
-      });
+      addIngredients(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
     });
+    if (row.extraSnack) addIngredients(findRecipe(row.extraSnack), 1);
   });
   return groceries;
 }
@@ -58,17 +71,21 @@ function buildNutritionAndCost(days, family, meals) {
   let totalFat = 0;
   const usedRecipeIds = new Set();
 
+  const addRecipe = (recipe, multiplier) => {
+    if (!recipe) return;
+    totalCost += recipe.cost * family * multiplier;
+    totalProtein += recipe.protein * multiplier;
+    totalCal += recipe.cal * multiplier;
+    totalCarbs += recipe.carbs * multiplier;
+    totalFat += recipe.fat * multiplier;
+    usedRecipeIds.add(recipe.id);
+  };
+
   days.forEach((row) => {
     meals.forEach((slot) => {
-      const recipe = findRecipe(row[slot]);
-      if (!recipe) return;
-      totalCost += recipe.cost * family;
-      totalProtein += recipe.protein;
-      totalCal += recipe.cal;
-      totalCarbs += recipe.carbs;
-      totalFat += recipe.fat;
-      usedRecipeIds.add(recipe.id);
+      addRecipe(findRecipe(row[slot]), row[`${slot}Servings`] || 1);
     });
+    if (row.extraSnack) addRecipe(findRecipe(row.extraSnack), 1);
   });
 
   return {
@@ -161,8 +178,16 @@ export async function POST(req) {
     const days = aiResult.days.map((row, i) => {
       const dayRow = { day: row.day || DAYS[i] };
       mealSlots.forEach((slot) => {
-        dayRow[slot] = row[slot] ? resolveRecipe(row[slot]) : null;
+        const resolvedId = row[slot] ? resolveRecipe(row[slot]) : null;
+        dayRow[slot] = resolvedId;
+        dayRow[`${slot}Servings`] = resolvedId ? servingsFor(row, slot) : 1;
       });
+      if (mealSlots.includes('snack') && row.extraSnack) {
+        const resolvedExtra = resolveRecipe(row.extraSnack);
+        if (resolvedExtra && resolvedExtra !== dayRow.snack) {
+          dayRow.extraSnack = resolvedExtra;
+        }
+      }
       return dayRow;
     });
 
