@@ -458,8 +458,7 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
 
       <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Your 7-day menu</h3>
       <p className="mb-3 text-xs text-ink-soft">
-        Some meals include more than one dish, and individual dishes are sometimes scaled to 1.5× or 2× servings
-        (shown as a badge) — both help each day reach your calorie target.
+        Some meals include more than one dish, and portions are sometimes scaled up, so each day reaches your calorie target.
       </p>
       <div className="overflow-x-auto rounded-xl border border-gray-200">
         <table className="w-full border-collapse bg-white text-sm">
@@ -493,11 +492,6 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, onO
                           >
                             {idx > 0 && '+ '}
                             {d.recipe.name}
-                            {d.servings > 1 && (
-                              <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-extrabold text-green-700">
-                                ×{d.servings}
-                              </span>
-                            )}
                           </div>
                           <div className="text-xs text-ink-soft">
                             {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min · €{(d.recipe.cost * d.servings).toFixed(2)}
