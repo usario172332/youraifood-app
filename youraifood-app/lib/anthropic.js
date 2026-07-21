@@ -14,12 +14,28 @@ function getClient() {
 // is guaranteed valid JSON with only ids that exist in our catalog — the
 // model never has to invent macros or prices, it just picks recipes.
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
+const SERVINGS_OPTIONS = [1, 1.5, 2];
 
 function buildPlanTool(meals) {
   const dayProps = { day: { type: 'string' } };
+  const required = ['day', ...meals];
+
   meals.forEach((slot) => {
     dayProps[slot] = { type: 'string', description: `${MEAL_LABELS[slot]} recipe id from the catalog` };
+    dayProps[`${slot}Servings`] = {
+      type: 'number',
+      enum: SERVINGS_OPTIONS,
+      description: `Serving multiplier for the ${MEAL_LABELS[slot]} recipe: 1, 1.5, or 2. Use 1 by default — only scale above 1 when a single serving across all included meals wouldn't reach the daily calorie target.`,
+    };
   });
+
+  if (meals.includes('snack')) {
+    dayProps.extraSnack = {
+      type: 'string',
+      description:
+        'Optional id of a second, different snack recipe for this day. Only set this if, even after scaling every meal to 2x servings, the day would still fall short of the calorie target by more than roughly 15%. Omit this field entirely otherwise.',
+    };
+  }
 
   return {
     name: 'build_weekly_plan',
@@ -33,7 +49,7 @@ function buildPlanTool(meals) {
           items: {
             type: 'object',
             properties: dayProps,
-            required: ['day', ...meals],
+            required,
           },
         },
         coachNote: {
@@ -66,8 +82,12 @@ The user only wants these meal types included in their plan: ${mealList}. Build 
 - Respect every diet tag the user selected (a recipe must include ALL of them to qualify).
 - Respect the max cook time per meal.
 - Aim for the daily calorie target on average across the week (within roughly 10%) — this is the primary constraint, since it drives the user's weight loss/gain/maintenance goal.
+- A single serving of each meal often won't add up to the calorie target on its own. You have two tools to close the gap, and should use whichever (or both) get you closest:
+  1. Serving multipliers — set "<slot>Servings" to 1.5 or 2 to scale up a recipe's calories, protein and cost proportionally. Use this first.
+  2. An extra snack — only if scaling every meal to 2x servings still leaves the day well short of target, add a second, different snack recipe via "extraSnack".
+  Never scale below 1x or above 2x, and don't add an extra snack unless it's genuinely needed to reach the target.
 - Aim for the daily protein target on average across the week.
-- Aim to stay within the weekly budget (cost per serving × family size × meals planned).
+- Aim to stay within the weekly budget (cost per serving × family size × meals planned, including any scaling or extra snack).
 - Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking a totally different recipe for every slot.
 - Vary meals enough that it doesn't feel repetitive day to day.
 Call the build_weekly_plan tool with your answer. Do not include any text outside the tool call.`;
