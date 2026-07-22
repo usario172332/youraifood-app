@@ -216,9 +216,9 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, meals, dishesPerDay } = body;
+    const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay } = body;
 
-    if (!goal || !proteinTarget || !calorieTarget || !budget || !maxTime || !family) {
+    if (!goal || !proteinTarget || !calorieTarget || !budgetLevel || !maxTime || !family) {
       return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 400 });
     }
 
@@ -236,7 +236,7 @@ export async function POST(req) {
       goal,
       proteinTarget,
       calorieTarget,
-      budget,
+      budgetLevel,
       maxTime,
       family,
       diets: Array.isArray(diets) ? diets : [],
@@ -287,7 +287,7 @@ export async function POST(req) {
 
     await admin.from('saved_plans').insert({
       user_id: user.id,
-      inputs: { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes },
+      inputs: { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes },
       plan_days: days,
       coach_note: aiResult.coachNote,
     });
