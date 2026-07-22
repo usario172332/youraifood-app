@@ -32,7 +32,7 @@ export default function HomeContent() {
             Never wonder what to cook <span className="text-green-600">again</span>.
           </h1>
           <p className="mx-auto mb-8 max-w-xl text-lg text-ink-soft">
-            A personalised weekly meal plan — recipes, calories, macros and a shopping list, ready in under a minute.
+            In under a minute, get your personalised weekly meal plan — recipes, calories, macros and a shopping list, all done for you.
           </p>
           <button
             onClick={scrollToPlanner}
