@@ -174,12 +174,12 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { dayIndex, days, goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, meals, dishesPerDay } = body;
+    const { dayIndex, days, goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay } = body;
 
     if (!Array.isArray(days) || dayIndex == null || !days[dayIndex]) {
       return NextResponse.json({ error: 'Missing plan context for regeneration.' }, { status: 400 });
     }
-    if (!goal || !proteinTarget || !calorieTarget || !budget || !maxTime || !family) {
+    if (!goal || !proteinTarget || !calorieTarget || !budgetLevel || !maxTime || !family) {
       return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 400 });
     }
 
@@ -200,7 +200,7 @@ export async function POST(req) {
       goal,
       proteinTarget,
       calorieTarget,
-      budget,
+      budgetLevel,
       maxTime,
       family,
       diets: Array.isArray(diets) ? diets : [],
