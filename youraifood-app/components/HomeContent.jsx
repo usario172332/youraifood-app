@@ -36,11 +36,11 @@ export default function HomeContent() {
           </p>
           <button
             onClick={scrollToPlanner}
-            className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white transition hover:-translate-y-px hover:bg-green-700"
+            className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white shadow-sm transition hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0"
           >
             Build My Week →
           </button>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
             <span>✓ Personalised 7-day meal plan</span>
             <span>✓ High-protein recipes</span>
             <span>✓ Calories & macros</span>
