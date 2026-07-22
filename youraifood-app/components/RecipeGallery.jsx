@@ -121,7 +121,6 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
             const locked = r.premium && !isPremium;
             const isFav = favorites?.has(r.id);
             const hero = getHero(r);
-            const difficulty = getDifficulty(r);
             const highProtein = isHighProtein(r);
             const summary = reviewSummaries[r.id];
             return (
@@ -153,15 +152,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                     </div>
                   )}
                   <div className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
-                      {summary && summary.count > 0 && (
-                        <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600">
-                          <span>⭐ {summary.average}</span>
-                          <span className="text-ink-soft">({summary.count})</span>
-                        </div>
-                      )}
-                    </div>
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
                     <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
                     <div className="mb-2 flex flex-wrap gap-1">
                       {highProtein && (
@@ -173,10 +164,25 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                         </span>
                       ))}
                     </div>
-                    <div className="flex justify-between border-t border-dashed border-gray-100 pt-2 text-xs text-ink-soft">
-                      <span>{DIFFICULTY_ICON[difficulty]} {difficulty}</span>
-                      <span>{r.time} min</span>
-                      <span>€{r.cost.toFixed(2)}</span>
+                    <div className="grid grid-cols-4 gap-1 border-t border-dashed border-gray-100 pt-2 text-center">
+                      <div>
+                        <div className="text-xs font-extrabold text-green-900">{r.protein}g</div>
+                        <div className="text-[10px] text-ink-soft">Protein</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-green-900">{r.cal}</div>
+                        <div className="text-[10px] text-ink-soft">Calories</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-green-900">{r.time}m</div>
+                        <div className="text-[10px] text-ink-soft">Time</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-green-900">
+                          {summary && summary.count > 0 ? `⭐${summary.average}` : '—'}
+                        </div>
+                        <div className="text-[10px] text-ink-soft">Rating</div>
+                      </div>
                     </div>
                   </div>
                 </div>
