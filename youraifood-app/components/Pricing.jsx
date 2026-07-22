@@ -67,8 +67,8 @@ export default function Pricing({ session, isPremium }) {
             className={`relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ${yearly ? 'bg-green-600' : 'bg-gray-300'}`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
-                yearly ? 'translate-x-6' : 'translate-x-1'
+              className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                yearly ? 'translate-x-5' : 'translate-x-0'
               }`}
             />
           </button>
