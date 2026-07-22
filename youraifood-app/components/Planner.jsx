@@ -13,7 +13,6 @@ const PRESETS = {
   budget: { goal: 'maintain', protein: 110, budgetLevel: 'budget', time: 25, family: 1, diet: [] },
   quick: { goal: 'maintain', protein: 120, budgetLevel: 'balanced', time: 20, family: 1, diet: [] },
   family: { goal: 'maintain', protein: 120, budgetLevel: 'balanced', time: 25, family: 4, diet: [] },
-  all: { goal: 'lose', protein: 180, budgetLevel: 'balanced', time: 20, family: 4, diet: [] },
 };
 
 const DIET_OPTIONS = [
@@ -236,7 +235,6 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         <PresetChip label="💶 Budget-friendly" onClick={() => applyPreset('budget')} />
         <PresetChip label="⏱️ Cook in under 20 min" onClick={() => applyPreset('quick')} />
         <PresetChip label="👨‍👩‍👧‍👦 Feed a family of four" onClick={() => applyPreset('family')} />
-        <PresetChip label="✨ All of the above" full onClick={() => applyPreset('all')} />
       </div>
 
       <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">About you</h3>
