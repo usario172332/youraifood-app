@@ -1,11 +1,11 @@
 const CASES = [
-  { icon: '🏋️', label: 'Gym-goers building muscle' },
-  { icon: '👨‍👩‍👧', label: 'Families cooking for the week' },
-  { icon: '🥗', label: 'Weight loss, done sustainably' },
-  { icon: '💰', label: 'Budget-conscious cooking' },
-  { icon: '🥣', label: 'Meal preppers' },
-  { icon: '🌱', label: 'Vegetarian & vegan diets' },
-  { icon: '🍳', label: 'High-protein eating' },
+  { icon: '🏋️', label: 'Want to build muscle?' },
+  { icon: '👨‍👩‍👧', label: 'Cooking for your family?' },
+  { icon: '🥗', label: 'Trying to lose weight?' },
+  { icon: '💰', label: 'Watching your food budget?' },
+  { icon: '⏱️', label: "Don't know what to cook after work?" },
+  { icon: '🌱', label: 'Eating vegetarian or vegan?' },
+  { icon: '🍳', label: 'Looking for high-protein meals?' },
 ];
 
 export default function UseCases() {
