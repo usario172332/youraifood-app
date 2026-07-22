@@ -36,7 +36,7 @@ export default function HomeContent() {
           </p>
           <button
             onClick={scrollToPlanner}
-            className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white shadow-sm transition hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0"
+            className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white shadow-sm transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0"
           >
             Build My Week →
           </button>
