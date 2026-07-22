@@ -5,14 +5,6 @@ const BENEFITS = [
   { icon: '💪', title: 'Nutrition designed around your goals', text: 'Real calories, protein and macros — calculated for every meal.' },
 ];
 
-const ROWS = [
-  { before: 'Requires manual prompting', after: 'One-click personalised meal plans' },
-  { before: 'No saved plans', after: 'Saved plans' },
-  { before: 'No structured weekly planning', after: 'Weekly planning' },
-  { before: 'No shopping list', after: 'Automatic shopping lists' },
-  { before: 'No nutrition dashboard', after: 'Nutrition tracking' },
-];
-
 export default function WhyYourAiFood() {
   return (
     <section className="bg-gray-50 px-6 py-16">
@@ -31,25 +23,6 @@ export default function WhyYourAiFood() {
               <div className="mb-3 text-3xl">{b.icon}</div>
               <h3 className="mb-1.5 text-sm font-extrabold text-green-900">{b.title}</h3>
               <p className="text-sm text-ink-soft">{b.text}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          <div className="grid grid-cols-2 bg-gray-50 text-sm font-extrabold">
-            <div className="border-r border-gray-200 px-5 py-3 text-gray-500">General AI</div>
-            <div className="px-5 py-3 text-green-700">YourAiFood</div>
-          </div>
-          {ROWS.map((row, i) => (
-            <div key={row.after} className={`grid grid-cols-2 text-sm ${i !== ROWS.length - 1 ? 'border-b border-gray-100' : ''}`}>
-              <div className="flex items-start gap-2 border-r border-gray-100 px-5 py-4 text-ink-soft">
-                <span className="mt-0.5 text-gray-300">✕</span>
-                {row.before}
-              </div>
-              <div className="flex items-start gap-2 bg-green-50/40 px-5 py-4 font-semibold text-ink">
-                <span className="mt-0.5 text-green-600">✓</span>
-                {row.after}
-              </div>
             </div>
           ))}
         </div>
