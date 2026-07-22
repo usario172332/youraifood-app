@@ -4,16 +4,20 @@ import { useState } from 'react';
 
 const FAQS = [
   {
-    q: 'Is it free?',
+    q: 'Can I customise my meal plan?',
+    a: 'Yes. Set your dietary needs, calorie and protein targets, budget, and cook time, and swap out any meal you don’t like without touching the rest of your week.',
+  },
+  {
+    q: 'Is there a free version?',
     a: 'Yes. The free plan includes 5 AI meal plans a month, the full recipe library, and the shopping list generator. Premium (€7.77/month) adds unlimited plans and extra tools.',
   },
   {
-    q: 'Can I change meals I don’t like?',
-    a: 'Yes. Swap out any single meal, or regenerate a whole day, without touching the rest of your week.',
+    q: 'Can I regenerate meals?',
+    a: 'Yes — generate a new plan anytime, or regenerate just one day if only part of the week needs changing.',
   },
   {
-    q: 'Can I regenerate a whole week?',
-    a: 'Yes — generate a new plan anytime, or regenerate just one day if only part of the week needs changing.',
+    q: 'How does the AI work?',
+    a: 'You set your goals, and the AI builds a full week of recipes from our real recipe library, scaled and combined to hit your exact calorie and protein targets — nutrition numbers are computed from the recipes, never estimated.',
   },
   {
     q: 'Can vegetarians use it?',
@@ -26,10 +30,6 @@ const FAQS = [
   {
     q: 'Can I lose weight with this?',
     a: 'Yes. Set your goal to “lose weight” and your calorie target is calculated from your stats using the Mifflin-St Jeor formula.',
-  },
-  {
-    q: 'Can I customise my calorie target?',
-    a: 'Yes. Use the auto-calculated target, or enter your own custom calorie and protein goals directly.',
   },
 ];
 
