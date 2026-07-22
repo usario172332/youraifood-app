@@ -9,6 +9,7 @@ import EcosystemDiagram from './EcosystemDiagram';
 import SamplePlan from './SamplePlan';
 import RecipeGallery from './RecipeGallery';
 import EmailCapture from './EmailCapture';
+import FAQ from './FAQ';
 import Roadmap from './Roadmap';
 import Pricing from './Pricing';
 import { useAuth } from '../lib/AuthContext';
@@ -63,6 +64,7 @@ export default function HomeContent() {
       <SamplePlan />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
       <UseCases />
+      <FAQ />
       <EmailCapture />
       <Pricing session={session} isPremium={isPremium} />
       <EcosystemDiagram />
