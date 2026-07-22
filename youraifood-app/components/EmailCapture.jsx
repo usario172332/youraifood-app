@@ -45,7 +45,7 @@ export default function EmailCapture() {
         </span>
         <h2 className="mb-2 text-2xl font-extrabold text-green-900">Get a free 7-day high-protein meal plan</h2>
         <p className="mx-auto mb-6 max-w-md text-ink-soft">
-          Real recipes, a full grocery list, and the macros — as a PDF, instantly. No account needed.
+          Real recipes, a grocery list, and macros — as a PDF, instantly. No account needed.
         </p>
         {status === 'done' ? (
           <p className="font-bold text-green-800">
@@ -72,7 +72,7 @@ export default function EmailCapture() {
         )}
         {error && <p className="mt-3 text-sm font-semibold text-amber-700">{error}</p>}
         <p className="mt-4 text-xs text-ink-soft">
-          We'll only use your email for meal-planning tips and product updates. Unsubscribe anytime.
+          Meal tips and product updates only. Unsubscribe anytime.
         </p>
       </div>
     </section>
