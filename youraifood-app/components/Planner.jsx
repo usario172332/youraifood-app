@@ -7,13 +7,13 @@ import { calculateTargets, ACTIVITY_OPTIONS } from '../lib/nutrition';
 import RecipeModal from './RecipeModal';
 
 const PRESETS = {
-  lose: { goal: 'lose', protein: 140, budget: 60, time: 25, family: 1, diet: [] },
-  muscle: { goal: 'muscle', protein: 170, budget: 70, time: 25, family: 1, diet: [] },
-  protein: { goal: 'muscle', protein: 180, budget: 75, time: 25, family: 1, diet: [] },
-  budget: { goal: 'maintain', protein: 110, budget: 55, time: 25, family: 1, diet: [] },
-  quick: { goal: 'maintain', protein: 120, budget: 60, time: 20, family: 1, diet: [] },
-  family: { goal: 'maintain', protein: 120, budget: 100, time: 25, family: 4, diet: [] },
-  all: { goal: 'lose', protein: 180, budget: 60, time: 20, family: 4, diet: [] },
+  lose: { goal: 'lose', protein: 140, budgetLevel: 'balanced', time: 25, family: 1, diet: [] },
+  muscle: { goal: 'muscle', protein: 170, budgetLevel: 'balanced', time: 25, family: 1, diet: [] },
+  protein: { goal: 'muscle', protein: 180, budgetLevel: 'balanced', time: 25, family: 1, diet: [] },
+  budget: { goal: 'maintain', protein: 110, budgetLevel: 'budget', time: 25, family: 1, diet: [] },
+  quick: { goal: 'maintain', protein: 120, budgetLevel: 'balanced', time: 20, family: 1, diet: [] },
+  family: { goal: 'maintain', protein: 120, budgetLevel: 'balanced', time: 25, family: 4, diet: [] },
+  all: { goal: 'lose', protein: 180, budgetLevel: 'balanced', time: 20, family: 4, diet: [] },
 };
 
 const DIET_OPTIONS = [
@@ -32,6 +32,12 @@ const MEAL_OPTIONS = [
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 
 const GOAL_LABELS = { lose: 'Lose Weight', muscle: 'Muscle Gain', maintain: 'Maintain Health' };
+
+const BUDGET_LEVELS = [
+  { value: 'budget', icon: '\ud83d\udcb0', label: 'Budget-friendly', desc: 'Affordable staples' },
+  { value: 'balanced', icon: '\ud83d\udcb0\ud83d\udcb0', label: 'Balanced', desc: 'Everyday variety' },
+  { value: 'premium', icon: '\ud83d\udcb0\ud83d\udcb0\ud83d\udcb0', label: 'Premium', desc: 'Quality & variety' },
+];
 
 const LOADING_STEPS = [
   'Understanding your goals…',
@@ -81,7 +87,7 @@ const DEFAULT_FORM = {
   proteinTouched: false,
   calorieTouched: false,
   customCalorieTarget: null,
-  budget: 60,
+  budgetLevel: 'balanced',
   time: 25,
   family: 1,
   diets: [],
@@ -128,7 +134,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
 
   function applyPreset(key) {
     const p = PRESETS[key];
-    setForm((f) => ({ ...f, goal: p.goal, protein: p.protein, proteinTouched: true, budget: p.budget, time: p.time, family: p.family, diets: [] }));
+    setForm((f) => ({ ...f, goal: p.goal, protein: p.protein, proteinTouched: true, budgetLevel: p.budgetLevel, time: p.time, family: p.family, diets: [] }));
   }
 
   function toggleDiet(key) {
@@ -161,7 +167,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
           goal: form.goal,
           proteinTarget: proteinValue,
           calorieTarget: calorieValue,
-          budget: form.budget,
+          budgetLevel: form.budgetLevel,
           maxTime: form.time,
           family: form.family,
           diets: form.diets,
@@ -197,7 +203,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
           goal: form.goal,
           proteinTarget: proteinValue,
           calorieTarget: calorieValue,
-          budget: form.budget,
+          budgetLevel: form.budgetLevel,
           maxTime: form.time,
           family: form.family,
           diets: form.diets,
@@ -227,7 +233,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         <PresetChip label="🎯 Lose 6 kg" onClick={() => applyPreset('lose')} />
         <PresetChip label="💪 Build muscle" onClick={() => applyPreset('muscle')} />
         <PresetChip label="🥩 Eat 180g protein/day" onClick={() => applyPreset('protein')} />
-        <PresetChip label="💶 Spend <€60/week" onClick={() => applyPreset('budget')} />
+        <PresetChip label="💶 Budget-friendly" onClick={() => applyPreset('budget')} />
         <PresetChip label="⏱️ Cook in under 20 min" onClick={() => applyPreset('quick')} />
         <PresetChip label="👨‍👩‍👧‍👦 Feed a family of four" onClick={() => applyPreset('family')} />
         <PresetChip label="✨ All of the above" full onClick={() => applyPreset('all')} />
@@ -358,10 +364,27 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             onChange={(e) => setForm({ ...form, protein: Number(e.target.value), proteinTouched: true })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
-        <Field label="Weekly budget" hint="(€)" id="budgetInput">
-          <input id="budgetInput" type="number" min={20} max={300} step={5} value={form.budget}
-            onChange={(e) => setForm({ ...form, budget: Number(e.target.value) })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+        <Field label="Budget level" id="budgetLevelGroup">
+          <div role="radiogroup" aria-label="Budget level" className="grid grid-cols-3 gap-1.5">
+            {BUDGET_LEVELS.map((lvl) => (
+              <button
+                key={lvl.value}
+                type="button"
+                role="radio"
+                aria-checked={form.budgetLevel === lvl.value}
+                onClick={() => setForm({ ...form, budgetLevel: lvl.value })}
+                className={`flex flex-col items-center gap-0.5 rounded-lg border-[1.5px] px-1.5 py-2 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-1 ${
+                  form.budgetLevel === lvl.value
+                    ? 'border-green-600 bg-green-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <span className="text-sm leading-none">{lvl.icon}</span>
+                <span className={`text-xs font-semibold leading-tight ${form.budgetLevel === lvl.value ? 'text-green-800' : 'text-gray-700'}`}>{lvl.label}</span>
+                <span className="text-[10px] leading-tight text-ink-soft">{lvl.desc}</span>
+              </button>
+            ))}
+          </div>
         </Field>
         <Field label="Max cook time" hint="(min/meal)" id="timeInput">
           <input id="timeInput" type="number" min={5} max={90} step={5} value={form.time}
@@ -447,7 +470,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         <PlanResults
           result={result}
           family={form.family}
-          budget={form.budget}
+          budgetLevel={form.budgetLevel}
           proteinTarget={proteinValue}
           calorieTarget={calorieValue}
           goal={form.goal}
@@ -497,10 +520,9 @@ function Field({ label, hint, id, children }) {
   );
 }
 
-function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goal, onOpenRecipe, onRegenerateDay }) {
+function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget, goal, onOpenRecipe, onRegenerateDay }) {
   const { days, coachNote, groceries, stats, usage, meals } = result;
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
-  const overBudget = stats.totalCost > budget;
   const calorieOnTarget = Math.abs(stats.avgCal - calorieTarget) <= calorieTarget * 0.1;
   const proteinOnTarget = stats.avgProtein >= proteinTarget * 0.9;
   const [downloading, setDownloading] = useState(false);
@@ -528,7 +550,7 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
     setDownloading(true);
     try {
       const { downloadPlanPdf } = await import('../lib/pdfExport');
-      await downloadPlanPdf({ days, mealSlots, groceries, stats, coachNote, goal, proteinTarget, calorieTarget, budget });
+      await downloadPlanPdf({ days, mealSlots, groceries, stats, coachNote, goal, proteinTarget, calorieTarget, budgetLevel });
     } catch (err) {
       console.error('PDF export failed', err);
     } finally {
@@ -561,8 +583,7 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
           </button>
         </div>
       </div>
-      <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-5">
-        <Stat label={`Est. weekly cost (target €${budget})`} value={`€${stats.totalCost.toFixed(0)}`} tone={overBudget ? 'warn' : 'ok'} />
+      <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-4">
         <Stat label={`Avg daily protein (target ${proteinTarget}g)`} value={`${stats.avgProtein}g`} />
         <Stat label={`Avg daily calories (target ${calorieTarget})`} value={stats.avgCal} />
         <Stat label={usage.isPremium ? 'Plans this month' : `Plans used (of ${usage.limit})`} value={usage.used} />
@@ -663,17 +684,11 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="mt-4">
         <div className="rounded-xl bg-green-50 p-4 text-sm text-green-900">
           <b className="mb-1 block">♻️ Minimal food waste & ingredient reuse</b>
           Your plan uses just <b>{stats.distinctRecipes} distinct recipes</b> across the week — core ingredients repeat by
           design, so nothing bought goes unused.
-        </div>
-        <div className="rounded-xl bg-green-50 p-4 text-sm text-green-900">
-          <b className="mb-1 block">💶 Budget check</b>
-          {overBudget
-            ? `This plan comes in about €${(stats.totalCost - budget).toFixed(0)} over your €${budget} target.`
-            : `This plan is about €${(budget - stats.totalCost).toFixed(0)} under your €${budget} weekly budget.`}
         </div>
       </div>
     </div>
