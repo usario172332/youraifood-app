@@ -1,38 +1,36 @@
-const ROWS = [
-  { before: 'Search recipes manually', after: 'AI builds your week in seconds' },
-  { before: 'Guess calories', after: 'Exact nutrition, computed from real recipes' },
-  { before: 'Forget ingredients', after: 'Automatic, aisle-organized shopping list' },
-  { before: 'Eat the same meals on repeat', after: 'Endless variety across 235+ recipes' },
-  { before: "Doesn't fit your goals", after: 'Personalized to your calories, protein, and budget' },
-];
+const TRADITIONAL = ['Search recipes', 'Count calories', 'Write shopping list', 'Repeat every week'];
+const YOURAIFOOD = ['One click', 'Complete weekly plan', 'Automatic shopping list', 'Nutrition included'];
 
 export default function ComparisonTable() {
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-[840px]">
         <h2 className="mb-10 text-center text-2xl font-extrabold text-green-900">
-          Traditional meal planning vs. YourAiFood
+          Traditional planning vs. YourAiFood
         </h2>
-        <div className="overflow-hidden rounded-2xl border border-gray-200">
-          <div className="grid grid-cols-2 bg-gray-50 text-sm font-extrabold text-ink">
-            <div className="border-r border-gray-200 px-5 py-3 text-gray-500">Traditional planning</div>
-            <div className="px-5 py-3 text-green-700">YourAiFood</div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-7">
+            <h3 className="mb-5 text-xs font-extrabold uppercase tracking-wide text-gray-500">Traditional planning</h3>
+            <ul className="space-y-3.5">
+              {TRADITIONAL.map((item) => (
+                <li key={item} className="flex items-center gap-2.5 text-sm font-semibold text-ink-soft">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-500">✕</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-          {ROWS.map((row, i) => (
-            <div
-              key={row.before}
-              className={`grid grid-cols-2 text-sm ${i !== ROWS.length - 1 ? 'border-b border-gray-100' : ''}`}
-            >
-              <div className="flex items-start gap-2 border-r border-gray-100 px-5 py-4 text-ink-soft">
-                <span className="mt-0.5 text-gray-300">✕</span>
-                {row.before}
-              </div>
-              <div className="flex items-start gap-2 bg-green-50/40 px-5 py-4 font-semibold text-ink">
-                <span className="mt-0.5 text-green-600">✓</span>
-                {row.after}
-              </div>
-            </div>
-          ))}
+          <div className="rounded-2xl border-2 border-green-300 bg-green-50/60 p-7">
+            <h3 className="mb-5 text-xs font-extrabold uppercase tracking-wide text-green-700">YourAiFood</h3>
+            <ul className="space-y-3.5">
+              {YOURAIFOOD.map((item) => (
+                <li key={item} className="flex items-center gap-2.5 text-sm font-bold text-ink">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-600 text-xs text-white">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
