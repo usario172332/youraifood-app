@@ -74,6 +74,15 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
       .catch(() => {});
   }, [recipe?.id, session]);
 
+  useEffect(() => {
+    if (!recipe) return;
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [recipe, onClose]);
+
   if (!recipe) return null;
 
   const hero = getHero(recipe);
@@ -123,7 +132,12 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-5"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="recipe-modal-title"
+        className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white"
+      >
         {/* Hero banner — real photo if generated, otherwise a styled placeholder */}
         <div
           className={`relative flex h-36 items-center justify-center overflow-hidden rounded-t-2xl ${
@@ -140,7 +154,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
             {onToggleFavorite && (
               <button
                 onClick={onToggleFavorite}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-sm shadow"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-sm shadow transition duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               >
                 {isFavorite ? '❤️' : '🤍'}
@@ -148,7 +162,8 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
             )}
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-sm font-bold text-green-700 shadow"
+              aria-label="Close recipe details"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-sm font-bold text-green-700 shadow transition duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
             >
               ✕
             </button>
@@ -169,7 +184,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
 
         <div className="p-7">
           <div className="text-xs font-extrabold uppercase tracking-wide text-green-600">{recipe.meal}</div>
-          <h3 className="mt-1 text-xl font-extrabold text-green-900">{recipe.name}</h3>
+          <h3 id="recipe-modal-title" className="mt-1 text-xl font-extrabold text-green-900">{recipe.name}</h3>
 
           {reviewsData && reviewsData.count > 0 && (
             <div className="mt-1.5 flex items-center gap-1.5 text-sm">
