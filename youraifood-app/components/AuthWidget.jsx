@@ -83,7 +83,7 @@ export default function AuthWidget({ compact, openSignal }) {
             >
               Sign in
             </button>
-            <span className="text-gray-300">|</span>
+            <span className="text-purple-400">|</span>
             <button
               className={mode === 'signup' ? 'text-green-700' : 'text-ink-soft'}
               onClick={() => setMode('signup')}
