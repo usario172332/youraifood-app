@@ -106,6 +106,6 @@ export function buildFreePlanExport() {
     goal: 'muscle',
     proteinTarget: avgProtein,
     calorieTarget: avgCal,
-    budget: Math.ceil(totalCost / 5) * 5,
+    budgetLevel: 'balanced',
   };
 }
