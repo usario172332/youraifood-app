@@ -14,7 +14,7 @@ export default function EcosystemDiagram() {
       <div className="mx-auto max-w-[1120px] text-center">
         <h2 className="mb-2 text-2xl font-extrabold text-green-900">Not just recipes — a full food platform</h2>
         <p className="mx-auto mb-10 max-w-2xl text-ink-soft">
-          Every part of the journey from "what should I eat" to "it's in my kitchen," in one place.
+          From "what should I eat" to "it's in my kitchen" — all in one place.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           {STEPS.map((s, i) => (
