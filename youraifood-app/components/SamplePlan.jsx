@@ -155,9 +155,10 @@ export default function SamplePlan() {
                 const lunch = row.mainDishes?.[0] ? findRecipe(row.mainDishes[0].id) : null;
                 const dinner = row.mainDishes?.[1] ? findRecipe(row.mainDishes[1].id) : null;
                 const totals = dayTotals(row);
+                const isMonday = row.day === 'Monday';
                 return (
-                  <tr key={row.day} className="border-t border-gray-100">
-                    <td className="px-4 py-3.5 font-extrabold text-green-900">{row.day}</td>
+                  <tr key={row.day} className={`border-t border-gray-100 ${isMonday ? 'bg-green-50/70' : ''}`}>
+                    <td className={`px-4 py-3.5 font-extrabold text-green-900 ${isMonday ? 'border-l-4 border-l-green-500' : ''}`}>{row.day}</td>
                     <td className="px-4 py-3.5 text-ink">{breakfast?.name || '—'}</td>
                     <td className="px-4 py-3.5 text-ink">{lunch?.name || '—'}</td>
                     <td className="px-4 py-3.5 text-ink">{dinner?.name || '—'}</td>
@@ -170,11 +171,11 @@ export default function SamplePlan() {
           </table>
         </div>
 
-        <div className="mt-9 rounded-[28px] border-2 border-green-300 bg-green-50 p-8">
+        <div className="mt-9 rounded-[28px] border-2 border-green-300 bg-green-50 p-8 shadow-sm">
           <div className="flex items-start gap-4">
-            <span className="text-5xl">🛒</span>
+            <span className="text-6xl">🛒</span>
             <div>
-              <h3 className="text-xl font-extrabold text-green-900">Automatically generated shopping list</h3>
+              <h3 className="text-xl font-extrabold text-green-900">Your shopping list is created automatically.</h3>
               <p className="mt-1 text-sm font-semibold text-ink-soft">Buy exactly what you need for the week.</p>
             </div>
           </div>
