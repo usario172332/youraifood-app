@@ -89,7 +89,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 <button
                   key={m}
                   onClick={() => setMeal(m)}
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900 ${
                     meal === m
                       ? 'border-green-500 bg-green-500 text-white'
                       : 'border-white/25 bg-white/10 text-white'
@@ -104,7 +104,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900 ${
                     filter === f
                       ? 'border-green-500 bg-green-500 text-white'
                       : 'border-white/25 bg-white/10 text-white'
@@ -133,7 +133,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 <div className="absolute right-2 top-2 z-10 flex flex-col items-end gap-1.5">
                   <button
                     onClick={(e) => handleHeartClick(e, r)}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm shadow"
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm shadow transition duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                     aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     {isFav ? '❤️' : '🤍'}
@@ -146,7 +146,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
                   {r.image ? (
-                    <img src={r.image} alt={r.name} className="h-20 w-full object-cover" />
+                    <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-20 w-full object-cover" />
                   ) : (
                     <div className={`flex h-20 items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
                       {hero.emoji}
@@ -205,7 +205,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
           <div className="mt-8 text-center">
             <Link
               href="/recipes"
-              className="inline-block rounded-full border border-white/25 bg-white/10 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-white/20"
+              className="inline-block rounded-full border border-white/25 bg-white/10 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900"
             >
               Explore hundreds more recipes →
             </Link>
