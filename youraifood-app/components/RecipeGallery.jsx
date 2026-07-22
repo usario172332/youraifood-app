@@ -9,10 +9,11 @@ import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero } from '../lib/r
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
-// Hand-picked homepage teaser — a mix of free recipes to prove quality,
-// plus several premium ones (shown locked/blurred) to create FOMO toward
-// upgrading. Mixes across meal types and diets on purpose.
-const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6', 'nr19', 'nr16', 'nb50', 'nb46'];
+// Hand-picked homepage teaser — a compact mix of free recipes to prove
+// quality, plus a couple of premium ones (shown locked/blurred) to create
+// FOMO toward upgrading. Kept short on purpose so the homepage stays light;
+// the full library is one click away via the "Explore more" CTA below.
+const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6'];
 
 export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite, compact = false }) {
   const [meal, setMeal] = useState('all');
@@ -200,8 +201,19 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
           })}
         </div>
 
+        {compact && (
+          <div className="mt-8 text-center">
+            <Link
+              href="/recipes"
+              className="inline-block rounded-full border border-white/25 bg-white/10 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-white/20"
+            >
+              Explore hundreds more recipes →
+            </Link>
+          </div>
+        )}
+
         {compact && !isPremium && (
-          <div className="mt-10 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
+          <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
             <p className="mb-1 text-lg font-extrabold text-white">🔒 {premiumCount}+ premium recipes are waiting</p>
             <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
               Unlock the full library — every macro-tracked recipe, meal-prep and freezer tags, ingredient swaps, and
