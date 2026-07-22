@@ -210,7 +210,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         <PresetChip label="✨ All of the above" full onClick={() => applyPreset('all')} />
       </div>
 
-      <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-green-700">About you</h3>
+      <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">About you</h3>
       <div className="mb-4 flex items-start gap-2 rounded-lg bg-gray-50 px-3.5 py-2.5 text-xs text-ink-soft">
         <span>🔒</span>
         <span>
@@ -314,7 +314,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         </div>
       </div>
 
-      <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-green-700">Your plan</h3>
+      <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">Your plan</h3>
       <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3">
         <Field label="Fitness goal">
           <select
@@ -402,9 +402,9 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         <button
           onClick={generate}
           disabled={loading}
-          className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+          className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md disabled:opacity-60"
         >
-          {loading ? 'Generating…' : 'Generate my weekly plan →'}
+          {loading ? 'Building your week…' : 'Build My Week →'}
         </button>
       </div>
 
@@ -502,16 +502,22 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
   }
 
   return (
-    <div className="mt-9 text-left">
-      <div className="mb-4 flex justify-end gap-2"><button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60">📄 Download grocery list (CSV)</button>
-        <button
-          type="button"
-          onClick={handleDownloadPdf}
-          disabled={downloading}
-          className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60"
-        >
-          {downloading ? 'Preparing PDF…' : '⬇️ Download plan & grocery list (PDF)'}
-        </button>
+    <div className="mt-9 rounded-2xl border-2 border-green-200 bg-green-50/30 p-6 text-left">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3.5 py-1.5 text-xs font-extrabold text-white">
+          ✨ Your plan is ready
+        </span>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60">📄 Download grocery list (CSV)</button>
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={downloading}
+            className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60"
+          >
+            {downloading ? 'Preparing PDF…' : '⬇️ Download plan & grocery list (PDF)'}
+          </button>
+        </div>
       </div>
       <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-5">
         <Stat label={`Est. weekly cost (target €${budget})`} value={`€${stats.totalCost.toFixed(0)}`} tone={overBudget ? 'warn' : 'ok'} />
@@ -527,7 +533,7 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
         </div>
       )}
 
-      <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Your 7-day menu</h3>
+      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your 7-day menu</h3>
       <p className="mb-3 text-xs text-ink-soft">
         Some meals include more than one dish, and portions are sometimes scaled up, so each day reaches your calorie target.
         Not happy with a day? Use the 🔄 next to it to regenerate just that day.
