@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Planner from './Planner';
 import WhyYourAiFood from './WhyYourAiFood';
 import ComparisonTable from './ComparisonTable';
@@ -20,6 +21,18 @@ export default function HomeContent() {
   function scrollToPlanner() {
     document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' });
   }
+
+  // If we arrive here via a hash link (e.g. a locked recipe card linking to
+  // /#pricing), scroll to that section once the page has laid out — a plain
+  // browser hash-jump can silently fail on client-side navigation.
+  useEffect(() => {
+    if (!window.location.hash) return;
+    const id = window.location.hash.slice(1);
+    const target = document.getElementById(id);
+    if (target) {
+      requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth' }));
+    }
+  }, []);
 
   return (
     <>
