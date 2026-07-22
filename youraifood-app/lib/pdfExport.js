@@ -8,7 +8,7 @@ const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Sn
 const GOAL_LABELS = { lose: 'Lose weight', muscle: 'Build muscle', maintain: 'Maintain / general health' };
 const CAT_ORDER = ['Protein', 'Produce', 'Pantry', 'Dairy/Alt', 'Spices'];
 
-export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coachNote, goal, proteinTarget, calorieTarget, budget }) {
+export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coachNote, goal, proteinTarget, calorieTarget, budgetLevel }) {
   const [{ jsPDF }, autoTableModule] = await Promise.all([import('jspdf'), import('jspdf-autotable')]);
   const autoTable = autoTableModule.default;
 
@@ -29,7 +29,7 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
   doc.setFontSize(9.5);
   doc.setTextColor(100, 100, 100);
   doc.text(
-    `Generated ${dateStr}  ·  Goal: ${GOAL_LABELS[goal] || goal}  ·  Target: ${calorieTarget} kcal / ${proteinTarget}g protein per day  ·  Budget: €${budget}/week`,
+    `Generated ${dateStr}  ·  Goal: ${GOAL_LABELS[goal] || goal}  ·  Target: ${calorieTarget} kcal / ${proteinTarget}g protein per day  ·  Budget: ${budgetLevel === 'budget' ? 'Budget-friendly' : budgetLevel === 'premium' ? 'Premium' : 'Balanced'}`,
     margin,
     y
   );
