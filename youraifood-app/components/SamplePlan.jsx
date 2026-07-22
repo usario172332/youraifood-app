@@ -175,7 +175,7 @@ export default function SamplePlan() {
             <span className="text-5xl">🛒</span>
             <div>
               <h3 className="text-xl font-extrabold text-green-900">Automatically generated shopping list</h3>
-              <p className="mt-1 text-sm font-semibold text-ink-soft">Buy exactly what you need for the entire week.</p>
+              <p className="mt-1 text-sm font-semibold text-ink-soft">Buy exactly what you need for the week.</p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
