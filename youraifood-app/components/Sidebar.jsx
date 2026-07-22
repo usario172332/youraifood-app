@@ -37,13 +37,17 @@ export default function Sidebar() {
         </Link>
         <button
           onClick={() => setMobileOpen((v) => !v)}
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-semibold text-green-900"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav"
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-semibold text-green-900 transition duration-200 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
         >
           {mobileOpen ? 'Close' : 'Menu'}
         </button>
       </div>
 
       <aside
+        id="mobile-nav"
         className={`z-30 w-64 shrink-0 border-r border-gray-100 bg-white px-5 py-6 md:sticky md:top-0 md:block md:h-screen ${
           mobileOpen ? 'block' : 'hidden'
         }`}
@@ -53,13 +57,13 @@ export default function Sidebar() {
           YourAiFood
         </Link>
 
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-col gap-1" aria-label="Main navigation">
           {LINKS.map((l) => (
             <a
               key={l.href}
               href={l.href}
               onClick={() => setMobileOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-semibold text-ink hover:bg-green-50 hover:text-green-700"
+              className="rounded-lg px-3 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
             >
               {l.label}
             </a>
