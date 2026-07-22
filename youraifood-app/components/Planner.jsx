@@ -383,6 +383,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
               </button>
             ))}
           </div>
+          <p className="mt-1 text-[11px] leading-tight text-ink-soft">Grocery prices vary a lot by country, so we guide ingredient choice by level instead of promising an exact total.</p>
         </Field>
         <Field label="Max cook time" hint="(min/meal)" id="timeInput">
           <input id="timeInput" type="number" min={5} max={90} step={5} value={form.time}
