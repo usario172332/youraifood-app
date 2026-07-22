@@ -411,7 +411,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         <button
           onClick={generate}
           disabled={loading}
-          className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 disabled:opacity-60 disabled:hover:translate-y-0"
+          className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
         >
           {loading ? 'Building your week…' : 'Build My Week →'}
         </button>
