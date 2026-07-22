@@ -30,6 +30,8 @@ const MEAL_OPTIONS = [
 
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 
+const GOAL_LABELS = { lose: 'Lose Weight', muscle: 'Muscle Gain', maintain: 'Maintain Health' };
+
 const DISH_PRESETS = [
   { value: 3, label: '3', hint: '1 per meal' },
   { value: 4, label: '4', hint: 'standard' },
@@ -284,7 +286,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             <button
               type="button"
               onClick={() => setForm((f) => ({ ...f, calorieTouched: true, customCalorieTarget: targets.calorieTarget }))}
-              className="rounded-full border-[1.5px] border-green-600 bg-white px-3.5 py-1.5 text-xs font-bold text-green-700 shadow-sm hover:bg-green-100"
+              className="rounded-full border-[1.5px] border-green-600 bg-white px-3.5 py-1.5 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-100"
             >
               ✏️ Add your own calorie target
             </button>
@@ -384,7 +386,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
                 key={d.value}
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, dishesPerDay: d.value }))}
-                className={`rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold ${
+                className={`rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold transition duration-200 ${
                   form.dishesPerDay === d.value ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
                 }`}
               >
@@ -398,11 +400,18 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         </Field>
       </div>
 
+      <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 rounded-xl bg-green-50/60 px-4 py-3 text-xs font-semibold text-green-800">
+        <span>Goal <b className="text-green-900">✓ {GOAL_LABELS[form.goal]}</b></span>
+        <span>Calories <b className="text-green-900">✓ {calorieValue} kcal</b></span>
+        <span>Protein <b className="text-green-900">✓ {proteinValue}g</b></span>
+        <span className="text-green-700">↓ Your personalised week is generated.</span>
+      </div>
+
       <div className="mb-2 flex justify-end">
         <button
           onClick={generate}
           disabled={loading}
-          className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md disabled:opacity-60"
+          className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 disabled:opacity-60 disabled:hover:translate-y-0"
         >
           {loading ? 'Building your week…' : 'Build My Week →'}
         </button>
@@ -444,7 +453,7 @@ function PresetChip({ label, onClick, full }) {
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-3.5 py-1.5 text-sm font-semibold ${
+      className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition duration-200 ${
         full ? 'bg-green-900 text-white' : 'bg-green-50 text-green-700 hover:border hover:border-green-500'
       }`}
     >
@@ -508,12 +517,12 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
           ✨ Your plan is ready
         </span>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60">📄 Download grocery list (CSV)</button>
+          <button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-50 disabled:opacity-60">📄 Download grocery list (CSV)</button>
           <button
             type="button"
             onClick={handleDownloadPdf}
             disabled={downloading}
-            className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm hover:bg-green-50 disabled:opacity-60"
+            className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-50 disabled:opacity-60"
           >
             {downloading ? 'Preparing PDF…' : '⬇️ Download plan & grocery list (PDF)'}
           </button>
