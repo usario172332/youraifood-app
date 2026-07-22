@@ -53,7 +53,7 @@ export default function Pricing({ session, isPremium }) {
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">Simple pricing</h2>
         <p className="mb-6 text-center text-ink-soft">
-          Start free. Upgrade when you want the AI doing the heavy lifting every week — first 7 days on us.
+          Start free. Upgrade for unlimited AI plans — first 7 days on us.
         </p>
 
         <div className="mb-9 flex items-center justify-center gap-3">
@@ -75,6 +75,15 @@ export default function Pricing({ session, isPremium }) {
           <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-extrabold text-amber-800">
             Save {YEARLY_SAVINGS_PCT}%
           </span>
+        </div>
+
+        <div className="mx-auto mb-8 max-w-[600px] rounded-2xl border border-green-100 bg-green-50/60 p-6 text-center">
+          <h3 className="mb-3 text-base font-extrabold text-green-900">Everything you need to plan healthier meals.</h3>
+          <ul className="mx-auto grid max-w-md grid-cols-1 gap-1.5 text-left text-sm sm:grid-cols-2">
+            {['Unlimited weekly meal plans', 'Unlimited recipes', 'Automatic shopping lists', 'Personalised nutrition', 'Save and edit meal plans'].map((f) => (
+              <li key={f} className="flex gap-2"><span className="font-bold text-green-600">✓</span>{f}</li>
+            ))}
+          </ul>
         </div>
 
         <div className="mx-auto grid max-w-[760px] grid-cols-1 gap-6 sm:grid-cols-2">
