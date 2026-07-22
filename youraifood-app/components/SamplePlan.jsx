@@ -155,66 +155,66 @@ export default function SamplePlan() {
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">See exactly what you'll get</h2>
         <p className="mb-3 text-center text-ink-soft">
-          A sample week built from our real recipe library — not a mockup, the numbers below are computed live.
+          A real sample week — the numbers below are computed live, not mocked up.
         </p>
         <p className="mb-8 text-center text-xs font-semibold uppercase tracking-wide text-amber-600">
           Example plan for illustration — your real plan is personalized to your goals
         </p>
 
         <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-4">
-          <div className="rounded-2xl bg-green-900 px-4 py-4 text-white">
-            <div className="text-2xl font-extrabold">€{stats.totalCost.toFixed(0)}</div>
-            <div className="text-xs font-semibold opacity-75">Est. weekly cost</div>
+          <div className="rounded-2xl bg-green-900 px-4 py-5">
+            <div className="text-3xl font-extrabold text-white">€{stats.totalCost.toFixed(0)}</div>
+            <div className="text-sm font-semibold text-green-100">Est. weekly cost</div>
           </div>
-          <div className="rounded-2xl bg-green-900 px-4 py-4 text-white">
-            <div className="text-2xl font-extrabold">{stats.avgProtein}g</div>
-            <div className="text-xs font-semibold opacity-75">Avg daily protein</div>
+          <div className="rounded-2xl bg-green-900 px-4 py-5">
+            <div className="text-3xl font-extrabold text-white">{stats.avgProtein}g</div>
+            <div className="text-sm font-semibold text-green-100">Avg daily protein</div>
           </div>
-          <div className="rounded-2xl bg-green-900 px-4 py-4 text-white">
-            <div className="text-2xl font-extrabold">{stats.avgCal}</div>
-            <div className="text-xs font-semibold opacity-75">Avg daily calories</div>
+          <div className="rounded-2xl bg-green-900 px-4 py-5">
+            <div className="text-3xl font-extrabold text-white">{stats.avgCal}</div>
+            <div className="text-sm font-semibold text-green-100">Avg daily calories</div>
           </div>
-          <div className="rounded-2xl bg-green-900 px-4 py-4 text-white">
-            <div className="text-2xl font-extrabold">{stats.distinctRecipes}</div>
-            <div className="text-xs font-semibold opacity-75">Distinct recipes used</div>
+          <div className="rounded-2xl bg-green-900 px-4 py-5">
+            <div className="text-3xl font-extrabold text-white">{stats.distinctRecipes}</div>
+            <div className="text-sm font-semibold text-green-100">Distinct recipes used</div>
           </div>
         </div>
 
         <p className="mb-3 text-xs text-ink-soft">
-          This example uses 4 dishes/day (1 breakfast, 2 lunch/dinner, 1 snack) — you can choose 3 to 6 dishes per day,
-          and portions are sometimes scaled up, to fit your calculated (or your own custom) calorie target.
+          This example uses 4 dishes/day — choose 3 to 6 dishes, portions scale automatically to fit your calorie
+          target.
         </p>
         <div className="overflow-x-auto rounded-xl border border-gray-200">
-          <table className="w-full border-collapse bg-white text-sm">
+          <table className="w-full border-collapse bg-white text-base">
             <thead>
-              <tr className="bg-green-50 text-left text-[11px] uppercase tracking-wide text-green-700">
-                <th className="px-3 py-2.5">Day</th>
+              <tr className="bg-green-50 text-left text-sm font-bold uppercase tracking-wide text-green-700">
+                <th className="px-4 py-3.5">Day</th>
                 {MEAL_SLOTS.map((slot) => (
-                  <th key={slot} className="px-3 py-2.5">{MEAL_LABELS[slot]}</th>
+                  <th key={slot} className="px-4 py-3.5">{MEAL_LABELS[slot]}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {SAMPLE_DAYS.map((row) => (
                 <tr key={row.day} className="border-t border-gray-100 align-top">
-                  <td className="px-3 py-2.5 font-extrabold text-green-900">{row.day}</td>
+                  <td className="px-4 py-3.5 text-base font-extrabold text-green-900">{row.day}</td>
                   {MEAL_SLOTS.map((slot) => {
                     const dishes = (row[`${slot}Dishes`] || [])
                       .map((d) => ({ ...d, recipe: findRecipe(d.id) }))
                       .filter((d) => d.recipe);
                     return (
-                      <td key={slot} className="px-3 py-2.5">
+                      <td key={slot} className="px-4 py-3.5">
                         {dishes.length === 0 && <span className="text-ink-soft">—</span>}
                         {dishes.map((d, idx) => (
                           <div
                             key={`${slot}-${d.id}`}
-                            className={idx > 0 ? 'mt-2.5 border-t border-dashed border-gray-100 pt-2' : ''}
+                            className={idx > 0 ? 'mt-3 border-t border-dashed border-gray-100 pt-2.5' : ''}
                           >
-                            <div className="font-semibold">
+                            <div className="font-bold text-ink">
                               {idx > 0 && '+ '}
                               {d.recipe.name}
                             </div>
-                            <div className="text-xs text-ink-soft">
+                            <div className="mt-0.5 text-sm font-semibold text-green-700">
                               {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min · €{(d.recipe.cost * d.servings).toFixed(2)}
                             </div>
                           </div>
@@ -228,40 +228,50 @@ export default function SamplePlan() {
           </table>
         </div>
 
-        <h3 className="mb-3 mt-9 text-lg font-extrabold text-green-900">Optimized grocery list for this week</h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {catOrder.map((cat) => {
-            const items = byCat[cat].sort((a, b) => a.name.localeCompare(b.name));
-            const visible = groceriesExpanded ? items : items.slice(0, PREVIEW_ITEMS_PER_CATEGORY);
-            const hidden = items.length - visible.length;
-            return (
-              <div key={cat} className="rounded-xl border border-gray-200 bg-white p-4">
-                <h4 className="mb-2.5 text-sm font-bold text-green-700">{cat}</h4>
-                <ul>
-                  {visible.map((i) => (
-                    <li key={i.name} className="flex justify-between border-b border-dashed border-gray-100 py-1.5 text-sm">
-                      <span>{i.name}</span>
-                      <span className="text-ink-soft">{Math.round(i.qty)}{i.unit}</span>
-                    </li>
-                  ))}
-                </ul>
-                {!groceriesExpanded && hidden > 0 && (
-                  <p className="pt-1.5 text-xs text-ink-soft">+{hidden} more</p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        {!groceriesExpanded && totalItems > catOrder.length * PREVIEW_ITEMS_PER_CATEGORY && (
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setGroceriesExpanded(true)}
-              className="rounded-full border border-gray-200 px-5 py-2 text-sm font-bold text-green-700 hover:bg-green-50"
-            >
-              Show full grocery list ({totalItems} items) ↓
-            </button>
+        <div className="mt-9 rounded-2xl border border-green-200 bg-green-50 p-6">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl">🛒</span>
+            <div>
+              <h3 className="text-lg font-extrabold text-green-900">Included with every plan: your shopping list</h3>
+              <p className="mt-1 text-sm text-ink-soft">
+                Automatically generates a shopping list with exact quantities — organized by aisle, ready to shop.
+              </p>
+            </div>
           </div>
-        )}
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {catOrder.map((cat) => {
+              const items = byCat[cat].sort((a, b) => a.name.localeCompare(b.name));
+              const visible = groceriesExpanded ? items : items.slice(0, PREVIEW_ITEMS_PER_CATEGORY);
+              const hidden = items.length - visible.length;
+              return (
+                <div key={cat} className="rounded-xl border border-gray-200 bg-white p-4">
+                  <h4 className="mb-2.5 text-sm font-bold text-green-700">{cat}</h4>
+                  <ul>
+                    {visible.map((i) => (
+                      <li key={i.name} className="flex justify-between border-b border-dashed border-gray-100 py-1.5 text-sm">
+                        <span>{i.name}</span>
+                        <span className="text-ink-soft">{Math.round(i.qty)}{i.unit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {!groceriesExpanded && hidden > 0 && (
+                    <p className="pt-1.5 text-xs text-ink-soft">+{hidden} more</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {!groceriesExpanded && totalItems > catOrder.length * PREVIEW_ITEMS_PER_CATEGORY && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setGroceriesExpanded(true)}
+                className="rounded-full border border-gray-200 bg-white px-5 py-2 text-sm font-bold text-green-700 hover:bg-green-50"
+              >
+                Show full grocery list ({totalItems} items) ↓
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
