@@ -1,18 +1,18 @@
 const CASES = [
-  { icon: '🏋️', label: 'Want to build muscle?' },
-  { icon: '👨‍👩‍👧', label: 'Cooking for your family?' },
-  { icon: '🥗', label: 'Trying to lose weight?' },
-  { icon: '💰', label: 'Watching your food budget?' },
-  { icon: '⏱️', label: "Don't know what to cook after work?" },
-  { icon: '🌱', label: 'Eating vegetarian or vegan?' },
-  { icon: '🍳', label: 'Looking for high-protein meals?' },
+  { icon: '🏋️', label: 'I want to build muscle.' },
+  { icon: '🥗', label: 'I want to lose weight without counting calories.' },
+  { icon: '👨‍👩‍👧', label: 'I cook for my family.' },
+  { icon: '⏱️', label: "I don't know what to cook after work." },
+  { icon: '🍳', label: 'I want high-protein meals.' },
+  { icon: '💰', label: "I'm watching my food budget." },
+  { icon: '🌱', label: "I'm vegetarian or vegan." },
 ];
 
 export default function UseCases() {
   return (
     <section className="px-6 py-14">
       <div className="mx-auto max-w-[1120px] text-center">
-        <h2 className="mb-8 text-2xl font-extrabold text-green-900">Perfect for</h2>
+        <h2 className="mb-8 text-2xl font-extrabold text-green-900">Sound familiar?</h2>
         <div className="flex flex-wrap justify-center gap-3">
           {CASES.map((c) => (
             <div
