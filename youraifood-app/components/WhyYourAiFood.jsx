@@ -21,7 +21,7 @@ export default function WhyYourAiFood() {
             <div key={b.title} className="relative rounded-2xl border border-gray-200 bg-white p-6">
               <span className="absolute right-4 top-4 text-xs font-extrabold text-gray-300">0{i + 1}</span>
               <div className="mb-3 text-3xl">{b.icon}</div>
-              <h3 className="mb-1.5 text-sm font-extrabold text-green-900">{b.title}</h3>
+              <h3 className="mb-1.5 min-h-[2.5rem] text-sm font-extrabold leading-snug text-green-900">{b.title}</h3>
               <p className="text-sm text-ink-soft">{b.text}</p>
             </div>
           ))}
