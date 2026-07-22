@@ -1,7 +1,6 @@
 'use client';
 
 import Planner from './Planner';
-import HowItWorks from './HowItWorks';
 import WhyYourAiFood from './WhyYourAiFood';
 import ComparisonTable from './ComparisonTable';
 import UseCases from './UseCases';
@@ -50,12 +49,19 @@ export default function HomeContent() {
             Build My Week →
           </button>
           <p className="mt-3 text-xs font-bold text-green-700">⚡ Average plan generation time: ~20 seconds</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
-            <span>🔒 Secure login</span>
+        </div>
+      </section>
+
+      <WhatHappensNext />
+
+      <section className="px-6 pb-6">
+        <div className="mx-auto max-w-[1120px] text-center">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
             <span>💳 No credit card required</span>
             <span>✕ Cancel anytime</span>
-            <span>🔐 Your data stays private</span>
-            <span>📊 Nutrition data included</span>
+            <span>⚡ Personalised instantly</span>
+            <span>🔐 Secure account</span>
+            <span>🛡️ Privacy first</span>
           </div>
           <p className="mx-auto mt-4 max-w-lg text-xs text-ink-soft">
             🔍 Nutrition numbers are computed directly from real recipe data — never estimated or hallucinated by AI.
@@ -63,15 +69,12 @@ export default function HomeContent() {
         </div>
       </section>
 
-      <WhatHappensNext />
-
-      <section className="px-6 pb-10 pt-6">
+      <section className="px-6 pb-10 pt-2">
         <div className="mx-auto max-w-[1120px] text-center">
           <Planner user={user} session={session} favorites={favorites} onToggleFavorite={toggleFavorite} />
         </div>
       </section>
 
-      <HowItWorks />
       <WhyYourAiFood />
       <ComparisonTable />
       <SamplePlan />
