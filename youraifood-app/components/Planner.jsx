@@ -222,23 +222,24 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         </span>
       </div>
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
-        <Field label="Current weight" hint="(kg)">
-          <input type="number" min={30} max={250} step={1} value={form.weight}
+        <Field label="Current weight" hint="(kg)" id="weightInput">
+          <input id="weightInput" type="number" min={30} max={250} step={1} value={form.weight}
             onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
-        <Field label="Height" hint="(cm)">
-          <input type="number" min={120} max={230} step={1} value={form.height}
+        <Field label="Height" hint="(cm)" id="heightInput">
+          <input id="heightInput" type="number" min={120} max={230} step={1} value={form.height}
             onChange={(e) => setForm({ ...form, height: Number(e.target.value) })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
-        <Field label="Age">
-          <input type="number" min={14} max={100} step={1} value={form.age}
+        <Field label="Age" id="ageInput">
+          <input id="ageInput" type="number" min={14} max={100} step={1} value={form.age}
             onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
-        <Field label="Sex">
+        <Field label="Sex" id="sexSelect">
           <select
+            id="sexSelect"
             value={form.sex}
             onChange={(e) => setForm({ ...form, sex: e.target.value })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
@@ -247,8 +248,9 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             <option value="female">Female</option>
           </select>
         </Field>
-        <Field label="Activity level">
+        <Field label="Activity level" id="activityLevelSelect">
           <select
+            id="activityLevelSelect"
             value={form.activityLevel}
             onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
@@ -318,8 +320,9 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
 
       <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">Your plan</h3>
       <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3">
-        <Field label="Fitness goal">
+        <Field label="Fitness goal" id="goalSelect">
           <select
+            id="goalSelect"
             value={form.goal}
             onChange={(e) => setForm({ ...form, goal: e.target.value })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
@@ -329,23 +332,23 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             <option value="maintain">Maintain / general health</option>
           </select>
         </Field>
-        <Field label="Protein target" hint="(g/day, auto-suggested)">
-          <input type="number" min={40} max={300} step={5} value={proteinValue}
+        <Field label="Protein target" hint="(g/day, auto-suggested)" id="proteinInput">
+          <input id="proteinInput" type="number" min={40} max={300} step={5} value={proteinValue}
             onChange={(e) => setForm({ ...form, protein: Number(e.target.value), proteinTouched: true })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
-        <Field label="Weekly budget" hint="(€)">
-          <input type="number" min={20} max={300} step={5} value={form.budget}
+        <Field label="Weekly budget" hint="(€)" id="budgetInput">
+          <input id="budgetInput" type="number" min={20} max={300} step={5} value={form.budget}
             onChange={(e) => setForm({ ...form, budget: Number(e.target.value) })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
-        <Field label="Max cook time" hint="(min/meal)">
-          <input type="number" min={5} max={90} step={5} value={form.time}
+        <Field label="Max cook time" hint="(min/meal)" id="timeInput">
+          <input id="timeInput" type="number" min={5} max={90} step={5} value={form.time}
             onChange={(e) => setForm({ ...form, time: Number(e.target.value) })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
-        <Field label="Family size" hint="(people)">
-          <input type="number" min={1} max={8} step={1} value={form.family}
+        <Field label="Family size" hint="(people)" id="familyInput">
+          <input id="familyInput" type="number" min={1} max={8} step={1} value={form.family}
             onChange={(e) => setForm({ ...form, family: Number(e.target.value) })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
@@ -462,10 +465,10 @@ function PresetChip({ label, onClick, full }) {
   );
 }
 
-function Field({ label, hint, children }) {
+function Field({ label, hint, id, children }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[13px] font-bold text-ink">
+      <label htmlFor={id} className="mb-1.5 block text-[13px] font-bold text-ink">
         {label} {hint && <span className="font-normal text-ink-soft">{hint}</span>}
       </label>
       {children}
