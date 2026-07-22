@@ -53,26 +53,27 @@ export default function Pricing({ session, isPremium }) {
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">Simple pricing</h2>
         <p className="mb-6 text-center text-ink-soft">
-          Start free. Upgrade for unlimited AI plans — first 7 days on us.
+          Ready to stop planning meals every week? Start free — build your personalised week in under a minute,
+          upgrade anytime for unlimited plans.
         </p>
 
-        <div className="mb-9 flex items-center justify-center gap-3">
-          <span className={`text-sm font-semibold ${!yearly ? 'text-green-900' : 'text-ink-soft'}`}>Monthly</span>
+        <div className="mb-9 flex flex-nowrap items-center justify-center gap-3">
+          <span className={`shrink-0 whitespace-nowrap text-sm font-semibold ${!yearly ? 'text-green-900' : 'text-ink-soft'}`}>Monthly</span>
           <button
             type="button"
             role="switch"
             aria-checked={yearly}
             onClick={() => setYearly((v) => !v)}
-            className={`relative h-7 w-12 rounded-full transition-colors ${yearly ? 'bg-green-600' : 'bg-gray-300'}`}
+            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200 ${yearly ? 'bg-green-600' : 'bg-gray-300'}`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
                 yearly ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
           </button>
-          <span className={`text-sm font-semibold ${yearly ? 'text-green-900' : 'text-ink-soft'}`}>Yearly</span>
-          <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-extrabold text-amber-800">
+          <span className={`shrink-0 whitespace-nowrap text-sm font-semibold ${yearly ? 'text-green-900' : 'text-ink-soft'}`}>Yearly</span>
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-extrabold text-amber-800">
             Save {YEARLY_SAVINGS_PCT}%
           </span>
         </div>
@@ -137,7 +138,7 @@ export default function Pricing({ session, isPremium }) {
                 <button
                   onClick={manageSubscription}
                   disabled={loading}
-                  className="w-full rounded-full bg-green-100 py-2.5 text-sm font-bold text-green-700"
+                  className="w-full rounded-full bg-green-100 py-2.5 text-sm font-bold text-green-700 transition duration-200 hover:bg-green-200"
                 >
                   Manage subscription
                 </button>
@@ -150,7 +151,7 @@ export default function Pricing({ session, isPremium }) {
                 <button
                   onClick={goPremium}
                   disabled={loading}
-                  className="w-full rounded-full bg-green-600 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                  className="w-full rounded-full bg-green-600 py-2.5 text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 disabled:opacity-60 disabled:hover:translate-y-0"
                 >
                   {loading
                     ? 'Redirecting…'
