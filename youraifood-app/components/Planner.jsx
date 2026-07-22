@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { findRecipe } from '../lib/recipes';
+import { useAuth } from '../lib/AuthContext';
 import { calculateTargets, ACTIVITY_OPTIONS } from '../lib/nutrition';
 import RecipeModal from './RecipeModal';
 
@@ -31,6 +32,14 @@ const MEAL_OPTIONS = [
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 
 const GOAL_LABELS = { lose: 'Lose Weight', muscle: 'Muscle Gain', maintain: 'Maintain Health' };
+
+const LOADING_STEPS = [
+  'Understanding your goals…',
+  'Selecting suitable recipes…',
+  'Balancing calories and macros…',
+  'Creating your shopping list…',
+  'Finalising your personalised week…',
+];
 
 const DISH_PRESETS = [
   { value: 3, label: '3', hint: '1 per meal' },
@@ -81,9 +90,20 @@ const DEFAULT_FORM = {
 };
 
 export default function Planner({ user, session, favorites, onToggleFavorite }) {
+  const { requestSignIn } = useAuth();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  useEffect(() => {
+    if (!loading) return;
+    setLoadingStep(0);
+    const id = setInterval(() => {
+      setLoadingStep((s) => Math.min(s + 1, LOADING_STEPS.length - 1));
+    }, 1700);
+    return () => clearInterval(id);
+  }, [loading]);
   const [error, setError] = useState('');
   const [activeRecipe, setActiveRecipe] = useState(null);
 
@@ -163,7 +183,8 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
   async function generate() {
     setError('');
     if (!user) {
-      setError('Sign in above to generate a real AI plan.');
+      requestSignIn();
+      setError('Sign in to generate your real AI plan — use the panel that just opened.');
       return;
     }
     setLoading(true);
@@ -416,7 +437,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
           disabled={loading}
           className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          {loading ? 'Building your week…' : 'Build My Week →'}
+          {loading ? LOADING_STEPS[loadingStep] : 'Build My Week →'}
         </button>
       </div>
 
@@ -480,6 +501,8 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
   const { days, coachNote, groceries, stats, usage, meals } = result;
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const overBudget = stats.totalCost > budget;
+  const calorieOnTarget = Math.abs(stats.avgCal - calorieTarget) <= calorieTarget * 0.1;
+  const proteinOnTarget = stats.avgProtein >= proteinTarget * 0.9;
   const [downloading, setDownloading] = useState(false);
   const [regeneratingDay, setRegeneratingDay] = useState(null);
 
@@ -515,10 +538,17 @@ function PlanResults({ result, family, budget, proteinTarget, calorieTarget, goa
 
   return (
     <div className="mt-9 rounded-2xl border-2 border-green-200 bg-green-50/30 p-6 text-left">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3.5 py-1.5 text-xs font-extrabold text-white">
-          ✨ Your plan is ready
-        </span>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3.5 py-1.5 text-xs font-extrabold text-white">
+            ✨ Your plan is ready
+          </span>
+          <p className="mt-2 text-sm font-semibold text-green-800">
+            {mealSlots.map((s) => `7 ${MEAL_LABELS[s]}`).join(' · ')} · shopping list included
+            {calorieOnTarget ? ' · calories on target' : ''}
+            {proteinOnTarget ? ' · protein target hit' : ''}
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-50 disabled:opacity-60">📄 Download grocery list (CSV)</button>
           <button
