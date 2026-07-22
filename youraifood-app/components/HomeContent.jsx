@@ -3,7 +3,6 @@
 import Planner from './Planner';
 import HowItWorks from './HowItWorks';
 import WhyYourAiFood from './WhyYourAiFood';
-import WhyNotChatGPT from './WhyNotChatGPT';
 import ComparisonTable from './ComparisonTable';
 import UseCases from './UseCases';
 import EcosystemDiagram from './EcosystemDiagram';
@@ -60,7 +59,6 @@ export default function HomeContent() {
 
       <HowItWorks />
       <WhyYourAiFood />
-      <WhyNotChatGPT />
       <ComparisonTable />
       <SamplePlan />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
