@@ -1,7 +1,8 @@
 'use client';
 
 import Planner from './Planner';
-import HowItWorks from './HowItWorks'; import WhyYourAiFood from './WhyYourAiFood';
+import HowItWorks from './HowItWorks';
+import WhyYourAiFood from './WhyYourAiFood';
 import ComparisonTable from './ComparisonTable';
 import UseCases from './UseCases';
 import EcosystemDiagram from './EcosystemDiagram';
@@ -30,14 +31,13 @@ export default function HomeContent() {
             Never wonder what to cook <span className="text-green-600">again</span>.
           </h1>
           <p className="mx-auto mb-8 max-w-xl text-lg text-ink-soft">
-            Plan your entire week of healthy meals in seconds based on your calories, protein goals, available time,
-            and dietary preferences — grocery list included.
+            Generate a personalized 7-day meal plan with recipes, macros, and a shopping list — in under a minute.
           </p>
           <button
             onClick={scrollToPlanner}
             className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white transition hover:-translate-y-px hover:bg-green-700"
           >
-            Start Planning Free →
+            Build My Week →
           </button>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
             <span>✓ High-protein recipes</span>
@@ -51,14 +51,14 @@ export default function HomeContent() {
         </div>
       </section>
 
-      <HowItWorks /> <WhyYourAiFood />
-
       <section className="px-6 pb-10 pt-6">
         <div className="mx-auto max-w-[1120px] text-center">
           <Planner user={user} session={session} favorites={favorites} onToggleFavorite={toggleFavorite} />
         </div>
       </section>
 
+      <HowItWorks />
+      <WhyYourAiFood />
       <ComparisonTable />
       <SamplePlan />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
