@@ -33,30 +33,69 @@ const FAQS = [
   },
 ];
 
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+
 export default function FAQ() {
   const [open, setOpen] = useState(null);
 
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-[760px]">
-        <h2 className="mb-10 text-center text-2xl font-extrabold text-green-900">Frequently asked questions</h2>
+        <h2 className="mb-2 text-center text-2xl font-extrabold text-green-900">Frequently asked questions</h2>
+        <p className="mb-8 text-center text-sm text-ink-soft">Everything you need to know.</p>
         <div className="divide-y divide-gray-200 overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          {FAQS.map((item, i) => (
-            <div key={item.q}>
-              <button
-                onClick={() => setOpen(open === i ? null : i)}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-bold text-ink"
-              >
-                {item.q}
-                <span className="shrink-0 text-lg text-gray-400">{open === i ? '−' : '+'}</span>
-              </button>
-              {open === i && (
-                <div className="px-5 pb-4 text-sm text-ink-soft">{item.a}</div>
-              )}
-            </div>
-          ))}
+          {FAQS.map((item, i) => {
+            const isOpen = open === i;
+            const panelId = `faq-panel-${i}`;
+            const buttonId = `faq-button-${i}`;
+            return (
+              <div key={item.q}>
+                <h3 className="m-0">
+                  <button
+                    id={buttonId}
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onClick={() => setOpen(isOpen ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-bold text-ink transition-colors duration-200 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-green-600"
+                  >
+                    {item.q}
+                    <span
+                      aria-hidden="true"
+                      className={`shrink-0 text-lg transition-colors duration-200 ${isOpen ? 'text-green-600' : 'text-gray-400'}`}
+                    >
+                      {isOpen ? '−' : '+'}
+                    </span>
+                  </button>
+                </h3>
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={buttonId}
+                  className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                  style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-5 pb-4 text-sm text-ink-soft">{item.a}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
+      />
     </section>
   );
 }
