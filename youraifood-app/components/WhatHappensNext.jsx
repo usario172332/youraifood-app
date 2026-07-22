@@ -1,5 +1,5 @@
 const STEPS = [
-  { icon: '🎯', label: 'Tell us your goals' },
+  { icon: '🎯', label: 'Choose your goals' },
   { icon: '🤖', label: 'AI creates your week' },
   { icon: '📋', label: 'Receive recipes and shopping list' },
   { icon: '🍳', label: 'Start cooking' },
