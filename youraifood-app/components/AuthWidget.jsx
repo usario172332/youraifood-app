@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../lib/AuthContext';
 
 export default function AuthWidget({ compact, openSignal }) {
-  const { user, handleAuthChange, signOut } = useAuth();
+ const { user, handleAuthChange, signOut } = useAuth();
   const [open, setOpen] = useState(false);
 
   // A parent (Sidebar) bumps openSignal when something elsewhere on the site
@@ -18,6 +18,8 @@ export default function AuthWidget({ compact, openSignal }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+                                                 const [resendStatus, setResendStatus] = useState('');
 
   if (!supabase) {
     return (
@@ -42,6 +44,8 @@ export default function AuthWidget({ compact, openSignal }) {
   async function submit(e) {
     e.preventDefault();
     setError('');
+    setUnconfirmed(false);
+    setResendStatus('');
     setLoading(true);
     try {
       const { data, error: authError } =
@@ -56,9 +60,24 @@ export default function AuthWidget({ compact, openSignal }) {
         setError('Check your email to confirm your account, then sign in.');
       }
     } catch (err) {
-      setError(err.message);
+      if (err.message === 'Email not confirmed') {
+        setUnconfirmed(true);
+        setError('Please confirm your email first, then sign in. Check your inbox, or resend the confirmation email below.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function resendConfirmation() {
+    setResendStatus('Sending...');
+    const { error: resendError } = await supabase.auth.resend({ type: 'signup', email });
+    if (resendError) {
+      setResendStatus(resendError.message);
+    } else {
+      setResendStatus('Confirmation email sent. Check your inbox.');
     }
   }
 
@@ -110,6 +129,12 @@ export default function AuthWidget({ compact, openSignal }) {
               className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
             />
             {error && <p className="text-xs text-red-600">{error}</p>}
+            {unconfirmed && (
+          <button type="button" onClick={resendConfirmation} className="text-left text-xs font-semibold text-green-700 hover:text-green-900">
+          Resend confirmation email
+          </button>
+          )}
+            {resendStatus && <p className="text-xs text-ink-soft">{resendStatus}</p>}
             <button
               type="submit"
               disabled={loading}
