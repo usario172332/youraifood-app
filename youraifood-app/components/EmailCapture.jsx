@@ -59,12 +59,12 @@ export default function EmailCapture() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-full border-[1.5px] border-gray-200 px-4 py-2.5 text-sm"
+              className="w-full rounded-full border-[1.5px] border-gray-200 px-4 py-2.5 text-sm transition duration-200 focus:border-green-400 focus:outline-none"
             />
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="whitespace-nowrap rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+              className="whitespace-nowrap rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 disabled:opacity-60 disabled:hover:translate-y-0"
             >
               {status === 'loading' ? 'Sending…' : 'Send me the plan →'}
             </button>
