@@ -80,12 +80,10 @@ export default function FAQ() {
                   id={panelId}
                   role="region"
                   aria-labelledby={buttonId}
-                  className="grid transition-[grid-template-rows] duration-300 ease-in-out"
-                  style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
+                  className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
+                  style={{ maxHeight: isOpen ? '400px' : '0px' }}
                 >
-                  <div className="overflow-hidden">
-                    <div className="px-5 pb-4 text-sm text-ink-soft">{item.a}</div>
-                  </div>
+                  <div className="px-5 pb-4 text-sm text-ink-soft">{item.a}</div>
                 </div>
               </div>
             );
