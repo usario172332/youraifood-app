@@ -116,7 +116,8 @@ function FavoritesSection({ favorites, onToggleFavorite }) {
       <h2 className="mb-4 text-lg font-extrabold text-green-900">Favorited recipes</h2>
       {favRecipes.length === 0 ? (
         <p className="text-sm text-ink-soft">
-          No favorites yet — tap the heart icon on any recipe card in the recipe library to save it here.
+          No favorites yet — tap the heart icon on any recipe card to save it here.{' '}
+          <a href="/recipes" className="font-semibold text-green-700 underline">Browse the recipe library →</a>
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -189,7 +190,10 @@ function PastPlansSection({ session }) {
       {plans === null ? (
         <p className="text-sm text-ink-soft">Loading…</p>
       ) : plans.length === 0 ? (
-        <p className="text-sm text-ink-soft">No plans generated yet — build one from the planner to see it here.</p>
+        <p className="text-sm text-ink-soft">
+          No plans generated yet.{' '}
+          <a href="/#planner" className="font-semibold text-green-700 underline">Build your first week →</a>
+        </p>
       ) : (
         <>
           <div className="flex flex-col gap-3">
