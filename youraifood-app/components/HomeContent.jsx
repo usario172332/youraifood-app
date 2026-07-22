@@ -32,9 +32,17 @@ export default function HomeContent() {
           <h1 className="mx-auto mb-4 max-w-3xl text-4xl font-extrabold leading-tight text-green-900 sm:text-5xl">
             Never wonder what to cook <span className="text-green-600">again</span>.
           </h1>
-          <p className="mx-auto mb-8 max-w-xl text-lg text-ink-soft">
-            Generate a personalized 7-day meal plan with recipes, macros, and a shopping list — in under a minute.
+          <p className="mx-auto mb-6 max-w-xl text-lg text-ink-soft">
+            Generate a personalised 7-day meal plan complete with recipes, nutrition, macros and an automatically
+            generated shopping list — in under one minute.
           </p>
+          <div className="mb-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
+            <span>✓ Personalised 7-day meal plan</span>
+            <span>✓ High-protein healthy recipes</span>
+            <span>✓ Calories & macros</span>
+            <span>✓ Automatic shopping list</span>
+            <span>✓ Built in under one minute</span>
+          </div>
           <button
             onClick={scrollToPlanner}
             className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white transition hover:-translate-y-px hover:bg-green-700"
