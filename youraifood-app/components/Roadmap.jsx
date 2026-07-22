@@ -16,8 +16,8 @@ export default function Roadmap() {
           </span>
           <h2 className="mb-3 text-2xl font-extrabold text-green-900">Plan my week, then order everything I need.</h2>
           <p className="mx-auto mb-8 max-w-xl text-ink-soft">
-            That's the vision: goal → recipes → weekly plan → grocery list → local supermarket → checkout, all in one
-            place. Today YourAiFood handles the planning, nutrition, and shopping list. The rest is next.
+            The vision: goal → plan → grocery list → local supermarket → checkout, all in one place. Today we
+            handle the planning, nutrition, and shopping list — the rest is next.
           </p>
           <div className="mx-auto grid max-w-lg grid-cols-1 gap-2.5 text-left">
             {ITEMS.map((item) => (
