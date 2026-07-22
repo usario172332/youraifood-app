@@ -10,6 +10,7 @@ import SamplePlan from './SamplePlan';
 import RecipeGallery from './RecipeGallery';
 import EmailCapture from './EmailCapture';
 import FAQ from './FAQ';
+import WhatHappensNext from './WhatHappensNext';
 import Roadmap from './Roadmap';
 import Pricing from './Pricing';
 import { useAuth } from '../lib/AuthContext';
@@ -40,17 +41,21 @@ export default function HomeContent() {
           >
             Build My Week →
           </button>
+          <p className="mt-3 text-xs font-bold text-green-700">⚡ Average plan generation time: ~20 seconds</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
-            <span>✓ High-protein recipes</span>
-            <span>✓ Grocery lists</span>
-            <span>✓ AI meal planner</span>
-            <span>✓ Macro tracking</span>
+            <span>🔒 Secure login</span>
+            <span>💳 No credit card required</span>
+            <span>✕ Cancel anytime</span>
+            <span>🔐 Your data stays private</span>
+            <span>📊 Nutrition data included</span>
           </div>
           <p className="mx-auto mt-4 max-w-lg text-xs text-ink-soft">
             🔍 Nutrition numbers are computed directly from real recipe data — never estimated or hallucinated by AI.
           </p>
         </div>
       </section>
+
+      <WhatHappensNext />
 
       <section className="px-6 pb-10 pt-6">
         <div className="mx-auto max-w-[1120px] text-center">
