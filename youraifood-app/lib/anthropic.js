@@ -1,6 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { DAYS, catalogForPrompt } from './recipes';
 
+const BUDGET_LEVEL_GUIDANCE = {
+  budget: 'Budget-friendly: favour affordable, everyday ingredients such as oats, rice, beans, lentils, eggs, frozen vegetables, chicken thighs, canned tuna and other cost-effective staples.',
+  balanced: 'Balanced: use common supermarket ingredients, balancing affordability, variety and nutrition.',
+  premium: 'Premium: prioritise ingredient quality and variety — salmon, lean steak, fresh berries, specialty cheeses, nuts and higher-quality proteins are all fair game.',
+};
+
 let client = null;
 function getClient() {
   if (client) return client;
@@ -83,7 +89,7 @@ function buildPlanTool(meals, dishCounts) {
         },
         coachNote: {
           type: 'string',
-          description: 'A 2-3 sentence note explaining the key tradeoffs made (protein target, budget, variety/reuse) in a friendly coach voice. Be accurate about budget: only say the plan stays within budget if the total weekly cost is actually at or under the target - if it runs over, say so plainly and roughly by how much, and never claim budget was respected when it was not.',
+          description: 'A 2-3 sentence note explaining the key tradeoffs made (protein target, ingredient budget level, variety/reuse) in a friendly coach voice.',
         },
       },
       required: ['days', 'coachNote'],
@@ -99,7 +105,8 @@ export async function generateWeeklyPlan(inputs) {
     );
   }
 
-  const { goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, isPremium, meals, dishesPerDay } = inputs;
+  const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay } = inputs;
+  const budgetGuidance = BUDGET_LEVEL_GUIDANCE[budgetLevel] || BUDGET_LEVEL_GUIDANCE.balanced;
   const catalog = catalogForPrompt(isPremium);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
@@ -121,7 +128,7 @@ The user only wants these meal types included in their plan: ${mealList}. The us
   2. Serving multipliers — set "servings" on any individual dish to 1.5 or 2 to scale up that dish's calories, protein and cost proportionally. Do not default to 1x out of caution — scale confidently whenever the math calls for it.
   Never scale a dish below 1x or above 2x.
 - Aim for the daily protein target on average across the week.
-- Aim to stay within the weekly budget (cost per serving × family size × all dishes, including any scaling) — but if budget and the calorie target conflict, the calorie target wins. If the plan you build ends up over budget, say so plainly and honestly in the coachNote instead of claiming it stayed within budget.
+- Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.
 - Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking a totally different recipe for every dish.
 - Vary meals enough that it doesn't feel repetitive day to day.
 Call the build_weekly_plan tool with your answer. Do not include any text outside the tool call.`;
@@ -133,7 +140,7 @@ User targets:
 - Fitness goal: ${goal}
 - Daily calorie target: ${calorieTarget} kcal
 - Daily protein target: ${proteinTarget}g
-- Weekly grocery budget: €${budget} for ${family} ${family === 1 ? 'person' : 'people'}
+- Budget level: ${budgetLevel === 'budget' ? 'Budget-friendly' : budgetLevel === 'premium' ? 'Premium' : 'Balanced'} for ${family} ${family === 1 ? 'person' : 'people'}
 - Max cook time per meal: ${maxTime} minutes
 - Dietary needs: ${diets.length ? diets.join(', ') : 'none'}
 - Meals to include each day: ${mealList}
@@ -206,7 +213,8 @@ export async function regenerateDay(inputs) {
     );
   }
 
-  const { dayName, goal, proteinTarget, calorieTarget, budget, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidIds } = inputs;
+  const { dayName, goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidIds } = inputs;
+  const budgetGuidance = BUDGET_LEVEL_GUIDANCE[budgetLevel] || BUDGET_LEVEL_GUIDANCE.balanced;
   const catalog = catalogForPrompt(isPremium);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
@@ -214,9 +222,7 @@ export async function regenerateDay(inputs) {
   const dishCounts = splitDishes(total, mealSlots);
   const dishSummary = mealSlots.map((s) => `${dishCounts[s]} ${MEAL_LABELS[s]}`).join(', ');
   const avoidList = Array.isArray(avoidIds) && avoidIds.length ? avoidIds.join(', ') : 'none';
-  const perDayBudget = (Number(budget) / 7).toFixed(2);
-
-  const system = `You are the meal-planning engine behind YourAiFood, a fitness recipe app.
+    const system = `You are the meal-planning engine behind YourAiFood, a fitness recipe app.
 You will be given a recipe catalog (id, meal type, diet tags, cook time in minutes, cost per serving in EUR, protein in grams, calories) and a user's targets.
 The user is regenerating a single day (${dayName}) of an existing weekly plan because they want different meals for that day specifically. The user only wants these meal types included: ${mealList}. Build exactly ${dishSummary} using ONLY recipe ids that appear in the catalog. Rules:
 - HITTING THE DAILY CALORIE TARGET IS YOUR TOP PRIORITY. Before finalizing, mentally sum this day's calories (each dish's calories × its servings). If more than ~10% below the ${calorieTarget} kcal target, scale dishes up (servings 1.5 or 2) until within range.
@@ -225,7 +231,7 @@ The user is regenerating a single day (${dayName}) of an existing weekly plan be
 - Respect the max cook time per meal.
 - Where reasonably possible, prefer recipe ids NOT already used elsewhere in this week's plan (listed below) so the regenerated day adds real variety — but it's fine to reuse one if it's clearly the best fit for the target.
 - Aim for the daily protein target of ${proteinTarget}g.
-- Aim to stay within a fair one-day share of the weekly budget (~€${perDayBudget}) — but if budget and the calorie target conflict, the calorie target wins.
+- Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.
 Call the build_day tool with your answer. Do not include any text outside the tool call.`;
 
   const user = `Recipe catalog (JSON):
