@@ -64,7 +64,7 @@ export default function EmailCapture() {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="whitespace-nowrap rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 disabled:opacity-60 disabled:hover:translate-y-0"
+              className="whitespace-nowrap rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
             >
               {status === 'loading' ? 'Sending…' : 'Send me the plan →'}
             </button>
