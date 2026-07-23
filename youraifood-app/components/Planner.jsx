@@ -33,9 +33,9 @@ const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Sn
 const GOAL_LABELS = { lose: 'Lose Weight', muscle: 'Muscle Gain', maintain: 'Maintain Health' };
 
 const BUDGET_LEVELS = [
-  { value: 'budget', icon: '\ud83d\udcb0', label: 'Budget-friendly', desc: 'Affordable staples' },
-  { value: 'balanced', icon: '\ud83d\udcb0\ud83d\udcb0', label: 'Balanced', desc: 'Everyday variety' },
-  { value: 'premium', icon: '\ud83d\udcb0\ud83d\udcb0\ud83d\udcb0', label: 'Premium', desc: 'Quality & variety' },
+  { value: 'budget', icon: '💰', label: 'Budget-friendly', desc: 'Affordable staples' },
+  { value: 'balanced', icon: '💰💰', label: 'Balanced', desc: 'Everyday variety' },
+  { value: 'premium', icon: '💰💰💰', label: 'Premium', desc: 'Quality & variety' },
 ];
 
 const LOADING_STEPS = [
@@ -100,6 +100,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [showPersonalize, setShowPersonalize] = useState(false);
 
   useEffect(() => {
     if (!loading) return;
@@ -237,114 +238,8 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         <PresetChip label="👨‍👩‍👧‍👦 Feed a family of four" onClick={() => applyPreset('family')} />
       </div>
 
-      <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">About you</h3>
-      <div className="mb-4 flex items-start gap-2 rounded-lg bg-gray-50 px-3.5 py-2.5 text-xs text-ink-soft">
-        <span>🔒</span>
-        <span>
-          Your weight, height, age, and sex are used only in your browser to calculate the targets below — the raw
-          numbers are never sent to our servers or to the AI that builds your plan.{' '}
-          <a href="/privacy" className="font-semibold text-green-700 underline">Read our privacy policy</a>.
-        </span>
-      </div>
-      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
-        <Field label="Current weight" hint="(kg)" id="weightInput">
-          <input id="weightInput" type="number" min={30} max={250} step={1} value={form.weight}
-            onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
-        </Field>
-        <Field label="Height" hint="(cm)" id="heightInput">
-          <input id="heightInput" type="number" min={120} max={230} step={1} value={form.height}
-            onChange={(e) => setForm({ ...form, height: Number(e.target.value) })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
-        </Field>
-        <Field label="Age" id="ageInput">
-          <input id="ageInput" type="number" min={14} max={100} step={1} value={form.age}
-            onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
-        </Field>
-        <Field label="Sex" id="sexSelect">
-          <select
-            id="sexSelect"
-            value={form.sex}
-            onChange={(e) => setForm({ ...form, sex: e.target.value })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
-          >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </Field>
-        <Field label="Activity level" id="activityLevelSelect">
-          <select
-            id="activityLevelSelect"
-            value={form.activityLevel}
-            onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
-          >
-            {ACTIVITY_OPTIONS.map((a) => (
-              <option key={a.key} value={a.key}>{a.label}</option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <div className="mb-6 rounded-xl bg-green-50 p-4 text-sm text-green-900">
-        <b className="mb-1 block">🔢 Your calculated daily targets</b>
-        <span className="text-lg font-extrabold">{calorieValue} kcal</span>
-        {form.calorieTouched && <span className="ml-1.5 rounded-full bg-green-200 px-1.5 py-0.5 text-[10px] font-extrabold text-green-800">custom</span>}
-        <span className="mx-2 text-green-700/50">·</span>
-        <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
-        <div className="mt-1 text-xs text-green-700">
-          BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
-          {form.proteinTouched && form.protein !== targets.proteinTarget && (
-            <>
-              {' '}
-              <button
-                type="button"
-                onClick={() => setForm((f) => ({ ...f, protein: targets.proteinTarget, proteinTouched: false }))}
-                className="font-bold underline"
-              >
-                Reset protein to suggested {targets.proteinTarget}g
-              </button>
-            </>
-          )}
-        </div>
-        <div className="mt-3 text-xs text-green-700">
-          {!form.calorieTouched ? (
-            <button
-              type="button"
-              onClick={() => setForm((f) => ({ ...f, calorieTouched: true, customCalorieTarget: targets.calorieTarget }))}
-              className="rounded-full border-[1.5px] border-green-600 bg-white px-3.5 py-1.5 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-100"
-            >
-              ✏️ Add your own calorie target
-            </button>
-          ) : (
-            <div className="flex flex-wrap items-center gap-2 rounded-lg border-[1.5px] border-green-300 bg-white/60 p-2.5">
-              <label className="font-bold" htmlFor="customCalorieInput">Your calorie target:</label>
-              <input
-                id="customCalorieInput"
-                type="number"
-                min={800}
-                max={6000}
-                step={50}
-                value={form.customCalorieTarget ?? targets.calorieTarget}
-                onChange={(e) => setForm((f) => ({ ...f, customCalorieTarget: Number(e.target.value) }))}
-                className="w-24 rounded-lg border-[1.5px] border-green-400 bg-white px-2 py-1.5 text-sm font-bold text-ink"
-              />
-              <span>kcal</span>
-              <button
-                type="button"
-                onClick={() => setForm((f) => ({ ...f, calorieTouched: false, customCalorieTarget: null }))}
-                className="font-bold underline"
-              >
-                Reset to calculated {targets.calorieTarget}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
       <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-soft">Your plan</h3>
-      <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-4">
         <Field label="Fitness goal" id="goalSelect">
           <select
             id="goalSelect"
@@ -357,11 +252,34 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             <option value="maintain">Maintain / general health</option>
           </select>
         </Field>
-        <Field label="Protein target" hint="(g/day, auto-suggested)" id="proteinInput">
-          <input id="proteinInput" type="number" min={40} max={300} step={5} value={proteinValue}
-            onChange={(e) => setForm({ ...form, protein: Number(e.target.value), proteinTouched: true })}
+        <Field label="Max cook time" hint="(min/meal)" id="timeInput">
+          <input id="timeInput" type="number" min={5} max={90} step={5} value={form.time}
+            onChange={(e) => setForm({ ...form, time: Number(e.target.value) })}
             className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
         </Field>
+        <Field label="Household size" hint="(people)" id="familyInput">
+          <input id="familyInput" type="number" min={1} max={8} step={1} value={form.family}
+            onChange={(e) => setForm({ ...form, family: Number(e.target.value) })}
+            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+        </Field>
+        <Field label="Dietary preference">
+          <div className="flex flex-wrap gap-1.5">
+            {DIET_OPTIONS.map((d) => (
+              <label
+                key={d.key}
+                className={`cursor-pointer rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold ${
+                  form.diets.includes(d.key) ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
+                }`}
+              >
+                <input type="checkbox" className="mr-1" checked={form.diets.includes(d.key)} onChange={() => toggleDiet(d.key)} />
+                {d.label}
+              </label>
+            ))}
+          </div>
+        </Field>
+      </div>
+
+      <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-3">
         <Field label="Budget level" id="budgetLevelGroup">
           <div role="radiogroup" aria-label="Budget level" className="grid grid-cols-3 gap-1.5">
             {BUDGET_LEVELS.map((lvl) => (
@@ -384,31 +302,6 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
             ))}
           </div>
           <p className="mt-1 text-[11px] leading-tight text-ink-soft">Grocery prices vary a lot by country, so we guide ingredient choice by level instead of promising an exact total.</p>
-        </Field>
-        <Field label="Max cook time" hint="(min/meal)" id="timeInput">
-          <input id="timeInput" type="number" min={5} max={90} step={5} value={form.time}
-            onChange={(e) => setForm({ ...form, time: Number(e.target.value) })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
-        </Field>
-        <Field label="Family size" hint="(people)" id="familyInput">
-          <input id="familyInput" type="number" min={1} max={8} step={1} value={form.family}
-            onChange={(e) => setForm({ ...form, family: Number(e.target.value) })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
-        </Field>
-        <Field label="Dietary needs">
-          <div className="flex flex-wrap gap-1.5">
-            {DIET_OPTIONS.map((d) => (
-              <label
-                key={d.key}
-                className={`cursor-pointer rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold ${
-                  form.diets.includes(d.key) ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
-                }`}
-              >
-                <input type="checkbox" className="mr-1" checked={form.diets.includes(d.key)} onChange={() => toggleDiet(d.key)} />
-                {d.label}
-              </label>
-            ))}
-          </div>
         </Field>
         <Field label="Meals to include">
           <div className="flex flex-wrap gap-1.5">
@@ -446,6 +339,138 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         </Field>
       </div>
 
+      <div className="mb-6">
+        <button
+          type="button"
+          onClick={() => setShowPersonalize((v) => !v)}
+          aria-expanded={showPersonalize}
+          className="flex w-full items-center justify-between rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-bold text-green-800 transition duration-200 hover:border-green-300 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+        >
+          <span>🔢 Personalise my calorie &amp; protein targets (optional)</span>
+          <span className="text-xs font-normal text-ink-soft">{showPersonalize ? 'Hide ▲' : 'Show ▼'}</span>
+        </button>
+        <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
+          We use sensible defaults if you skip this — add your details for calorie and protein targets tailored to you.
+        </p>
+
+        {showPersonalize && (
+          <div className="mt-4">
+            <div className="mb-4 flex items-start gap-2 rounded-lg bg-gray-50 px-3.5 py-2.5 text-xs text-ink-soft">
+              <span>🔒</span>
+              <span>
+                Your weight, height, age, and sex are used only in your browser to calculate the targets below — the raw
+                numbers are never sent to our servers or to the AI that builds your plan.{' '}
+                <a href="/privacy" className="font-semibold text-green-700 underline">Read our privacy policy</a>.
+              </span>
+            </div>
+            <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
+              <Field label="Current weight" hint="(kg)" id="weightInput">
+                <input id="weightInput" type="number" min={30} max={250} step={1} value={form.weight}
+                  onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
+                  className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+              </Field>
+              <Field label="Height" hint="(cm)" id="heightInput">
+                <input id="heightInput" type="number" min={120} max={230} step={1} value={form.height}
+                  onChange={(e) => setForm({ ...form, height: Number(e.target.value) })}
+                  className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+              </Field>
+              <Field label="Age" id="ageInput">
+                <input id="ageInput" type="number" min={14} max={100} step={1} value={form.age}
+                  onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
+                  className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+              </Field>
+              <Field label="Sex" id="sexSelect">
+                <select
+                  id="sexSelect"
+                  value={form.sex}
+                  onChange={(e) => setForm({ ...form, sex: e.target.value })}
+                  className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </Field>
+              <Field label="Activity level" id="activityLevelSelect">
+                <select
+                  id="activityLevelSelect"
+                  value={form.activityLevel}
+                  onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
+                  className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
+                >
+                  {ACTIVITY_OPTIONS.map((a) => (
+                    <option key={a.key} value={a.key}>{a.label}</option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            <div className="mb-6 max-w-[220px]">
+              <Field label="Protein target" hint="(g/day, auto-suggested)" id="proteinInput">
+                <input id="proteinInput" type="number" min={40} max={300} step={5} value={proteinValue}
+                  onChange={(e) => setForm({ ...form, protein: Number(e.target.value), proteinTouched: true })}
+                  className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
+              </Field>
+            </div>
+
+            <div className="rounded-xl bg-green-50 p-4 text-sm text-green-900">
+              <b className="mb-1 block">🔢 Your calculated daily targets</b>
+              <span className="text-lg font-extrabold">{calorieValue} kcal</span>
+              {form.calorieTouched && <span className="ml-1.5 rounded-full bg-green-200 px-1.5 py-0.5 text-[10px] font-extrabold text-green-800">custom</span>}
+              <span className="mx-2 text-green-700/50">·</span>
+              <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
+              <div className="mt-1 text-xs text-green-700">
+                BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
+                {form.proteinTouched && form.protein !== targets.proteinTarget && (
+                  <>
+                    {' '}
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, protein: targets.proteinTarget, proteinTouched: false }))}
+                      className="font-bold underline"
+                    >
+                      Reset protein to suggested {targets.proteinTarget}g
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="mt-3 text-xs text-green-700">
+                {!form.calorieTouched ? (
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, calorieTouched: true, customCalorieTarget: targets.calorieTarget }))}
+                    className="rounded-full border-[1.5px] border-green-600 bg-white px-3.5 py-1.5 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-100"
+                  >
+                    ✏️ Add your own calorie target
+                  </button>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg border-[1.5px] border-green-300 bg-white/60 p-2.5">
+                    <label className="font-bold" htmlFor="customCalorieInput">Your calorie target:</label>
+                    <input
+                      id="customCalorieInput"
+                      type="number"
+                      min={800}
+                      max={6000}
+                      step={50}
+                      value={form.customCalorieTarget ?? targets.calorieTarget}
+                      onChange={(e) => setForm((f) => ({ ...f, customCalorieTarget: Number(e.target.value) }))}
+                      className="w-24 rounded-lg border-[1.5px] border-green-400 bg-white px-2 py-1.5 text-sm font-bold text-ink"
+                    />
+                    <span>kcal</span>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, calorieTouched: false, customCalorieTarget: null }))}
+                      className="font-bold underline"
+                    >
+                      Reset to calculated {targets.calorieTarget}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 rounded-xl bg-green-50/60 px-4 py-3 text-xs font-semibold text-green-800">
         <span>Goal <b className="text-green-900">✓ {GOAL_LABELS[form.goal]}</b></span>
         <span>Calories <b className="text-green-900">✓ {calorieValue} kcal</b></span>
@@ -459,7 +484,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
           disabled={loading}
           className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          {loading ? LOADING_STEPS[loadingStep] : 'Build My Week →'}
+          {loading ? LOADING_STEPS[loadingStep] : 'Create My Free Meal Plan →'}
         </button>
       </div>
 
