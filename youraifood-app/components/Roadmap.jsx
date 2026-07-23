@@ -2,7 +2,6 @@ const ITEMS = [
   'Order groceries from nearby supermarkets, one click',
   'AI meal-prep calendar',
   'Pantry tracking — plans built around what you already have',
-  'Family meal planning with per-person portions',
   'Fitness app integrations (Apple Health, Strava, and more)',
 ];
 
@@ -22,7 +21,7 @@ export default function Roadmap() {
           <div className="mx-auto grid max-w-lg grid-cols-1 gap-2.5 text-left">
             {ITEMS.map((item) => (
               <div key={item} className="flex items-start gap-2.5 rounded-xl bg-white px-4 py-3 text-sm text-ink">
-                <span className="mt-0.5 text-green-600">✓</span>
+                <span className="mt-0.5 text-ink-soft">○</span>
                 {item}
               </div>
             ))}

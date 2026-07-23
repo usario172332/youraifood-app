@@ -190,13 +190,16 @@ export default function SamplePlan() {
     });
   });
 
-  // How many times each main dish's recipe id appears across the week —
-  // real, computed from the actual sample data — so we can flag genuinely
-  // reused recipes (and therefore reused ingredients) instead of a made-up label.
-  const mainDishCounts = {};
-  activeDays.forEach((row) => {
+  // Whether each day's main dish recipe id has already appeared earlier in
+  // the week — real, computed from the actual sample data — so the badge
+  // only flags an actual repeat (2nd+ time), not the first day it's used.
+  const seenMainDish = new Set();
+  const isRepeatMain = activeDays.map((row) => {
     const id = row.mainDishes?.[0]?.id;
-    if (id) mainDishCounts[id] = (mainDishCounts[id] || 0) + 1;
+    if (!id) return false;
+    const repeat = seenMainDish.has(id);
+    seenMainDish.add(id);
+    return repeat;
   });
 
   return (
@@ -272,7 +275,7 @@ export default function SamplePlan() {
               </tr>
             </thead>
             <tbody>
-              {activeDays.map((row) => {
+              {activeDays.map((row, dayIndex) => {
                 const breakfast = row.breakfastDishes?.[0] ? findRecipe(row.breakfastDishes[0].id) : null;
                 const mainDish = row.mainDishes?.[0];
                 const main = mainDish ? findRecipe(mainDish.id) : null;
@@ -296,7 +299,7 @@ export default function SamplePlan() {
                         <div className="mt-1 flex flex-wrap gap-1 text-[10px] font-semibold text-ink-soft">
                           <span>🕒 {main.time}min active</span>
                           {makesLeftovers && <span className="text-green-700">♻️ Leftovers</span>}
-                          {mainDishCounts[main.id] > 1 && (
+                          {isRepeatMain[dayIndex] && (
                             <span className="text-amber-700">🔁 Ingredient Reused</span>
                           )}
                         </div>
