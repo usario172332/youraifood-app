@@ -44,6 +44,8 @@ export default function MacroCalculator() {
     return { fatGrams, carbGrams };
   }, [targets]);
 
+  const plannerHref = `/?calories=${targets.calorieTarget}&protein=${targets.proteinTarget}#planner`;
+
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
       <div className="mb-8 text-center">
@@ -143,14 +145,17 @@ export default function MacroCalculator() {
           </p>
         </div>
 
-        <div className="mt-6 rounded-xl border border-dashed border-green-300 bg-white p-5 text-center">
-          <p className="mb-3 text-sm text-ink-soft">
-            These are just numbers. YourAiFood turns them into a real 7-day meal plan — recipes, a grocery list, and
-            exact macros per meal — built by AI around your targets.
+        <div className="mt-6 rounded-xl border-2 border-green-300 bg-green-50 p-6 text-center">
+          <p className="mb-1 text-base font-extrabold text-green-900">
+            Turn these targets into a complete weekly meal plan.
+          </p>
+          <p className="mx-auto mb-4 max-w-md text-sm text-ink-soft">
+            Recipes, a grocery list, and exact macros per meal — built by AI around your {targets.calorieTarget} kcal
+            and {targets.proteinTarget}g protein targets.
           </p>
           <Link
-            href="/#planner"
-            className="inline-block rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-green-700"
+            href={plannerHref}
+            className="inline-block rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md"
           >
             Build my weekly plan →
           </Link>

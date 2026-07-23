@@ -153,9 +153,16 @@ export default function SamplePlan() {
 
         <p className="mb-3 text-xs text-ink-soft">
           Shown with 4 dishes/day — choose 3–6, portions auto-scale to your calorie target.
-          Core ingredients repeat by design ({stats.distinctRecipes} distinct recipes across {stats.totalMeals} meals) —
-          fewer unique items to buy, less food waste, and easier meal prep.
         </p>
+        <div className="mb-5 rounded-xl border border-green-100 bg-green-50 px-4 py-3">
+          <p className="text-xs font-extrabold text-green-900">🔁 Smart repetition, not random repetition</p>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-semibold text-green-700">
+            <span className="rounded-full bg-white px-2.5 py-1">♻️ Less food waste</span>
+            <span className="rounded-full bg-white px-2.5 py-1">🛒 Simpler shopping</span>
+            <span className="rounded-full bg-white px-2.5 py-1">⏱️ Easier meal prep</span>
+            <span className="rounded-full bg-white px-2.5 py-1">💰 Saves money</span>
+          </div>
+        </div>
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full border-collapse bg-white text-sm">
             <thead>

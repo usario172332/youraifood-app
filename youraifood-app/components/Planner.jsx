@@ -21,7 +21,13 @@ const MEAL_OPTIONS = [
 
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 
-const GOAL_LABELS = { lose: 'Lose Weight', muscle: 'Muscle Gain', maintain: 'Maintain Health' };
+const GOAL_LABELS = { lose: 'Lose Weight', muscle: 'Build Muscle', maintain: 'Eat Healthier' };
+
+const GOAL_CARDS = [
+  { value: 'lose', icon: '🔥', label: 'Lose Weight', benefit: 'High-protein meals within your calorie target.' },
+  { value: 'muscle', icon: '💪', label: 'Build Muscle', benefit: 'Protein-focused meals to support muscle growth.' },
+  { value: 'maintain', icon: '🥗', label: 'Eat Healthier', benefit: 'Balanced meals without the planning.' },
+];
 
 const BUDGET_LEVELS = [
   { value: 'budget', icon: '💰', label: 'Budget-friendly', desc: 'Affordable staples' },
@@ -85,7 +91,7 @@ const DEFAULT_FORM = {
   dishesPerDay: 4,
 };
 
-export default function Planner({ user, session, favorites, onToggleFavorite }) {
+export default function Planner({ user, session, isPremium, favorites, onToggleFavorite }) {
   const { requestSignIn } = useAuth();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [result, setResult] = useState(null);
@@ -93,6 +99,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
   const [loadingStep, setLoadingStep] = useState(0);
   const [showCustomize, setShowCustomize] = useState(false);
   const [showPersonalize, setShowPersonalize] = useState(false);
+  const [prefilled, setPrefilled] = useState(false);
 
   useEffect(() => {
     if (!loading) return;
@@ -104,6 +111,26 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
   }, [loading]);
   const [error, setError] = useState('');
   const [activeRecipe, setActiveRecipe] = useState(null);
+
+  // Pre-fill calorie/protein targets when arriving from the free Macro
+  // Calculator (?calories=2200&protein=160#planner) so visitors don't have
+  // to re-enter numbers they already calculated.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const cal = Number(params.get('calories'));
+    const pro = Number(params.get('protein'));
+    if (!cal && !pro) return;
+    setForm((f) => ({
+      ...f,
+      calorieTouched: cal ? true : f.calorieTouched,
+      customCalorieTarget: cal || f.customCalorieTarget,
+      protein: pro || f.protein,
+      proteinTouched: pro ? true : f.proteinTouched,
+    }));
+    setShowCustomize(true);
+    setPrefilled(true);
+  }, []);
 
   const targets = useMemo(
     () =>
@@ -213,22 +240,37 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
 
   return (
     <div id="planner" className="rounded-[20px] border border-gray-200 bg-white p-8 text-left shadow-xl">
-      <h2 className="mb-1 text-xl font-extrabold text-green-900">Build your weekly plan</h2>
-      <p className="mb-5 text-sm text-ink-soft">Set your goal and dietary needs, then generate your plan. Real AI, generated on request.</p>
+      <h2 className="mb-1 text-xl font-extrabold text-green-900">Start building your plan</h2>
+      <p className="mb-5 text-sm text-ink-soft">Choose your goal and diet. We'll handle the rest.</p>
 
-      <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Field label="Fitness goal" id="goalSelect">
-          <select
-            id="goalSelect"
-            value={form.goal}
-            onChange={(e) => setForm({ ...form, goal: e.target.value })}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
-          >
-            <option value="lose">Lose weight</option>
-            <option value="muscle">Build muscle</option>
-            <option value="maintain">Maintain / general health</option>
-          </select>
-        </Field>
+      {prefilled && (
+        <div className="mb-4 rounded-lg bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-800">
+          ✓ Calorie & protein targets pre-filled from your macro calculator results.
+        </div>
+      )}
+
+      <div className="mb-5">
+        <label className="mb-2 block text-[13px] font-bold text-ink">Your goal</label>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {GOAL_CARDS.map((g) => (
+            <button
+              key={g.value}
+              type="button"
+              onClick={() => setForm({ ...form, goal: g.value })}
+              aria-pressed={form.goal === g.value}
+              className={`rounded-2xl border-2 p-4 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ${
+                form.goal === g.value ? 'border-green-600 bg-green-50 shadow-sm' : 'border-gray-200 hover:border-green-300'
+              }`}
+            >
+              <div className="mb-1.5 text-2xl">{g.icon}</div>
+              <div className="text-sm font-extrabold text-green-900">{g.label}</div>
+              <div className="mt-0.5 text-xs text-ink-soft">{g.benefit}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-5">
         <Field label="Dietary preference">
           <div className="flex flex-wrap gap-1.5">
             {DIET_OPTIONS.map((d) => (
@@ -478,6 +520,7 @@ export default function Planner({ user, session, favorites, onToggleFavorite }) 
         recipe={activeRecipe}
         onClose={() => setActiveRecipe(null)}
         isFavorite={activeRecipe ? favorites?.has(activeRecipe.id) : false}
+        isPremium={isPremium}
         onToggleFavorite={
           activeRecipe
             ? () => {
@@ -688,10 +731,17 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
       </div>
 
       <div className="mt-4">
-        <div className="rounded-xl bg-green-50 p-4 text-sm text-green-900">
-          <b className="mb-1 block">♻️ Minimal food waste & ingredient reuse</b>
-          Your plan uses just <b>{stats.distinctRecipes} distinct recipes</b> across the week — core ingredients repeat by
-          design, so nothing bought goes unused.
+        <div className="rounded-xl border border-green-100 bg-green-50 p-4">
+          <p className="text-sm font-extrabold text-green-900">🔁 Smart repetition, not random repetition</p>
+          <p className="mt-1 text-xs text-ink-soft">
+            Just {stats.distinctRecipes} distinct recipes across the week, repeated by design.
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-1.5 text-[11px] font-semibold text-green-700">
+            <span className="rounded-full bg-white px-2.5 py-1">♻️ Less food waste</span>
+            <span className="rounded-full bg-white px-2.5 py-1">🛒 Simpler shopping</span>
+            <span className="rounded-full bg-white px-2.5 py-1">⏱️ Easier meal prep</span>
+            <span className="rounded-full bg-white px-2.5 py-1">💰 Saves money</span>
+          </div>
         </div>
       </div>
     </div>

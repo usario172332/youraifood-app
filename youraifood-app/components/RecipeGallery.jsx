@@ -9,6 +9,34 @@ import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero, isMealPrepFrien
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
+const TIME_OPTIONS = [
+  { value: 'any', label: '⏱️ Any time' },
+  { value: '20', label: 'Under 20 min' },
+  { value: '30', label: 'Under 30 min' },
+  { value: '45', label: 'Under 45 min' },
+];
+
+const CAL_OPTIONS = [
+  { value: 'any', label: '🔥 Any calories' },
+  { value: '400', label: 'Under 400 kcal' },
+  { value: '600', label: 'Under 600 kcal' },
+  { value: '800', label: 'Under 800 kcal' },
+];
+
+const PROTEIN_OPTIONS = [
+  { value: 'any', label: '🥩 Any protein' },
+  { value: '20', label: '20g+ protein' },
+  { value: '30', label: '30g+ protein' },
+  { value: '40', label: '40g+ protein' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'default', label: 'Sort: Default' },
+  { value: 'protein', label: 'Highest protein' },
+  { value: 'quickest', label: 'Quickest' },
+  { value: 'lowestCal', label: 'Lowest calories' },
+];
+
 // Hand-picked homepage teaser — a compact mix of free recipes to prove
 // quality, plus a couple of premium ones (shown locked/blurred) to create
 // FOMO toward upgrading. Kept short on purpose so the homepage stays light;
@@ -27,9 +55,32 @@ function extraBadge(r) {
   return null;
 }
 
+function ToggleChip({ active, onClick, label }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-full border px-4 py-2 text-xs font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900 ${
+        active ? 'border-green-500 bg-green-500 text-white' : 'border-white/25 bg-white/10 text-white'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite, compact = false }) {
   const [meal, setMeal] = useState('all');
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [timeFilter, setTimeFilter] = useState('any');
+  const [calFilter, setCalFilter] = useState('any');
+  const [proteinFilter, setProteinFilter] = useState('any');
+  const [mealPrepOnly, setMealPrepOnly] = useState(false);
+  const [freezerOnly, setFreezerOnly] = useState(false);
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('default');
   const [active, setActive] = useState(null);
   const [reviewSummaries, setReviewSummaries] = useState({});
 
@@ -41,7 +92,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   }, []);
 
   const byMeal = meal === 'all' ? RECIPES : RECIPES.filter((r) => r.meal === meal);
-  const filtered =
+  let filtered =
     filter === 'all'
       ? byMeal
       : filter === 'premium'
@@ -49,6 +100,23 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
       : filter === 'favorites'
       ? byMeal.filter((r) => favorites?.has(r.id))
       : byMeal.filter((r) => r.diets.includes(filter));
+
+  if (!compact) {
+    if (freeOnly) filtered = filtered.filter((r) => !r.premium);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      filtered = filtered.filter((r) => r.name.toLowerCase().includes(q));
+    }
+    if (timeFilter !== 'any') filtered = filtered.filter((r) => r.time <= Number(timeFilter));
+    if (calFilter !== 'any') filtered = filtered.filter((r) => r.cal <= Number(calFilter));
+    if (proteinFilter !== 'any') filtered = filtered.filter((r) => r.protein >= Number(proteinFilter));
+    if (mealPrepOnly) filtered = filtered.filter((r) => isMealPrepFriendly(r));
+    if (freezerOnly) filtered = filtered.filter((r) => isFreezerFriendly(r));
+
+    if (sortBy === 'protein') filtered = [...filtered].sort((a, b) => b.protein - a.protein);
+    else if (sortBy === 'quickest') filtered = [...filtered].sort((a, b) => a.time - b.time);
+    else if (sortBy === 'lowestCal') filtered = [...filtered].sort((a, b) => a.cal - b.cal);
+  }
 
   const list = compact
     ? TEASER_IDS.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean)
@@ -66,10 +134,9 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   }
 
   function handleCardClick(r) {
-    if (r.premium && !isPremium) {
-      goTo('pricing');
-      return;
-    }
+    // Opening the modal for a locked recipe now shows a real preview
+    // (photo, macros, badges) with only ingredients/instructions gated —
+    // visitors can judge recipe quality before being asked to upgrade.
     setActive(r);
   }
 
@@ -91,7 +158,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
         <p className="mb-8 text-center text-white/70">
           {compact
             ? `${RECIPES.length} fitness recipes with real photos, full macros and AI meal planning behind them`
-            : 'A taste of what YourAiFood pulls from when building your plan'}
+            : 'Search, filter, and sort — find exactly the recipe you need'}
         </p>
 
         {!compact && (
@@ -111,7 +178,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 </button>
               ))}
             </div>
-            <div className="mb-8 flex flex-wrap justify-center gap-2">
+            <div className="mb-3 flex flex-wrap justify-center gap-2">
               {FILTERS.map((f) => (
                 <button
                   key={f}
@@ -126,7 +193,63 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 </button>
               ))}
             </div>
+
+            <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="🔍 Search recipes…"
+                className="w-full max-w-xs rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm text-white placeholder-white/60 focus:border-white/50 focus:outline-none sm:w-64"
+              />
+              <select
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value)}
+                className="rounded-full border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none"
+              >
+                {TIME_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value} className="text-ink">{o.label}</option>
+                ))}
+              </select>
+              <select
+                value={calFilter}
+                onChange={(e) => setCalFilter(e.target.value)}
+                className="rounded-full border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none"
+              >
+                {CAL_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value} className="text-ink">{o.label}</option>
+                ))}
+              </select>
+              <select
+                value={proteinFilter}
+                onChange={(e) => setProteinFilter(e.target.value)}
+                className="rounded-full border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none"
+              >
+                {PROTEIN_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value} className="text-ink">{o.label}</option>
+                ))}
+              </select>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="rounded-full border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold text-white focus:outline-none"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value} className="text-ink">{o.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-8 flex flex-wrap justify-center gap-2">
+              <ToggleChip active={mealPrepOnly} onClick={() => setMealPrepOnly((v) => !v)} label="📦 Meal-prep friendly" />
+              <ToggleChip active={freezerOnly} onClick={() => setFreezerOnly((v) => !v)} label="❄️ Freezer friendly" />
+              <ToggleChip active={freeOnly} onClick={() => setFreeOnly((v) => !v)} label="🆓 Free recipes only" />
+            </div>
           </>
+        )}
+
+        {!compact && list.length === 0 && (
+          <p className="mb-8 text-center text-sm text-white/70">No recipes match those filters — try loosening one.</p>
         )}
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-4">
@@ -152,8 +275,11 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                     {isFav ? '❤️' : '🤍'}
                   </button>
                   {r.premium && (
-                    <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-amber-950">
-                      PREMIUM
+                    <span
+                      title="Premium recipe"
+                      className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs text-amber-950 shadow"
+                    >
+                      🔒
                     </span>
                   )}
                   {summary && summary.count > 0 && (
@@ -205,7 +331,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 <div className="px-4 pb-3">
                   {locked ? (
                     <span className="flex items-center gap-1 text-xs font-bold text-amber-600">
-                      🔒 Unlock with Premium
+                      🔒 Preview recipe
                     </span>
                   ) : (
                     <span className="block text-xs font-bold text-green-600">View recipe →</span>
@@ -256,6 +382,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
         recipe={active}
         onClose={() => setActive(null)}
         isFavorite={active ? favorites?.has(active.id) : false}
+        isPremium={isPremium}
         onToggleFavorite={active ? (e) => handleHeartClick(e, active) : undefined}
       />
     </section>

@@ -16,10 +16,11 @@ const FREE_FEATURES = [
 ];
 
 const PREMIUM_FEATURES = [
-  'Unlimited meal plans — generate a new week anytime',
-  'Unlimited day regenerations — swap out any day, as often as you like',
-  'Full recipe library — all 235 recipes instead of 24',
-  'Never wait for your free plans to reset',
+  'Unlimited weekly meal plans — generate a new week anytime',
+  "Replace meals you don't like, whenever you like",
+  'Regenerate individual days without starting over',
+  'Access every recipe — all 235, not just 24',
+  'Adjust your calorie and protein targets whenever needed',
 ];
 
 export default function Pricing({ session, isPremium }) {
@@ -71,7 +72,7 @@ export default function Pricing({ session, isPremium }) {
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">Simple pricing</h2>
         <p className="mb-9 text-center text-ink-soft">
-          Start free. Premium saves you time every week — unlimited plans, unlimited regenerations, no waiting.
+          Start free. Upgrade for flexibility — a new plan whenever your week changes, no limits, no waiting.
         </p>
 
         <div className="mb-9 flex flex-nowrap items-center justify-center gap-3">
@@ -123,6 +124,7 @@ export default function Pricing({ session, isPremium }) {
               MOST POPULAR
             </span>
             <h3 className="text-lg font-extrabold text-green-900">Premium</h3>
+            <p className="mb-1 mt-0.5 text-xs font-bold text-green-700">A new meal plan whenever your week changes.</p>
             {yearly ? (
               <>
                 <div className="my-2 text-3xl font-extrabold text-green-900">

@@ -48,7 +48,7 @@ function StaticStars({ rating }) {
   );
 }
 
-export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavorite }) {
+export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavorite, isPremium }) {
   const { user, session } = useAuth();
   const [copied, setCopied] = useState(false);
   const [reviewsData, setReviewsData] = useState(null);
@@ -90,6 +90,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
   const highProtein = isHighProtein(recipe);
   const mealPrep = isMealPrepFriendly(recipe);
   const freezer = isFreezerFriendly(recipe);
+  const locked = !!recipe.premium && !isPremium;
 
   function copyShoppingList() {
     const text = recipe.ingredients.map((i) => `- ${i.n} (${i.q}${i.u})`).join('\n');
@@ -184,7 +185,12 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
 
         <div className="p-7">
           <div className="text-xs font-extrabold uppercase tracking-wide text-green-600">{recipe.meal}</div>
-          <h3 id="recipe-modal-title" className="mt-1 text-xl font-extrabold text-green-900">{recipe.name}</h3>
+          <h3 id="recipe-modal-title" className="mt-1 text-xl font-extrabold text-green-900">
+            {recipe.name}
+            {locked && (
+              <span title="Premium recipe" className="ml-1.5 align-middle text-base">🔒</span>
+            )}
+          </h3>
 
           {reviewsData && reviewsData.count > 0 && (
             <div className="mt-1.5 flex items-center gap-1.5 text-sm">
@@ -232,34 +238,77 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
 
           <div className="mb-2 flex items-center justify-between">
             <h5 className="text-xs font-bold uppercase tracking-wide text-green-700">Ingredients (1 serving)</h5>
-            <button
-              onClick={copyShoppingList}
-              className="text-[11px] font-bold text-green-600 hover:text-green-800"
-            >
-              {copied ? '✓ Copied' : '📋 Copy shopping list'}
-            </button>
+            {!locked && (
+              <button
+                onClick={copyShoppingList}
+                className="text-[11px] font-bold text-green-600 hover:text-green-800"
+              >
+                {copied ? '✓ Copied' : '📋 Copy shopping list'}
+              </button>
+            )}
           </div>
-          <ul className="mb-5">
-            {recipe.ingredients.map((i) => {
-              const sub = getSubstitute(i.n);
-              return (
-                <li key={i.n} className="border-b border-dashed border-gray-100 py-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span>{i.n}</span>
-                    <span>{i.q}{i.u}</span>
-                  </div>
-                  {sub && <div className="mt-0.5 text-[11px] text-ink-soft">🔄 Swap for: {sub}</div>}
-                </li>
-              );
-            })}
-          </ul>
+
+          {locked ? (
+            <div className="relative mb-5 overflow-hidden rounded-xl border border-gray-100">
+              <ul aria-hidden="true" className="pointer-events-none select-none blur-sm">
+                {recipe.ingredients.slice(0, 5).map((i) => (
+                  <li key={i.n} className="border-b border-dashed border-gray-100 py-1.5 text-sm">
+                    <div className="flex justify-between px-1">
+                      <span>{i.n}</span>
+                      <span>{i.q}{i.u}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/80 px-4 text-center">
+                <span className="text-2xl">🔒</span>
+                <p className="max-w-[240px] text-xs font-bold text-green-900">
+                  Ingredients &amp; full instructions are a Premium feature
+                </p>
+                <a
+                  href="/#pricing"
+                  className="rounded-full bg-green-600 px-4 py-2 text-xs font-bold text-white transition duration-200 hover:bg-green-700"
+                >
+                  Unlock with Premium →
+                </a>
+              </div>
+            </div>
+          ) : (
+            <ul className="mb-5">
+              {recipe.ingredients.map((i) => {
+                const sub = getSubstitute(i.n);
+                return (
+                  <li key={i.n} className="border-b border-dashed border-gray-100 py-1.5 text-sm">
+                    <div className="flex justify-between">
+                      <span>{i.n}</span>
+                      <span>{i.q}{i.u}</span>
+                    </div>
+                    {sub && <div className="mt-0.5 text-[11px] text-ink-soft">🔄 Swap for: {sub}</div>}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
           <h5 className="mb-2 text-xs font-bold uppercase tracking-wide text-green-700">Instructions</h5>
-          <ol className="mb-6 list-decimal space-y-3 pl-5 text-sm leading-relaxed">
-            {recipe.steps.map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
-          </ol>
+          {locked ? (
+            <div className="relative mb-6 overflow-hidden rounded-xl border border-gray-100">
+              <ol aria-hidden="true" className="pointer-events-none list-decimal space-y-3 pl-5 pt-3 text-sm leading-relaxed blur-sm">
+                {recipe.steps.slice(0, 3).map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ol>
+              <div className="absolute inset-0 flex items-center justify-center bg-white/80 px-4 text-center">
+                <p className="text-xs font-semibold text-ink-soft">🔒 Unlock to see the full step-by-step instructions</p>
+              </div>
+            </div>
+          ) : (
+            <ol className="mb-6 list-decimal space-y-3 pl-5 text-sm leading-relaxed">
+              {recipe.steps.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ol>
+          )}
 
           <div className="border-t border-gray-100 pt-5">
             <div className="mb-3 flex items-center justify-between">
