@@ -3,9 +3,9 @@ import CookieBanner from '../components/CookieBanner';
 import AppShell from '../components/AppShell';
 
 const SITE_URL = 'https://youraifood.com';
-const SITE_TITLE = 'YourAiFood — Fitness Recipes & Personalized Meal Plans';
+const SITE_TITLE = 'YourAiFood — Fitness Recipes & Personalised Meal Plans';
 const SITE_DESCRIPTION =
-  'Tell us your goal, diet, budget and time. YourAiFood builds a real AI-generated weekly menu, grocery list, and nutrition breakdown.';
+  'Tell us your goal, diet, ingredient preference and time. YourAiFood builds a real AI-generated weekly menu, grocery list, and nutrition breakdown.';
 const SOCIAL_IMAGE = `${SITE_URL}/recipes/nb50.jpg`;
 
 export const metadata = {
@@ -21,7 +21,7 @@ export const metadata = {
     url: SITE_URL,
     siteName: 'YourAiFood',
     images: [{ url: SOCIAL_IMAGE, width: 1200, height: 900, alt: 'A YourAiFood meal plan recipe' }],
-    locale: 'en_US',
+    locale: 'en_GB',
     type: 'website',
   },
   twitter: {
