@@ -8,14 +8,14 @@ export default function TermsPage() {
     <div className="mx-auto max-w-3xl px-6 py-16 text-ink">
       <a href="/" className="text-sm font-semibold text-green-700">← Back to YourAiFood</a>
       <h1 className="mb-2 mt-4 text-3xl font-extrabold text-green-900">Terms of Service</h1>
-      <p className="mb-10 text-sm text-ink-soft">Last updated: 21 July 2026</p>
+      <p className="mb-10 text-sm text-ink-soft">Last updated: 23 July 2026</p>
 
       <div className="space-y-8 text-[15px] leading-relaxed">
         <section>
           <h2 className="mb-2 text-lg font-bold text-green-900">1. Agreement to these terms</h2>
           <p>
             These terms govern your use of YourAiFood ("we", "us"), a service available at youraifood.com that
-            generates personalized meal plans using AI. By creating an account or using the site, you agree to
+            generates personalised meal plans using AI. By creating an account or using the site, you agree to
             these terms. If you don't agree, please don't use the service.
           </p>
         </section>
@@ -43,7 +43,7 @@ export default function TermsPage() {
         <section>
           <h2 className="mb-2 text-lg font-bold text-green-900">4. Accounts</h2>
           <p>
-            You need an account to save plans, favorite recipes, and subscribe to Premium. You're responsible for
+            You need an account to save plans, favourite recipes, and subscribe to Premium. You're responsible for
             keeping your login credentials secure and for activity that happens under your account. You must be
             able to legally enter into a contract in your country to create an account.
           </p>
@@ -58,9 +58,9 @@ export default function TermsPage() {
           <p className="mb-2">
             <b>Premium subscription:</b> unlocks unlimited AI meal plans and the full recipe library for a
             recurring fee, billed monthly or yearly at the price shown on the pricing page at the time you
-            subscribe. New monthly subscriptions include a 7-day free trial; you won't be charged until the
-            trial ends, and you can cancel any time before then to avoid being charged. The yearly plan is
-            billed in full at signup and does not include a free trial.
+            subscribe. New monthly subscriptions include a 7-day free trial and require valid payment details at
+            signup; you won't be charged until the trial ends, and you can cancel any time before then to avoid
+            being charged. The yearly plan is billed in full at signup and does not include a free trial.
           </p>
           <p>
             Subscriptions renew automatically at the end of each billing period until cancelled. Payments are
@@ -116,12 +116,6 @@ export default function TermsPage() {
           </p>
         </section>
       </div>
-
-      <p className="mt-12 rounded-xl bg-green-50 p-4 text-xs text-green-900">
-        These terms are a general template and haven't been reviewed by a lawyer. Before relying on them for a
-        live, paying product, it's worth having them checked by a professional to make sure they accurately
-        reflect your actual practices and meet the consumer protection rules that apply where your users live.
-      </p>
     </div>
   );
 }
