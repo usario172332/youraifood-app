@@ -9,7 +9,7 @@ const FAQS = [
   },
   {
     q: 'Is there a free version?',
-    a: 'Yes. The free plan includes 5 AI meal plans a month, the full recipe library, and the shopping list generator. Premium (€7.77/month) adds unlimited plans and extra tools.',
+    a: 'Yes. The free plan lets you generate a limited number of weekly meal plans, access a selection of complete recipes, browse the full recipe library in preview, and get automatic grocery lists. Premium (€7.77/month) unlocks the full recipe library, unlimited meal plans, saved plans, meal customisation, and advanced planning tools.',
   },
   {
     q: 'Can I regenerate meals?',
