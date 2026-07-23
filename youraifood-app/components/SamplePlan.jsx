@@ -173,6 +173,13 @@ export default function SamplePlan() {
             <span className="rounded-full bg-white px-2.5 py-1">⏱️ Easier meal prep</span>
             <span className="rounded-full bg-white px-2.5 py-1">💰 Saves money</span>
           </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-dashed border-green-200 pt-3 text-xs font-bold">
+            <span className="rounded-full bg-green-600 px-2.5 py-1 text-white">🍳 Cook Once</span>
+            <span className="text-ink-soft">Monday Dinner</span>
+            <span className="text-gray-300">→</span>
+            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-amber-800">♻️ Leftovers</span>
+            <span className="text-ink-soft">Tuesday Lunch</span>
+          </div>
         </div>
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full border-collapse bg-white text-sm">
@@ -209,7 +216,7 @@ export default function SamplePlan() {
                       {main && (
                         <div className="mt-1 flex flex-wrap gap-1 text-[10px] font-semibold text-ink-soft">
                           <span>🕒 {main.time}min active</span>
-                          {makesLeftovers && <span className="text-green-700">♻️ Makes 2 servings — save one</span>}
+                          {makesLeftovers && <span className="text-green-700">♻️ Leftovers</span>}
                         </div>
                       )}
                     </td>

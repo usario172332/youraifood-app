@@ -9,10 +9,10 @@ export default function FinalCTA() {
     <section className="bg-green-900 px-6 py-16 text-center">
       <div className="mx-auto max-w-2xl">
         <h2 className="mb-3 text-2xl font-extrabold text-white sm:text-3xl">
-          Ready to stop wondering what to cook?
+          Ready to Stop Planning Meals?
         </h2>
         <p className="mb-8 text-green-100">
-          Get your personalised weekly meal plan — recipes, macros and a shopping list, ready in under a minute.
+          Generate your personalised weekly meal plan in under a minute.
         </p>
         <div className="flex flex-col items-center justify-center gap-3">
           <button
@@ -21,6 +21,9 @@ export default function FinalCTA() {
           >
             Create My Free Meal Plan →
           </button>
+          <p className="text-sm font-semibold text-green-100/80">
+            Free forever plan available. Upgrade only if you need unlimited planning.
+          </p>
           <a
             href="/recipes"
             className="text-sm font-semibold text-green-100/80 underline decoration-green-100/40 underline-offset-4 transition duration-200 hover:text-white"

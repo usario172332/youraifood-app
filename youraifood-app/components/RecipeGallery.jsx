@@ -6,6 +6,18 @@ import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
 import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero, isMealPrepFriendly, isFreezerFriendly, isOnePan, isBeginnerFriendly, isQuick } from '../lib/recipeMeta';
 
+const DIET_ICON = {
+  vegan: '🌱',
+  vegetarian: '🥗',
+  'dairy-free': '🥛',
+  'gluten-free': '🌾',
+};
+
+// Minimum real ratings before an aggregate is shown — a 1-2 review average
+// isn't meaningful social proof and can be misleading either direction, so
+// we stay quiet on a recipe's rating until enough genuine reviews exist.
+const MIN_RATINGS_TO_SHOW = 5;
+
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
@@ -310,7 +322,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                       🔒
                     </span>
                   )}
-                  {summary && summary.count > 0 && (
+                  {summary && summary.count >= MIN_RATINGS_TO_SHOW && (
                     <span className="rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-extrabold text-amber-600 shadow">
                       ⭐ {summary.average}
                     </span>
@@ -344,7 +356,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                       )}
                       {r.diets.map((d) => (
                         <span key={d} className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">
-                          {d}
+                          {DIET_ICON[d] || ''} {d}
                         </span>
                       ))}
                     </div>

@@ -19,6 +19,11 @@ const DIET_ICON = {
   'gluten-free': '🌾',
 };
 
+// Minimum real ratings before we show an average — with only a handful of
+// reviews a single rating can swing the number a lot, so we stay quiet
+// until there's enough genuine participation to be meaningful.
+const MIN_RATINGS_TO_SHOW = 5;
+
 function StarPicker({ value, hover, onHover, onLeave, onPick }) {
   return (
     <div className="flex gap-1 text-2xl" onMouseLeave={onLeave}>
@@ -197,7 +202,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
             </span>
           </div>
 
-          {reviewsData && reviewsData.count > 0 && (
+          {reviewsData && reviewsData.count >= MIN_RATINGS_TO_SHOW && (
             <div className="mt-1.5 flex items-center gap-1.5 text-sm">
               <StaticStars rating={reviewsData.average} />
               <span className="text-ink-soft">
@@ -318,7 +323,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
           <div className="border-t border-gray-100 pt-5">
             <div className="mb-3 flex items-center justify-between">
               <h5 className="text-xs font-bold uppercase tracking-wide text-green-700">Ratings & Reviews</h5>
-              {reviewsData && reviewsData.count > 0 && (
+              {reviewsData && reviewsData.count >= MIN_RATINGS_TO_SHOW && (
                 <span className="text-xs text-ink-soft">
                   <StaticStars rating={reviewsData.average} /> {reviewsData.average} ({reviewsData.count})
                 </span>
@@ -327,8 +332,10 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
 
             {!reviewsData ? (
               <p className="mb-3 text-sm text-ink-soft">Loading reviews…</p>
-            ) : reviewsData.count === 0 ? (
-              <p className="mb-3 text-sm text-ink-soft">No ratings yet — be the first to try this recipe and leave a review.</p>
+            ) : reviewsData.count < MIN_RATINGS_TO_SHOW ? (
+              <p className="mb-3 text-sm text-ink-soft">
+                Ratings will appear here once enough people have tried this recipe — be one of the first to leave one.
+              </p>
             ) : (
               <ul className="mb-3 space-y-2.5">
                 {reviewsData.reviews.slice(0, 5).map((r) => (

@@ -10,6 +10,8 @@ import FAQ from './FAQ';
 import Pricing from './Pricing';
 import FinalCTA from './FinalCTA';
 import EmailCapture from './EmailCapture';
+import InlineCTA from './InlineCTA';
+import TypicalWeek from './TypicalWeek';
 import { useAuth } from '../lib/AuthContext';
 
 export default function HomeContent() {
@@ -133,11 +135,15 @@ export default function HomeContent() {
         </div>
       </section>
 
+      <InlineCTA label="Create My Free Meal Plan" />
+      <TypicalWeek />
       <SamplePlan />
       <WhyYourAiFood />
+      <InlineCTA label="See My Personalised Week" />
       <TrustSection />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
       <Pricing session={session} isPremium={isPremium} />
+      <InlineCTA label="Start Free – No Credit Card Required" />
       <EmailCapture />
       <FAQ />
       <FinalCTA />

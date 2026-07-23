@@ -218,7 +218,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
     setError('');
     if (!user) {
       requestSignIn();
-      setError('Sign in to generate your real AI plan — use the panel that just opened.');
+      setError('Sign in to generate your personalised plan — use the panel that just opened.');
       return;
     }
     setLoading(true);

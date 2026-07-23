@@ -16,11 +16,22 @@ const FREE_FEATURES = [
 ];
 
 const PREMIUM_FEATURES = [
-  'A new week planned whenever you need one — no monthly cap',
-  "Replace meals you don't like, whenever you like",
-  'Regenerate individual days without starting over',
-  'Every recipe unlocked whenever you need inspiration — all 235, not just 24',
-  'Adjust your calorie and protein targets whenever needed',
+  {
+    title: 'Plan every week without limits',
+    text: 'A new personalised week whenever your goals or schedule change — no monthly cap.',
+  },
+  {
+    title: 'Change your mind without starting over',
+    text: "Swap out any meal or regenerate a single day without rebuilding the rest of your week.",
+  },
+  {
+    title: 'Unlock the full recipe library',
+    text: 'All 235 recipes whenever you need inspiration, not just the 24 free ones.',
+  },
+  {
+    title: 'Fine-tune your targets anytime',
+    text: 'Adjust your calorie and protein targets whenever your goals change.',
+  },
 ];
 
 export default function Pricing({ session, isPremium }) {
@@ -146,9 +157,15 @@ export default function Pricing({ session, isPremium }) {
                 €{MONTHLY_PRICE}<span className="text-base font-semibold text-ink-soft">/month</span>
               </div>
             )}
-            <ul className="mb-6 flex-1 space-y-1.5 text-sm">
+            <ul className="mb-6 flex-1 space-y-3 text-sm">
               {PREMIUM_FEATURES.map((f) => (
-                <li key={f} className="flex gap-2"><span className="font-bold text-green-600">✓</span>{f}</li>
+                <li key={f.title} className="flex gap-2">
+                  <span className="mt-0.5 font-bold text-green-600">✓</span>
+                  <span>
+                    <span className="block font-extrabold text-green-900">{f.title}</span>
+                    <span className="text-ink-soft">{f.text}</span>
+                  </span>
+                </li>
               ))}
             </ul>
             {isPremium ? (

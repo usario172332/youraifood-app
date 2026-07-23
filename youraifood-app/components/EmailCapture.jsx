@@ -3,14 +3,6 @@
 import { useState } from 'react';
 import { buildFreePlanExport } from '../lib/freePlan';
 
-const INCLUDES = [
-  { icon: '📄', label: '7-day plan' },
-  { icon: '🛒', label: 'Shopping list' },
-  { icon: '🔥', label: 'Calories' },
-  { icon: '💪', label: 'Macros' },
-  { icon: '🍽️', label: 'Recipes' },
-];
-
 export default function EmailCapture() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | done
@@ -55,17 +47,48 @@ export default function EmailCapture() {
         <p className="mx-auto mb-5 max-w-md text-ink-soft">
           See exactly what's inside before you enter your email — delivered instantly as a PDF, no account needed.
         </p>
-        <div className="mx-auto mb-6 flex max-w-lg flex-wrap justify-center gap-2">
-          {INCLUDES.map((i) => (
-            <span
-              key={i.label}
-              className="flex items-center gap-1.5 rounded-full border border-green-200 bg-white px-3.5 py-2 text-xs font-bold text-green-800"
-            >
-              <span className="text-sm">{i.icon}</span>
-              {i.label}
+
+        <div className="mx-auto mb-2 max-w-sm rounded-2xl border border-green-200 bg-white p-4 text-left shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-extrabold uppercase tracking-wide text-green-700">📄 Your 7-Day Plan</span>
+            <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">PDF preview</span>
+          </div>
+          <div className="mb-3 grid grid-cols-7 gap-1">
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+              <div key={i} className="rounded-md bg-green-50 py-1.5 text-center text-[10px] font-bold text-green-700">
+                {d}
+              </div>
+            ))}
+          </div>
+          <div className="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 p-2">
+            <span className="text-lg">🍽️</span>
+            <div className="flex-1">
+              <div className="h-2 w-3/4 rounded bg-gray-200" />
+              <div className="mt-1 h-2 w-1/2 rounded bg-gray-100" />
+            </div>
+            <span className="whitespace-nowrap rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+              450 kcal
             </span>
-          ))}
+          </div>
+          <div className="mb-3 flex items-center gap-2 rounded-lg bg-gray-50 p-2">
+            <span className="text-lg">🛒</span>
+            <div className="flex-1 space-y-1">
+              <div className="h-1.5 w-full rounded bg-gray-200" />
+              <div className="h-1.5 w-5/6 rounded bg-gray-200" />
+              <div className="h-1.5 w-2/3 rounded bg-gray-200" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <span className="flex-1 rounded-lg bg-green-50 py-1.5 text-center text-[10px] font-bold text-green-700">
+              🔥 Calories
+            </span>
+            <span className="flex-1 rounded-lg bg-green-50 py-1.5 text-center text-[10px] font-bold text-green-700">
+              💪 Macros
+            </span>
+          </div>
         </div>
+        <p className="mb-6 text-xs font-semibold text-ink-soft">Preview of your personalised weekly meal plan.</p>
+
         {status === 'done' ? (
           <p className="font-bold text-green-800">
             ✓ Your plan is downloading now. Want one built around your own goals? Try the planner above.
