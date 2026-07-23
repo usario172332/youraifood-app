@@ -8,7 +8,7 @@ export default function PrivacyPage() {
     <div className="mx-auto max-w-3xl px-6 py-16 text-ink">
       <a href="/" className="text-sm font-semibold text-green-700">← Back to YourAiFood</a>
       <h1 className="mb-2 mt-4 text-3xl font-extrabold text-green-900">Privacy Policy</h1>
-      <p className="mb-10 text-sm text-ink-soft">Last updated: 19 July 2026</p>
+      <p className="mb-10 text-sm text-ink-soft">Last updated: 23 July 2026</p>
 
       <div className="space-y-8 text-[15px] leading-relaxed">
         <section>
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
           <p className="mb-2"><b>Account information:</b> your email address and password (your password is stored securely by our authentication provider, Supabase, and is never visible to us in plain text).</p>
           <p className="mb-2"><b>Sensitive body metrics (weight, height, age, sex, activity level):</b> you enter these into the planner so we can calculate your daily calorie and protein targets. This calculation happens entirely in your browser — the raw weight, height, age, and sex values are <b>not</b> sent to our servers or to Anthropic. Only the calculated calorie and protein targets (numbers like "2,100 kcal" and "140g protein") are transmitted to generate your plan.</p>
           <p className="mb-2"><b>Weight diary (optional):</b> if you choose to log your weight over time on your profile page, those individual entries are stored in our database, tied to your account, and protected so that only you can view or delete them.</p>
-          <p className="mb-2"><b>Plan preferences:</b> your fitness goal, calculated targets, dietary preferences, weekly grocery budget, cooking time preference, and household size are sent to our servers to generate your plan.</p>
+          <p className="mb-2"><b>Plan preferences:</b> your fitness goal, calculated targets, dietary preferences, ingredient preference, cooking time preference, and household size are sent to our servers to generate your plan.</p>
           <p className="mb-2"><b>Generated content:</b> the meal plans, grocery lists, and nutrition breakdowns produced for you, which we store so you can revisit past plans.</p>
           <p className="mb-2"><b>Subscription & billing:</b> if you subscribe to Premium, our payment processor, Stripe, handles your card details directly — we never see or store your full card number. We keep a reference to your Stripe customer and subscription ID so we know your account is subscribed.</p>
           <p><b>Cookies & local storage:</b> we use browser storage to keep you signed in (via Supabase authentication) and to remember your cookie preference. See Section 5.</p>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
           <p className="mb-2">We share data with the following service providers, only as needed to run YourAiFood:</p>
           <ul className="list-disc space-y-1 pl-6">
             <li><b>Supabase</b> — hosts our database and handles account authentication.</li>
-            <li><b>Anthropic</b> — receives your goal, calorie/protein targets, budget, dietary needs, and our recipe catalog in order to generate your plan. Anthropic does not receive your name, email, or payment information.</li>
+            <li><b>Anthropic</b> — receives your goal, calorie/protein targets, ingredient preference, dietary needs, and our recipe catalog in order to generate your plan. Anthropic does not receive your name, email, or payment information.</li>
             <li><b>Stripe</b> — processes payments and manages subscriptions; receives your email and payment details directly.</li>
             <li><b>Vercel</b> — hosts the website and processes requests to deliver the app to your browser.</li>
           </ul>
