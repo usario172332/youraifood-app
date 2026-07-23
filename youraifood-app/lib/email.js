@@ -63,7 +63,7 @@ export function premiumConfirmationEmail({ planInterval, unitAmount, currency, r
     const priceLabel = `${formatPrice(unitAmount, currency)} / ${planInterval}`;
   
     const renewalLine = isTrial
-          ? `Your free trial runs until <strong>${renewalDateLabel}</strong> — that's the first day you'll be charged ${priceLabel}. Cancel anytime before then from your profile and you won't pay a thing.`
+                  ? `Your free trial runs until <strong>${renewalDateLabel}</strong> — after that, it automatically becomes your ${planLabel} subscription at ${priceLabel}. Cancel anytime before then from your profile and you won't pay a thing.`
           : `Your ${planLabel} plan renews on <strong>${renewalDateLabel}</strong> for ${priceLabel}. Cancel anytime from your profile — no questions asked.`;
   
     const renewalLineText = renewalLine.replace(/<[^>]+>/g, '');
