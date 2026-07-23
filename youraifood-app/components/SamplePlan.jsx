@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { findRecipe } from '../lib/recipes';
 
-// A realistic 7-day plan built entirely from real recipes — nutrition,
-// cost and the grocery list below are computed live from real recipe data,
+// A realistic 7-day plan built entirely from real recipes — nutrition
+// and the grocery list below are computed live from real recipe data,
 // the same way a generated plan works.
 const SAMPLE_DAYS = [
   { day: 'Monday', breakfastDishes: [{ id: 'nb50', servings: 1 }], mainDishes: [{ id: 'nr1', servings: 1 }, { id: 'nr19', servings: 1 }], snackDishes: [{ id: 'ps1', servings: 1 }] },
@@ -50,16 +50,16 @@ function buildGroceryList() {
 }
 
 function buildStats() {
-  let totalCost = 0;
   let totalProtein = 0;
   let totalCal = 0;
+  let totalMeals = 0;
   const usedRecipeIds = new Set();
   const addRecipe = (recipe, multiplier) => {
     if (!recipe) return;
-    totalCost += recipe.cost * FAMILY_SIZE * multiplier;
     totalProtein += recipe.protein * multiplier;
     totalCal += recipe.cal * multiplier;
     usedRecipeIds.add(recipe.id);
+    totalMeals += 1;
   };
   SAMPLE_DAYS.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
@@ -69,10 +69,10 @@ function buildStats() {
     });
   });
   return {
-    totalCost,
     avgProtein: Math.round(totalProtein / 7),
     avgCal: Math.round(totalCal / 7),
     distinctRecipes: usedRecipeIds.size,
+    totalMeals,
   };
 }
 
@@ -115,27 +115,29 @@ export default function SamplePlan() {
           Example plan for illustration — your real plan is personalized to your goals
         </p>
 
-        <div className="mb-7 grid grid-cols-2 gap-3.5 md:grid-cols-4">
+        <div className="mb-4 grid grid-cols-2 gap-3.5 md:grid-cols-4">
           <div className="rounded-2xl bg-green-900 px-4 py-5">
-            <div className="text-3xl font-extrabold text-white">€{stats.totalCost.toFixed(0)}</div>
-            <div className="text-sm font-semibold text-green-100">Est. weekly cost</div>
-          </div>
-          <div className="rounded-2xl bg-green-900 px-4 py-5">
-            <div className="text-3xl font-extrabold text-white">{stats.avgProtein}g</div>
-            <div className="text-sm font-semibold text-green-100">Avg daily protein</div>
+            <div className="text-3xl font-extrabold text-white">{SAMPLE_DAYS.length}</div>
+            <div className="text-sm font-semibold text-green-100">Days planned</div>
           </div>
           <div className="rounded-2xl bg-green-900 px-4 py-5">
             <div className="text-3xl font-extrabold text-white">{stats.avgCal}</div>
             <div className="text-sm font-semibold text-green-100">Avg daily calories</div>
           </div>
           <div className="rounded-2xl bg-green-900 px-4 py-5">
-            <div className="text-3xl font-extrabold text-white">{stats.distinctRecipes}</div>
-            <div className="text-sm font-semibold text-green-100">Distinct recipes used</div>
+            <div className="text-3xl font-extrabold text-white">{stats.avgProtein}g</div>
+            <div className="text-sm font-semibold text-green-100">Avg daily protein</div>
+          </div>
+          <div className="rounded-2xl bg-green-900 px-4 py-5">
+            <div className="text-3xl font-extrabold text-white">{stats.totalMeals}</div>
+            <div className="text-sm font-semibold text-green-100">Meals planned</div>
           </div>
         </div>
 
         <p className="mb-3 text-xs text-ink-soft">
           Shown with 4 dishes/day — choose 3–6, portions auto-scale to your calorie target.
+          Core ingredients repeat by design ({stats.distinctRecipes} distinct recipes across {stats.totalMeals} meals) —
+          fewer unique items to buy, less food waste, and easier meal prep.
         </p>
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full border-collapse bg-white text-sm">
@@ -176,7 +178,7 @@ export default function SamplePlan() {
             <span className="text-6xl">🛒</span>
             <div>
               <h3 className="text-xl font-extrabold text-green-900">Your shopping list is created automatically.</h3>
-              <p className="mt-1 text-sm font-semibold text-ink-soft">Buy exactly what you need for the week.</p>
+              <p className="mt-1 text-sm font-semibold text-ink-soft">{totalItems} grocery items generated for the week — buy exactly what you need.</p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
