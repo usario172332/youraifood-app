@@ -11,11 +11,13 @@ export default function AboutContent() {
 
       <div className="mt-10 space-y-8 text-ink">
         <section>
-          <h2 className="mb-2 text-lg font-extrabold text-green-900">Why this exists</h2>
+          <h2 className="mb-2 text-lg font-extrabold text-green-900">Why I built this</h2>
           <p className="text-ink-soft">
-            Generic AI chatbots are great at suggesting a recipe. They're not built to turn a fitness goal into a
-            structured week of meals, with real nutrition numbers and a shopping list to match. That gap — between a
-            single suggestion and an actual usable plan — is what YourAiFood is built to close.
+            I kept running into the same problem: generic AI chatbots are great at suggesting a single recipe, but
+            they're not built to turn a fitness goal into a structured week of meals with real nutrition numbers and
+            a shopping list to match. Every time I asked for a full week, I'd get inconsistent, half-invented
+            calorie counts and no easy way to shop for it. YourAiFood is the tool I wanted to exist — built to close
+            that specific gap, not to be a general-purpose chatbot with a recipe skin on top.
           </p>
         </section>
 
@@ -29,10 +31,34 @@ export default function AboutContent() {
         </section>
 
         <section>
+          <h2 className="mb-2 text-lg font-extrabold text-green-900">How recipes and macros are checked</h2>
+          <p className="text-ink-soft">
+            Each recipe's nutrition figures are calculated from its actual ingredient list and serving size —
+            calories, protein, carbs, and fat are computed from the ingredients themselves, not written by hand or
+            estimated by AI. New and edited recipes go through the same calculation before they're published, and
+            the recipe library is reviewed on an ongoing basis to catch and correct mistakes (wrong quantities,
+            missing ingredients, mislabelled dietary tags) as they're found.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 text-lg font-extrabold text-green-900">Found something wrong?</h2>
+          <p className="text-ink-soft">
+            If a recipe's nutrition numbers, ingredients, or instructions look off, please tell me — that's the
+            fastest way anything gets fixed. Email{' '}
+            <a href="mailto:support@youraifood.com" className="font-semibold text-green-700 underline">
+              support@youraifood.com
+            </a>{' '}
+            with the recipe name and what looks wrong, and I'll look into it directly.
+          </p>
+        </section>
+
+        <section>
           <h2 className="mb-2 text-lg font-extrabold text-green-900">Who's behind it</h2>
           <p className="text-ink-soft">
             YourAiFood is built and run independently — it's a small operation, not a big company. There's no large
-            support department yet, but every email that comes in gets read by a real person.
+            support department yet, but every email that comes in gets read by a real person, and the recipe
+            library and meal-planning logic are maintained directly by me rather than outsourced.
           </p>
         </section>
 
@@ -43,7 +69,7 @@ export default function AboutContent() {
             <a href="mailto:support@youraifood.com" className="font-semibold text-green-700 underline">
               support@youraifood.com
             </a>{' '}
-            — we mean it when we say we read everything.
+            — I mean it when I say I read everything.
           </p>
         </section>
       </div>

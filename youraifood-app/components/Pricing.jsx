@@ -10,7 +10,7 @@ const YEARLY_SAVINGS_PCT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) 
 
 const FREE_FEATURES = [
   'Access to 24 free recipes',
-  '5 personalized weekly meal plans every month',
+  '5 personalised weekly meal plans every month',
   'Full grocery lists for every plan',
   'No credit card required',
 ];
@@ -127,7 +127,8 @@ export default function Pricing({ session, isPremium }) {
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-amber-950">
               MOST POPULAR
             </span>
-            <h3 className="text-lg font-extrabold text-green-900">Premium</h3>
+            <span className="text-xs font-extrabold uppercase tracking-wide text-green-600">Premium</span>
+            <h3 className="text-lg font-extrabold text-green-900">Unlimited planning and complete recipe access</h3>
             <p className="mb-1 mt-0.5 text-xs font-bold text-green-700">A new meal plan whenever your week changes.</p>
             {yearly ? (
               <>
@@ -174,10 +175,10 @@ export default function Pricing({ session, isPremium }) {
                     ? `Upgrade to Premium — €${YEARLY_PRICE.toFixed(2)}/yr`
                     : `Start free trial — then €${MONTHLY_PRICE}/mo`}
                 </button>
-                <p className="mt-2 text-center text-[11px] text-ink-soft">
+                <p className="mt-2 text-center text-[11px] font-semibold text-ink">
                   {yearly
-                    ? `7-day free trial on monthly only — yearly bills €${YEARLY_PRICE.toFixed(2)} today. Cancel anytime.`
-                    : '7 days free, then billed monthly. Cancel anytime before the trial ends and you won’t be charged.'}
+                    ? `Payment details required — yearly bills €${YEARLY_PRICE.toFixed(2)} today. Cancel anytime.`
+                    : 'Payment details required. You will not be charged until the 7-day trial ends — cancel anytime before then and pay nothing.'}
                 </p>
               </>
             )}

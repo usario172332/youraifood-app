@@ -5,15 +5,17 @@ import { findRecipe } from '../lib/recipes';
 
 // A realistic 7-day plan built entirely from real recipes — nutrition
 // and the grocery list below are computed live from real recipe data,
-// the same way a generated plan works.
+// the same way a generated plan works. Deliberately meal-prep style: 3
+// dishes/day with a small rotating set of recipes reused across the week,
+// so the ingredient list stays realistic rather than maximally varied.
 const SAMPLE_DAYS = [
-  { day: 'Monday', breakfastDishes: [{ id: 'nb50', servings: 1 }], mainDishes: [{ id: 'nr1', servings: 1 }, { id: 'nr19', servings: 1 }], snackDishes: [{ id: 'ps1', servings: 1 }] },
-  { day: 'Tuesday', breakfastDishes: [{ id: 'nb46', servings: 1.5 }], mainDishes: [{ id: 'nr16', servings: 1 }, { id: 'nr36', servings: 1 }], snackDishes: [{ id: 'ps2', servings: 1 }] },
-  { day: 'Wednesday', breakfastDishes: [{ id: 'nb16', servings: 1 }], mainDishes: [{ id: 'nr56', servings: 1 }, { id: 'nr30', servings: 1 }], snackDishes: [{ id: 's4', servings: 1.5 }] },
-  { day: 'Thursday', breakfastDishes: [{ id: 'nb42', servings: 1 }], mainDishes: [{ id: 'nr33', servings: 1.5 }, { id: 'nr1', servings: 1 }], snackDishes: [{ id: 's1', servings: 1 }] },
-  { day: 'Friday', breakfastDishes: [{ id: 'nb26', servings: 1 }], mainDishes: [{ id: 'nr19', servings: 1 }, { id: 'nr16', servings: 1 }], snackDishes: [{ id: 's3', servings: 1 }] },
-  { day: 'Saturday', breakfastDishes: [{ id: 'nb1', servings: 1.5 }], mainDishes: [{ id: 'nr36', servings: 1 }, { id: 'nr56', servings: 1 }], snackDishes: [{ id: 's2', servings: 1 }] },
-  { day: 'Sunday', breakfastDishes: [{ id: 'nb24', servings: 1 }], mainDishes: [{ id: 'nr30', servings: 1 }, { id: 'nr33', servings: 1 }], snackDishes: [{ id: 'ps4', servings: 1.5 }] },
+  { day: 'Monday', breakfastDishes: [{ id: 'b1', servings: 1 }], mainDishes: [{ id: 'nr1', servings: 2 }], snackDishes: [{ id: 'ps1', servings: 1 }] },
+  { day: 'Tuesday', breakfastDishes: [{ id: 'nb24', servings: 1 }], mainDishes: [{ id: 'nr2', servings: 2 }], snackDishes: [{ id: 's1', servings: 1 }] },
+  { day: 'Wednesday', breakfastDishes: [{ id: 'b2', servings: 1 }], mainDishes: [{ id: 'nr4', servings: 2 }], snackDishes: [{ id: 'ps1', servings: 1 }] },
+  { day: 'Thursday', breakfastDishes: [{ id: 'b1', servings: 1 }], mainDishes: [{ id: 'nr1', servings: 2 }], snackDishes: [{ id: 's1', servings: 1 }] },
+  { day: 'Friday', breakfastDishes: [{ id: 'nb24', servings: 1 }], mainDishes: [{ id: 'nr2', servings: 2 }], snackDishes: [{ id: 'ps1', servings: 1 }] },
+  { day: 'Saturday', breakfastDishes: [{ id: 'b2', servings: 1 }], mainDishes: [{ id: 'nr4', servings: 2 }], snackDishes: [{ id: 's1', servings: 1 }] },
+  { day: 'Sunday', breakfastDishes: [{ id: 'b1', servings: 1 }], mainDishes: [{ id: 'nr1', servings: 2 }], snackDishes: [{ id: 'ps1', servings: 1 }] },
 ];
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const FAMILY_SIZE = 1;
@@ -132,7 +134,7 @@ export default function SamplePlan() {
         <h2 className="text-center text-2xl font-extrabold text-green-900">See exactly what you'll get</h2>
         <p className="mb-3 text-center text-ink-soft">Computed live from real recipes — not mocked up.</p>
         <p className="mb-8 text-center text-xs font-semibold uppercase tracking-wide text-amber-600">
-          Example plan for illustration — your real plan is personalized to your goals
+          Example plan for illustration — your real plan is personalised to your goals
         </p>
 
         <div className="mb-4 grid grid-cols-2 gap-3.5 md:grid-cols-4">
@@ -154,11 +156,16 @@ export default function SamplePlan() {
           </div>
         </div>
 
-        <p className="mb-3 text-xs text-ink-soft">
-          Shown with 4 dishes/day — choose 3–6, portions auto-scale to your calorie target.
+        <p className="mb-3 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
+          <span>Shown with 3 dishes/day — choose 3–6, portions auto-scale to your calorie target.</span>
+          <span className="rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-bold text-green-700">📦 Meal-prep friendly</span>
         </p>
         <div className="mb-5 rounded-xl border border-green-100 bg-green-50 px-4 py-3">
           <p className="text-xs font-extrabold text-green-900">🔁 Smart repetition, not random repetition</p>
+          <p className="mt-1 text-xs text-ink-soft">
+            Lunches and dinners are intentionally reused during the week so you cook fewer times, buy fewer
+            ingredients, and waste less food.
+          </p>
           <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-semibold text-green-700">
             <span className="rounded-full bg-white px-2.5 py-1">♻️ Less food waste</span>
             <span className="rounded-full bg-white px-2.5 py-1">🛒 Simpler shopping</span>
@@ -172,8 +179,7 @@ export default function SamplePlan() {
               <tr className="bg-green-50 text-left text-xs font-bold uppercase tracking-wide text-green-700">
                 <th className="px-4 py-3.5">Day</th>
                 <th className="px-4 py-3.5">Breakfast</th>
-                <th className="px-4 py-3.5">Lunch</th>
-                <th className="px-4 py-3.5">Dinner</th>
+                <th className="px-4 py-3.5">Lunch & Dinner</th>
                 <th className="px-4 py-3.5">Snack</th>
                 <th className="px-4 py-3.5">Daily Total</th>
               </tr>
@@ -181,8 +187,7 @@ export default function SamplePlan() {
             <tbody>
               {SAMPLE_DAYS.map((row) => {
                 const breakfast = row.breakfastDishes?.[0] ? findRecipe(row.breakfastDishes[0].id) : null;
-                const lunch = row.mainDishes?.[0] ? findRecipe(row.mainDishes[0].id) : null;
-                const dinner = row.mainDishes?.[1] ? findRecipe(row.mainDishes[1].id) : null;
+                const main = row.mainDishes?.[0] ? findRecipe(row.mainDishes[0].id) : null;
                 const snack = row.snackDishes?.[0] ? findRecipe(row.snackDishes[0].id) : null;
                 const totals = dayTotals(row);
                 const isMonday = row.day === 'Monday';
@@ -190,8 +195,7 @@ export default function SamplePlan() {
                   <tr key={row.day} className={`border-t border-gray-100 ${isMonday ? 'bg-green-50/70' : ''}`}>
                     <td className={`px-4 py-3.5 font-extrabold text-green-900 ${isMonday ? 'border-l-4 border-l-green-500' : ''}`}>{row.day}</td>
                     <td className="px-4 py-3.5 text-ink">{breakfast?.name || '—'}</td>
-                    <td className="px-4 py-3.5 text-ink">{lunch?.name || '—'}</td>
-                    <td className="px-4 py-3.5 text-ink">{dinner?.name || '—'}</td>
+                    <td className="px-4 py-3.5 text-ink">{main?.name || '—'}</td>
                     <td className="px-4 py-3.5 text-ink">{snack?.name || '—'}</td>
                     <td className="px-4 py-3.5 font-bold text-green-700">{totals.cal} kcal · {totals.protein}g protein</td>
                   </tr>

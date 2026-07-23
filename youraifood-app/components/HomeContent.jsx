@@ -51,14 +51,15 @@ export default function HomeContent() {
       <section className="px-6 pb-6 pt-16">
         <div className="mx-auto max-w-[1120px] text-center">
           <span className="mb-4 inline-block rounded-full bg-green-50 px-3.5 py-1.5 text-[13px] font-bold text-green-700">
-            🍽️ Your Personalized AI Meal Planner
+            🍽️ Your Personalised AI Meal Planner
           </span>
           <h1 className="mx-auto mb-4 max-w-3xl text-4xl font-extrabold leading-tight text-green-900 sm:text-5xl">
             Never wonder what to cook <span className="text-green-600">again</span>.
           </h1>
           <p className="mx-auto mb-8 max-w-xl text-lg text-ink-soft">
-            A complete personalized weekly meal plan, built from our macro-tracked recipe library and matched
-            to your goal — with exact calories, macros, and one combined grocery list. Ready in under a minute.
+            A complete personalised weekly meal plan, built from our macro-tracked recipe library and matched
+            to your goal — with calculated calories and macros, and one combined grocery list. Ready in under a
+            minute.
           </p>
           <button
             onClick={scrollToPlanner}

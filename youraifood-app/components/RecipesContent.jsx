@@ -10,10 +10,11 @@ export default function RecipesContent() {
     <>
       <section className="px-6 pb-4 pt-14 text-center">
         <h1 className="mx-auto mb-3 max-w-2xl text-3xl font-extrabold leading-tight text-green-900 sm:text-4xl">
-          The full recipe library
+          Browse all 235 recipes
         </h1>
         <p className="mx-auto max-w-xl text-ink-soft">
-          Every recipe YourAiFood can pull from when building your plan — filter by meal, diet, or favorites.
+          Open 24 complete recipes free, or preview the full Premium collection — filter by meal, diet, or
+          favourites.
         </p>
       </section>
 

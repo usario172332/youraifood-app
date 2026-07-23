@@ -46,6 +46,16 @@ const LOADING_STEPS = [
   'Finalising your personalised week…',
 ];
 
+// Maps the more granular LOADING_STEPS onto the 3 stages shown in the
+// lightweight progress tracker, so the wait feels concrete without a wall
+// of shifting text.
+const PROGRESS_STAGES = ['Goal', 'Preferences', 'Your plan'];
+function progressStageIndex(step) {
+  if (step <= 0) return 0;
+  if (step <= 2) return 1;
+  return 2;
+}
+
 const DISH_PRESETS = [
   { value: 3, label: '3', hint: '1 per meal' },
   { value: 4, label: '4', hint: 'standard' },
@@ -294,6 +304,27 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
         </Field>
       </div>
 
+      {loading && (
+        <div className="mb-3 flex items-center justify-center gap-2">
+          {PROGRESS_STAGES.map((stage, i) => {
+            const current = progressStageIndex(loadingStep);
+            const state = i < current ? 'done' : i === current ? 'active' : 'pending';
+            return (
+              <div key={stage} className="flex items-center gap-2">
+                <span
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                    state === 'pending' ? 'bg-gray-100 text-ink-soft' : 'bg-green-600 text-white'
+                  }`}
+                >
+                  {state === 'done' ? '✓' : i + 1} {stage}
+                </span>
+                {i < PROGRESS_STAGES.length - 1 && <span className="text-gray-300">→</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div className="mb-2 flex justify-end">
         <button
           onClick={generate}
@@ -313,7 +344,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           aria-expanded={showCustomize}
           className="flex w-full items-center justify-between rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-bold text-green-800 transition duration-200 hover:border-green-300 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
         >
-          <span>⚙️ Customize My Plan (optional)</span>
+          <span>⚙️ Customise My Plan (optional)</span>
           <span className="text-xs font-normal text-ink-soft">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
         </button>
         <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
@@ -716,7 +747,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
         <NutriBar label="Fat" val={stats.avgFat} unit="g" max={120} />
       </div>
 
-      <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimized grocery list</h3>
+      <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimised grocery list</h3>
       <p className="mb-3 text-xs text-ink-soft">
         {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy.
       </p>
