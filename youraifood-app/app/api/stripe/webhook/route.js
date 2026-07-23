@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getStripe } from '../../../../lib/stripe';
 import { supabaseAdmin } from '../../../../lib/supabaseAdmin';
+import { sendEmail, premiumConfirmationSubject, premiumConfirmationEmail, formatRenewalDate } from '../../../../lib/email';
 
 // Stripe needs the raw, unparsed request body to verify the signature.
 export async function POST(req) {
@@ -37,6 +38,28 @@ export async function POST(req) {
               stripe_subscription_id: session.subscription,
             })
             .eq('id', userId);
+      if (userId && session.subscription) {
+                try {
+                            const subscription = await stripe.subscriptions.retrieve(session.subscription);
+                            const { data: userData } = await admin.auth.admin.getUserById(userId);
+                            const email = userData?.user?.email;
+                            const priceItem = subscription.items.data[0];
+                            const planInterval = priceItem?.price?.recurring?.interval || 'month';
+                            const unitAmount = priceItem?.price?.unit_amount || 0;
+                            const currency = priceItem?.price?.currency || 'eur';
+                            const isTrial = subscription.status === 'trialing';
+                            const renewalDateLabel = formatRenewalDate(subscription.current_period_end);
+                            if (email) {
+                                          await sendEmail({
+                                                          to: email,
+                                                          subject: premiumConfirmationSubject(),
+                                                          ...premiumConfirmationEmail({ planInterval, unitAmount, currency, renewalDateLabel, isTrial }),
+                                          });
+                            }
+                } catch (emailErr) {
+                            console.error('Premium confirmation email failed:', emailErr);
+                }
+      }
         }
         break;
       }
