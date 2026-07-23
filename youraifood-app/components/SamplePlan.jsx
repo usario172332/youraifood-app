@@ -126,6 +126,9 @@ export default function SamplePlan() {
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
+        <span className="mb-2 block text-center text-xs font-bold uppercase tracking-wide text-green-600">
+          Example Weekly Meal Plan
+        </span>
         <h2 className="text-center text-2xl font-extrabold text-green-900">See exactly what you'll get</h2>
         <p className="mb-3 text-center text-ink-soft">Computed live from real recipes — not mocked up.</p>
         <p className="mb-8 text-center text-xs font-semibold uppercase tracking-wide text-amber-600">
@@ -171,8 +174,8 @@ export default function SamplePlan() {
                 <th className="px-4 py-3.5">Breakfast</th>
                 <th className="px-4 py-3.5">Lunch</th>
                 <th className="px-4 py-3.5">Dinner</th>
-                <th className="px-4 py-3.5">Daily Calories</th>
-                <th className="px-4 py-3.5">Daily Protein</th>
+                <th className="px-4 py-3.5">Snack</th>
+                <th className="px-4 py-3.5">Daily Total</th>
               </tr>
             </thead>
             <tbody>
@@ -180,6 +183,7 @@ export default function SamplePlan() {
                 const breakfast = row.breakfastDishes?.[0] ? findRecipe(row.breakfastDishes[0].id) : null;
                 const lunch = row.mainDishes?.[0] ? findRecipe(row.mainDishes[0].id) : null;
                 const dinner = row.mainDishes?.[1] ? findRecipe(row.mainDishes[1].id) : null;
+                const snack = row.snackDishes?.[0] ? findRecipe(row.snackDishes[0].id) : null;
                 const totals = dayTotals(row);
                 const isMonday = row.day === 'Monday';
                 return (
@@ -188,13 +192,22 @@ export default function SamplePlan() {
                     <td className="px-4 py-3.5 text-ink">{breakfast?.name || '—'}</td>
                     <td className="px-4 py-3.5 text-ink">{lunch?.name || '—'}</td>
                     <td className="px-4 py-3.5 text-ink">{dinner?.name || '—'}</td>
-                    <td className="px-4 py-3.5 font-bold text-green-700">{totals.cal} kcal</td>
-                    <td className="px-4 py-3.5 font-bold text-green-700">{totals.protein}g</td>
+                    <td className="px-4 py-3.5 text-ink">{snack?.name || '—'}</td>
+                    <td className="px-4 py-3.5 font-bold text-green-700">{totals.cal} kcal · {totals.protein}g protein</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+        </div>
+
+        <div className="mt-5 flex items-start gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5">
+          <span className="text-xl">🔄</span>
+          <p className="text-sm font-semibold text-ink">
+            Don't like Tuesday's meals?{' '}
+            <span className="font-extrabold text-green-700">Replace only Tuesday</span> without rebuilding your
+            entire week.
+          </p>
         </div>
 
         <div className="mt-9 rounded-[28px] border-2 border-green-300 bg-green-50 p-8 shadow-sm">

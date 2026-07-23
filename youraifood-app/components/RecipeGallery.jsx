@@ -122,8 +122,6 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
     ? TEASER_IDS.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean)
     : filtered;
 
-  const premiumCount = RECIPES.filter((r) => r.premium).length;
-
   function goTo(hash) {
     const el = document.getElementById(hash);
     if (el) {
@@ -355,11 +353,18 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
 
         {compact && !isPremium && (
           <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
-            <p className="mb-1 text-lg font-extrabold text-white">🔒 {premiumCount}+ premium recipes are waiting</p>
-            <p className="mx-auto mb-5 max-w-lg text-sm text-white/70">
-              Unlock the full library — every macro-tracked recipe, meal-prep and freezer tags, ingredient swaps, and
-              AI photography, plus unlimited AI-generated meal plans for €7.77/mo.
+            <p className="mb-1 text-lg font-extrabold text-white">🔒 Unlock all {RECIPES.length} macro-tracked recipes</p>
+            <p className="mx-auto mb-3 max-w-lg text-sm text-white/70">
+              Meal prep, high-protein, quick, vegetarian, and family meals — every recipe photo, ingredient swap,
+              and freezer tag, plus unlimited meal plans for €7.77/mo.
             </p>
+            <div className="mb-5 flex flex-wrap justify-center gap-1.5">
+              {['Meal prep', 'High-protein', 'Quick', 'Vegetarian', 'Family meals'].map((c) => (
+                <span key={c} className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/80">
+                  {c}
+                </span>
+              ))}
+            </div>
             <div className="flex flex-wrap justify-center gap-3">
               <Link
                 href="/recipes"

@@ -57,9 +57,8 @@ export default function HomeContent() {
             Never wonder what to cook <span className="text-green-600">again</span>.
           </h1>
           <p className="mx-auto mb-8 max-w-xl text-lg text-ink-soft">
-            Your entire week of meals, planned in under a minute. Get recipes matched to your goal, exact
-            calories and macros, and one organised shopping list — without spending hours planning meals every
-            week.
+            A complete personalized weekly meal plan, built from our macro-tracked recipe library and matched
+            to your goal — with exact calories, macros, and one combined grocery list. Ready in under a minute.
           </p>
           <button
             onClick={scrollToPlanner}

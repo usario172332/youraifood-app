@@ -1,11 +1,11 @@
 const POINTS = [
-  { icon: '📚', text: '235 structured recipes' },
-  { icon: '🧮', text: 'Calories calculated from real ingredients' },
-  { icon: '🥩', text: 'Accurate macro calculations' },
-  { icon: '🛒', text: 'Automatic shopping list generation' },
-  { icon: '🔗', text: 'Ingredient quantities consolidated across the entire week' },
+  { icon: '📚', text: '235 macro-tracked recipes' },
+  { icon: '🛒', text: 'Grocery lists generated automatically' },
+  { icon: '⏱️', text: 'Weekly meal plans created in under a minute' },
+  { icon: '🧮', text: 'Nutrition calculated from real recipe ingredients' },
   { icon: '⚖️', text: 'Serving sizes automatically adjusted' },
   { icon: '🥗', text: 'Diet preferences applied to every generated plan' },
+  { icon: '❌', text: 'Cancel Premium anytime, no fees' },
 ];
 
 export default function TrustSection() {

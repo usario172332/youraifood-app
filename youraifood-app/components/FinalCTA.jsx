@@ -14,7 +14,7 @@ export default function FinalCTA() {
         <p className="mb-8 text-green-100">
           Get your personalised weekly meal plan — recipes, macros and a shopping list, ready in under a minute.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-col items-center justify-center gap-3">
           <button
             onClick={scrollToPlanner}
             className="rounded-full bg-white px-7 py-3.5 text-base font-bold text-green-900 shadow-sm transition duration-200 hover:-translate-y-px hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900"
@@ -23,9 +23,9 @@ export default function FinalCTA() {
           </button>
           <a
             href="/recipes"
-            className="rounded-full border-[1.5px] border-green-100/40 px-7 py-3.5 text-base font-bold text-white transition duration-200 hover:bg-white/10"
+            className="text-sm font-semibold text-green-100/80 underline decoration-green-100/40 underline-offset-4 transition duration-200 hover:text-white"
           >
-            Browse Recipes →
+            Browse Recipes
           </a>
         </div>
       </div>

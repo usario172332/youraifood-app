@@ -103,11 +103,15 @@ export default function Pricing({ session, isPremium }) {
             <div className="my-2 text-3xl font-extrabold text-green-900">
               €0<span className="text-base font-semibold text-ink-soft">/month</span>
             </div>
-            <ul className="mb-6 flex-1 space-y-1.5 text-sm">
+            <ul className="mb-3 flex-1 space-y-1.5 text-sm">
               {FREE_FEATURES.map((f) => (
                 <li key={f} className="flex gap-2"><span className="font-bold text-green-600">✓</span>{f}</li>
               ))}
             </ul>
+            <p className="mb-6 text-[11px] text-ink-soft">
+              Each new weekly plan you generate — including regenerating a full week — counts as one of your 5
+              monthly plans. Replacing a single day doesn't count against this limit.
+            </p>
             <a
               href="#planner"
               onClick={(e) => {

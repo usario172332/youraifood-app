@@ -29,10 +29,13 @@ const GOAL_CARDS = [
   { value: 'maintain', icon: '🥗', label: 'Eat Healthier', benefit: 'Balanced meals without the planning.' },
 ];
 
+// Note: the third option's internal `value` stays 'premium' to match the
+// backend API contract (/api/generate-plan, /api/regenerate-day) — only the
+// displayed label changes, to avoid confusion with the paid Premium plan.
 const BUDGET_LEVELS = [
-  { value: 'budget', icon: '💰', label: 'Budget-friendly', desc: 'Affordable staples' },
+  { value: 'budget', icon: '💰', label: 'Budget-Friendly', desc: 'Affordable staples' },
   { value: 'balanced', icon: '💰💰', label: 'Balanced', desc: 'Everyday variety' },
-  { value: 'premium', icon: '💰💰💰', label: 'Premium', desc: 'Quality & variety' },
+  { value: 'premium', icon: '💰💰💰', label: 'Flexible', desc: 'Quality & variety' },
 ];
 
 const LOADING_STEPS = [
@@ -271,7 +274,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       </div>
 
       <div className="mb-5">
-        <Field label="Dietary preference">
+        <Field label="Dietary preference" hint="— select all that apply">
           <div className="flex flex-wrap gap-1.5">
             {DIET_OPTIONS.map((d) => (
               <label
@@ -285,6 +288,9 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
               </label>
             ))}
           </div>
+          <p className="mt-1.5 text-[11px] text-ink-soft">
+            Combine any options — e.g. Vegetarian + Gluten-free, or Dairy-free + your protein target.
+          </p>
         </Field>
       </div>
 
@@ -386,7 +392,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   ≈ {form.meals.map((s) => `${dishSplit[s] || 0} ${MEAL_LABELS[s]}`).join(' · ')}
                 </p>
               </Field>
-              <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">Grocery prices vary a lot by country, so we guide ingredient choice by budget level instead of promising an exact total.</p>
+              <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">We adjust ingredient choices by preference rather than promising an exact price — grocery prices vary a lot by country and retailer. This avoids inaccurate price expectations.</p>
             </div>
 
             <div className="mb-5 grid grid-cols-2 gap-4 md:max-w-md">
