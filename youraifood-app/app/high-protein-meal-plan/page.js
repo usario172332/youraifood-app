@@ -5,7 +5,7 @@ import { isHighProtein } from '../../lib/recipeMeta';
 export const metadata = {
   title: 'High Protein Meal Plan — 7 Days, AI-Generated | YourAiFood',
   description:
-    'Get a free high-protein weekly meal plan built from real recipes — exact protein and calorie targets, plus an automatic, consolidated shopping list.',
+    'Get a free high-protein weekly meal plan built from real recipes — calculated protein and calorie targets, plus an automatic, consolidated shopping list.',
 };
 
 const recipes = RECIPES.filter((r) => isHighProtein(r))
