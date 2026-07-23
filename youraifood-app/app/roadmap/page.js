@@ -3,7 +3,7 @@ import Roadmap from '../../components/Roadmap';
 export const metadata = {
   title: 'Roadmap — YourAiFood',
   description:
-    "What's next for YourAiFood: one-click supermarket ordering, pantry-aware planning, and family meal planning with per-person portions.",
+    "What's next for YourAiFood: one-click supermarket ordering, an AI meal-prep calendar, and pantry-aware planning.",
 };
 
 export default function RoadmapPage() {
