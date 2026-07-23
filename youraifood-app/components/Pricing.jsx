@@ -9,18 +9,17 @@ const YEARLY_MONTHLY_EQUIVALENT = (YEARLY_PRICE / 12).toFixed(2);
 const YEARLY_SAVINGS_PCT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) * 100);
 
 const FREE_FEATURES = [
-  'Access selected complete recipes',
-  'Browse all recipe previews',
-  'Generate a limited number of weekly meal plans',
-  'Automatic grocery lists',
+  'Access to 24 free recipes',
+  '5 personalized weekly meal plans every month',
+  'Full grocery lists for every plan',
+  'No credit card required',
 ];
 
 const PREMIUM_FEATURES = [
-  'Unlimited meal plans',
-  'Full recipe library',
-  'Save meal plans',
-  'Meal customisation',
-  'Advanced planning tools',
+  'Unlimited meal plans — generate a new week anytime',
+  'Unlimited day regenerations — swap out any day, as often as you like',
+  'Full recipe library — all 235 recipes instead of 24',
+  'Never wait for your free plans to reset',
 ];
 
 export default function Pricing({ session, isPremium }) {
@@ -72,7 +71,7 @@ export default function Pricing({ session, isPremium }) {
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">Simple pricing</h2>
         <p className="mb-9 text-center text-ink-soft">
-          Start free. Upgrade anytime for unlimited plans and the full recipe library.
+          Start free. Premium saves you time every week — unlimited plans, unlimited regenerations, no waiting.
         </p>
 
         <div className="mb-9 flex flex-nowrap items-center justify-center gap-3">

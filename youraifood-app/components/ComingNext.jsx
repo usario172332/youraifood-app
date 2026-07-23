@@ -1,9 +1,7 @@
 const ITEMS = [
-  'One-click grocery ordering from nearby supermarkets',
-  'AI meal-prep calendar',
-  'Pantry tracking — plans built around what you already have',
-  'Family meal planning with per-person portions',
-  'Fitness app integrations (Apple Health, Strava, and more)',
+  'Pantry-aware meal planning',
+  'Grocery shopping integrations',
+  'Family meal planning',
 ];
 
 export default function ComingNext() {

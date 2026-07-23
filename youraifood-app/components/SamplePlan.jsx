@@ -103,8 +103,25 @@ export default function SamplePlan() {
     if (!byCat[info.cat]) byCat[info.cat] = [];
     byCat[info.cat].push({ name, ...info });
   });
-  const catOrder = ['Protein', 'Produce', 'Pantry', 'Dairy/Alt', 'Spices'].filter((c) => byCat[c]);
+  const GROCERY_BUCKETS = [
+    { key: 'main', label: 'Main groceries', cats: ['Protein', 'Produce', 'Dairy/Alt'] },
+    { key: 'pantry', label: 'Pantry staples', cats: ['Pantry'] },
+    { key: 'optional', label: 'Optional ingredients', cats: ['Spices'] },
+  ];
+  const groceryBuckets = GROCERY_BUCKETS.map((b) => ({
+    ...b,
+    items: b.cats.flatMap((c) => byCat[c] || []),
+  })).filter((b) => b.items.length);
   const totalItems = Object.values(byCat).reduce((sum, items) => sum + items.length, 0);
+  let rawIngredientCount = 0;
+  SAMPLE_DAYS.forEach((row) => {
+    MEAL_SLOTS.forEach((slot) => {
+      (row[`${slot}Dishes`] || []).forEach((dish) => {
+        const r = findRecipe(dish.id);
+        if (r && Array.isArray(r.ingredients)) rawIngredientCount += r.ingredients.length;
+      });
+    });
+  });
 
   return (
     <section className="px-6 py-16">
@@ -178,17 +195,19 @@ export default function SamplePlan() {
             <span className="text-6xl">🛒</span>
             <div>
               <h3 className="text-xl font-extrabold text-green-900">Your shopping list is created automatically.</h3>
-              <p className="mt-1 text-sm font-semibold text-ink-soft">{totalItems} grocery items generated for the week — buy exactly what you need.</p>
+              <p className="mt-1 text-sm font-semibold text-ink-soft">
+                {rawIngredientCount} ingredient entries consolidated into {totalItems} grocery items — buy exactly what you need.
+              </p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-            {catOrder.map((cat) => {
-              const items = byCat[cat].sort((a, b) => a.name.localeCompare(b.name));
+            {groceryBuckets.map((b) => {
+              const items = b.items.sort((a, c) => a.name.localeCompare(c.name));
               const visible = groceriesExpanded ? items : items.slice(0, PREVIEW_ITEMS_PER_CATEGORY);
               const hidden = items.length - visible.length;
               return (
-                <div key={cat} className="rounded-xl border border-gray-200 bg-white p-4">
-                  <h4 className="mb-2.5 text-sm font-bold text-green-700">{cat}</h4>
+                <div key={b.key} className="rounded-xl border border-gray-200 bg-white p-4">
+                  <h4 className="mb-2.5 text-sm font-bold text-green-700">{b.label}</h4>
                   <ul>
                     {visible.map((i) => (
                       <li key={i.name} className="flex justify-between border-b border-dashed border-gray-100 py-1.5 text-sm">
@@ -204,7 +223,7 @@ export default function SamplePlan() {
               );
             })}
           </div>
-          {!groceriesExpanded && totalItems > catOrder.length * PREVIEW_ITEMS_PER_CATEGORY && (
+          {!groceriesExpanded && totalItems > groceryBuckets.length * PREVIEW_ITEMS_PER_CATEGORY && (
             <div className="mt-4 text-center">
               <button
                 onClick={() => setGroceriesExpanded(true)}
