@@ -1,6 +1,5 @@
 const BENEFITS = [
   { icon: '🥗', title: 'Personalised weekly meal plans', text: 'Every plan is built around your goal, not a generic recipe list.' },
-  { icon: '⚡', title: 'Save hours every week', text: 'Your whole week is planned in seconds, not hours of scrolling.' },
   { icon: '🛒', title: 'Automatic shopping lists', text: 'Every plan comes with a grocery list, organized and ready to shop.' },
   { icon: '💪', title: 'Nutrition designed around your goals', text: 'Real calories, protein and macros — calculated for every meal.' },
 ];
@@ -16,7 +15,7 @@ export default function WhyYourAiFood() {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {BENEFITS.map((b, i) => (
             <div key={b.title} className="relative rounded-2xl border border-gray-200 bg-white p-6">
               <span className="absolute right-4 top-4 text-xs font-extrabold text-gray-300">0{i + 1}</span>
