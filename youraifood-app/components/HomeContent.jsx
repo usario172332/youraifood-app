@@ -25,14 +25,30 @@ export default function HomeContent() {
   // If we arrive here via a hash link (e.g. a locked recipe card linking to
   // /#pricing), scroll to that section once the page has laid out — a plain
   // browser hash-jump can silently fail on client-side navigation.
-  useEffect(() => {
-    if (!window.location.hash) return;
-    const id = window.location.hash.slice(1);
-    const target = document.getElementById(id);
-    if (target) {
-      requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth' }));
-    }
-  }, []);
+    useEffect(() => {
+            if (!window.location.hash) return;
+            const id = window.location.hash.slice(1);
+
+            const tryScroll = () => {
+                      const target = document.getElementById(id);
+                      if (target) target.scrollIntoView({ behavior: 'smooth' });
+                      return !!target;
+            };
+
+            // A hard/full page load races React's render against the browser's
+            // one-shot native anchor scroll, and images below can still be
+            // reflowing layout. Try once immediately, once after everything has
+            // finished loading, and a couple more times shortly after in case
+            // late images/fonts shift the page.
+            tryScroll();
+            window.addEventListener('load', tryScroll, { once: true });
+            const retryTimers = [300, 800, 1600].map((ms) => setTimeout(tryScroll, ms));
+
+            return () => {
+                      window.removeEventListener('load', tryScroll);
+                      retryTimers.forEach(clearTimeout);
+            };
+    }, []);
 
   return (
     <>
