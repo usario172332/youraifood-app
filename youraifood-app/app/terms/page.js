@@ -24,8 +24,8 @@ export default function TermsPage() {
           <h2 className="mb-2 text-lg font-bold text-green-900">2. What the service is</h2>
           <p>
             YourAiFood generates weekly meal plans, grocery lists, and nutrition estimates based on the goals,
-            budget, and preferences you provide, drawing from our recipe library. Nutrition figures (calories,
-            protein, cost) are calculated from the recipe data itself, not estimated by the AI.
+            ingredient preferences, and dietary needs you provide, drawing from our recipe library. Nutrition
+            figures (calories, protein, cost) are calculated from the recipe data itself, not estimated by the AI.
           </p>
         </section>
 
