@@ -25,11 +25,11 @@ export function isHighProtein(recipe) {
 const MEAL_PREP_KEYWORDS = [
   'overnight', 'baked', 'bake', 'muffin', 'casserole', 'cassoulet', 'slow cooker',
   'meal prep', 'chia pudding', 'granola', 'frittata',
-];
+  ];
 const FREEZER_KEYWORDS = [
   'casserole', 'cassoulet', 'soup', 'chili', 'curry', 'bolognese', 'muffin',
   'stew', 'burrito', 'quesadilla', 'baked oats',
-];
+  ];
 
 function textBlob(recipe) {
   return `${recipe.name} ${recipe.steps?.join(' ') || ''}`.toLowerCase();
@@ -43,6 +43,21 @@ export function isMealPrepFriendly(recipe) {
 export function isFreezerFriendly(recipe) {
   const blob = textBlob(recipe);
   return FREEZER_KEYWORDS.some((k) => blob.includes(k));
+}
+
+const ONE_PAN_KEYWORDS = ['one pan', 'one-pan', 'one pot', 'one-pot', 'sheet pan', 'tray bake', 'skillet'];
+
+export function isOnePan(recipe) {
+  const blob = textBlob(recipe);
+  return ONE_PAN_KEYWORDS.some((k) => blob.includes(k));
+}
+
+export function isBeginnerFriendly(recipe) {
+  return getDifficulty(recipe) === 'Easy';
+}
+
+export function isQuick(recipe) {
+  return recipe.time <= 20;
 }
 
 // Picks a representative emoji + gradient "hero" for a recipe based on
@@ -68,7 +83,7 @@ const HERO_RULES = [
   { keywords: ['sandwich', 'bagel', 'toast', 'wrap'], emoji: '🥪', gradient: 'from-yellow-200 to-lime-300' },
   { keywords: ['noodle', 'udon', 'pasta'], emoji: '🍜', gradient: 'from-orange-200 to-yellow-300' },
   { keywords: ['bowl'], emoji: '🍱', gradient: 'from-teal-200 to-cyan-300' },
-];
+  ];
 
 export function getHero(recipe) {
   const blob = textBlob(recipe);
