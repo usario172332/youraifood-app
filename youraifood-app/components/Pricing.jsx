@@ -8,10 +8,29 @@ const YEARLY_PRICE = 76;
 const YEARLY_MONTHLY_EQUIVALENT = (YEARLY_PRICE / 12).toFixed(2);
 const YEARLY_SAVINGS_PCT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) * 100);
 
+const FREE_FEATURES = [
+  'Access selected complete recipes',
+  'Browse all recipe previews',
+  'Generate a limited number of weekly meal plans',
+  'Automatic grocery lists',
+];
+
+const PREMIUM_FEATURES = [
+  'Unlimited meal plans',
+  'Full recipe library',
+  'Save meal plans',
+  'Meal customisation',
+  'Advanced planning tools',
+];
+
 export default function Pricing({ session, isPremium }) {
   const { requestSignIn } = useAuth();
   const [loading, setLoading] = useState(false);
   const [yearly, setYearly] = useState(false);
+
+  function scrollToPlanner() {
+    document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' });
+  }
 
   async function goPremium() {
     if (!session) {
@@ -52,8 +71,8 @@ export default function Pricing({ session, isPremium }) {
     <section id="pricing" className="px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">Simple pricing</h2>
-        <p className="mb-6 text-center text-ink-soft">
-          Start free. Upgrade anytime for unlimited plans.
+        <p className="mb-9 text-center text-ink-soft">
+          Start free. Upgrade anytime for unlimited plans and the full recipe library.
         </p>
 
         <div className="mb-9 flex flex-nowrap items-center justify-center gap-3">
@@ -78,28 +97,29 @@ export default function Pricing({ session, isPremium }) {
           </span>
         </div>
 
-        <div className="mx-auto mb-8 max-w-[600px] rounded-2xl border border-green-100 bg-green-50/60 p-6 text-center">
-          <h3 className="mb-3 text-base font-extrabold text-green-900">Everything you need to plan healthier meals.</h3>
-          <ul className="mx-auto grid max-w-md grid-cols-1 gap-1.5 text-left text-sm sm:grid-cols-2">
-            {['Unlimited weekly meal plans', 'Unlimited recipes', 'Automatic shopping lists', 'Personalised nutrition', 'Save and edit meal plans'].map((f) => (
-              <li key={f} className="flex gap-2"><span className="font-bold text-green-600">✓</span>{f}</li>
-            ))}
-          </ul>
-        </div>
-
         <div className="mx-auto grid max-w-[760px] grid-cols-1 gap-6 sm:grid-cols-2">
-          <div className="rounded-2xl border-[1.5px] border-gray-200 p-7">
+          <div className="flex flex-col rounded-2xl border-[1.5px] border-gray-200 p-7">
             <h3 className="text-lg font-extrabold text-green-900">Free</h3>
             <div className="my-2 text-3xl font-extrabold text-green-900">
               €0<span className="text-base font-semibold text-ink-soft">/month</span>
             </div>
-            <ul className="mb-6 space-y-1.5 text-sm">
-              {['Browse the recipe library', '5 AI meal plans / month', 'Shopping list generator', 'Basic nutrition info'].map((f) => (
+            <ul className="mb-6 flex-1 space-y-1.5 text-sm">
+              {FREE_FEATURES.map((f) => (
                 <li key={f} className="flex gap-2"><span className="font-bold text-green-600">✓</span>{f}</li>
               ))}
             </ul>
+            <a
+              href="#planner"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToPlanner();
+              }}
+              className="block w-full rounded-full bg-green-600 py-2.5 text-center text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+            >
+              Create My Free Meal Plan →
+            </a>
           </div>
-          <div className="relative rounded-2xl border-[1.5px] border-green-600 p-7 shadow-lg">
+          <div className="relative flex flex-col rounded-2xl border-[1.5px] border-green-600 p-7 shadow-lg">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-amber-950">
               MOST POPULAR
             </span>
@@ -118,18 +138,8 @@ export default function Pricing({ session, isPremium }) {
                 €{MONTHLY_PRICE}<span className="text-base font-semibold text-ink-soft">/month</span>
               </div>
             )}
-            <ul className="mb-6 space-y-1.5 text-sm">
-              {[
-                'Unlimited AI meal plans',
-                'Full recipe library access',
-                'Macro tracking',
-                'Pantry management',
-                'Grocery list optimization',
-                'Family planning tools',
-                'Ingredient substitutions',
-                'Save unlimited recipes',
-                'Free cancellation, anytime',
-              ].map((f) => (
+            <ul className="mb-6 flex-1 space-y-1.5 text-sm">
+              {PREMIUM_FEATURES.map((f) => (
                 <li key={f} className="flex gap-2"><span className="font-bold text-green-600">✓</span>{f}</li>
               ))}
             </ul>
@@ -151,12 +161,12 @@ export default function Pricing({ session, isPremium }) {
                 <button
                   onClick={goPremium}
                   disabled={loading}
-                  className="w-full rounded-full bg-green-600 py-2.5 text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
+                  className="w-full rounded-full border-[1.5px] border-green-600 bg-white py-2.5 text-sm font-bold text-green-700 transition duration-200 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60"
                 >
                   {loading
                     ? 'Redirecting…'
                     : yearly
-                    ? `Go Premium — €${YEARLY_PRICE.toFixed(2)}/yr`
+                    ? `Upgrade to Premium — €${YEARLY_PRICE.toFixed(2)}/yr`
                     : `Start free trial — then €${MONTHLY_PRICE}/mo`}
                 </button>
                 <p className="mt-2 text-center text-[11px] text-ink-soft">
