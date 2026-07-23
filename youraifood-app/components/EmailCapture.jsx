@@ -61,7 +61,9 @@ export default function EmailCapture() {
             ))}
           </div>
           <div className="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 p-2">
-            <span className="text-lg">🍽️</span>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-green-200 to-green-100 text-base">
+              🍽️
+            </span>
             <div className="flex-1">
               <div className="h-2 w-3/4 rounded bg-gray-200" />
               <div className="mt-1 h-2 w-1/2 rounded bg-gray-100" />

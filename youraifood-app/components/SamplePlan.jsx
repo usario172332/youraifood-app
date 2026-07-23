@@ -125,6 +125,15 @@ export default function SamplePlan() {
     });
   });
 
+  // How many times each main dish's recipe id appears across the week —
+  // real, computed from the actual sample data — so we can flag genuinely
+  // reused recipes (and therefore reused ingredients) instead of a made-up label.
+  const mainDishCounts = {};
+  SAMPLE_DAYS.forEach((row) => {
+    const id = row.mainDishes?.[0]?.id;
+    if (id) mainDishCounts[id] = (mainDishCounts[id] || 0) + 1;
+  });
+
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
@@ -217,6 +226,9 @@ export default function SamplePlan() {
                         <div className="mt-1 flex flex-wrap gap-1 text-[10px] font-semibold text-ink-soft">
                           <span>🕒 {main.time}min active</span>
                           {makesLeftovers && <span className="text-green-700">♻️ Leftovers</span>}
+                          {mainDishCounts[main.id] > 1 && (
+                            <span className="text-amber-700">🔁 Ingredient Reused</span>
+                          )}
                         </div>
                       )}
                     </td>

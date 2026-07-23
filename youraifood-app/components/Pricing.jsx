@@ -17,16 +17,20 @@ const FREE_FEATURES = [
 
 const PREMIUM_FEATURES = [
   {
-    title: 'Plan every week without limits',
-    text: 'A new personalised week whenever your goals or schedule change — no monthly cap.',
+    title: 'Cook smarter every week',
+    text: 'Unlimited AI planning whenever your goals or schedule change — no monthly cap.',
   },
   {
     title: 'Change your mind without starting over',
-    text: "Swap out any meal or regenerate a single day without rebuilding the rest of your week.",
+    text: 'Swap out any meal or regenerate a single day without rebuilding the rest of your week.',
   },
   {
     title: 'Unlock the full recipe library',
     text: 'All 235 recipes whenever you need inspiration, not just the 24 free ones.',
+  },
+  {
+    title: 'Waste less food',
+    text: 'Ingredient swap suggestions across every recipe, not just the free 24.',
   },
   {
     title: 'Fine-tune your targets anytime',

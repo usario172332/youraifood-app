@@ -12,6 +12,7 @@ import FinalCTA from './FinalCTA';
 import EmailCapture from './EmailCapture';
 import InlineCTA from './InlineCTA';
 import TypicalWeek from './TypicalWeek';
+import WhoIsThisFor from './WhoIsThisFor';
 import { useAuth } from '../lib/AuthContext';
 
 export default function HomeContent() {
@@ -136,6 +137,7 @@ export default function HomeContent() {
       </section>
 
       <InlineCTA label="Create My Free Meal Plan" />
+      <WhoIsThisFor />
       <TypicalWeek />
       <SamplePlan />
       <WhyYourAiFood />
