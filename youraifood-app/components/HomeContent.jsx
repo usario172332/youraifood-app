@@ -3,16 +3,12 @@
 import { useEffect } from 'react';
 import Planner from './Planner';
 import WhyYourAiFood from './WhyYourAiFood';
-import ComparisonTable from './ComparisonTable';
-import UseCases from './UseCases';
-import EcosystemDiagram from './EcosystemDiagram';
 import SamplePlan from './SamplePlan';
 import RecipeGallery from './RecipeGallery';
-import EmailCapture from './EmailCapture';
 import FAQ from './FAQ';
-import WhatHappensNext from './WhatHappensNext';
-import Roadmap from './Roadmap';
 import Pricing from './Pricing';
+import FinalCTA from './FinalCTA';
+import ComingNext from './ComingNext';
 import { useAuth } from '../lib/AuthContext';
 
 export default function HomeContent() {
@@ -25,30 +21,30 @@ export default function HomeContent() {
   // If we arrive here via a hash link (e.g. a locked recipe card linking to
   // /#pricing), scroll to that section once the page has laid out — a plain
   // browser hash-jump can silently fail on client-side navigation.
-    useEffect(() => {
-            if (!window.location.hash) return;
-            const id = window.location.hash.slice(1);
+  useEffect(() => {
+    if (!window.location.hash) return;
+    const id = window.location.hash.slice(1);
 
-            const tryScroll = () => {
-                      const target = document.getElementById(id);
-                      if (target) target.scrollIntoView({ behavior: 'smooth' });
-                      return !!target;
-            };
+    const tryScroll = () => {
+      const target = document.getElementById(id);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      return !!target;
+    };
 
-            // A hard/full page load races React's render against the browser's
-            // one-shot native anchor scroll, and images below can still be
-            // reflowing layout. Try once immediately, once after everything has
-            // finished loading, and a couple more times shortly after in case
-            // late images/fonts shift the page.
-            tryScroll();
-            window.addEventListener('load', tryScroll, { once: true });
-            const retryTimers = [300, 800, 1600].map((ms) => setTimeout(tryScroll, ms));
+    // A hard/full page load races React's render against the browser's
+    // one-shot native anchor scroll, and images below can still be
+    // reflowing layout. Try once immediately, once after everything has
+    // finished loading, and a couple more times shortly after in case
+    // late images/fonts shift the page.
+    tryScroll();
+    window.addEventListener('load', tryScroll, { once: true });
+    const retryTimers = [300, 800, 1600].map((ms) => setTimeout(tryScroll, ms));
 
-            return () => {
-                      window.removeEventListener('load', tryScroll);
-                      retryTimers.forEach(clearTimeout);
-            };
-    }, []);
+    return () => {
+      window.removeEventListener('load', tryScroll);
+      retryTimers.forEach(clearTimeout);
+    };
+  }, []);
 
   return (
     <>
@@ -67,7 +63,7 @@ export default function HomeContent() {
             onClick={scrollToPlanner}
             className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white shadow-sm transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0"
           >
-            Build My Week →
+            Create My Free Meal Plan →
           </button>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
             <span>✓ Personalised 7-day meal plan</span>
@@ -78,8 +74,6 @@ export default function HomeContent() {
           </div>
         </div>
       </section>
-
-      <WhatHappensNext />
 
       <section className="px-6 pb-6">
         <div className="mx-auto max-w-[1120px] text-center">
@@ -102,16 +96,13 @@ export default function HomeContent() {
         </div>
       </section>
 
-      <WhyYourAiFood />
-      <ComparisonTable />
       <SamplePlan />
+      <WhyYourAiFood />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
-      <UseCases />
-      <FAQ />
-      <EmailCapture />
       <Pricing session={session} isPremium={isPremium} />
-      <EcosystemDiagram />
-      <Roadmap />
+      <FAQ />
+      <FinalCTA />
+      <ComingNext />
     </>
   );
 }
