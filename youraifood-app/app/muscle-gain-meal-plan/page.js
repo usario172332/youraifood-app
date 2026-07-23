@@ -17,7 +17,7 @@ export default function Page() {
     <SeoLandingPage
       eyebrow="💪 Muscle Gain"
       h1="Muscle Gain Meal Plan"
-      intro="A free 7-day meal plan built around a lean calorie surplus — protein-focused recipes to support muscle growth, with exact macros calculated per meal."
+      intro="A free 7-day meal plan built around a lean calorie surplus — protein-focused recipes to support muscle growth, with macros calculated per meal from real ingredients."
       statPoints={[
         { value: '2.0g/kg', label: 'Protein target for muscle gain' },
         { value: '+350 kcal', label: 'Typical daily surplus' },
