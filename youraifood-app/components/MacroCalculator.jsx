@@ -150,7 +150,7 @@ export default function MacroCalculator() {
             Turn these targets into a complete weekly meal plan.
           </p>
           <p className="mx-auto mb-4 max-w-md text-sm text-ink-soft">
-            Recipes, a grocery list, and exact macros per meal — built by AI around your {targets.calorieTarget} kcal
+            Recipes, a grocery list, and calculated macros per meal — built by AI around your {targets.calorieTarget} kcal
             and {targets.proteinTarget}g protein targets.
           </p>
           <Link

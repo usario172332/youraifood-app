@@ -128,8 +128,10 @@ export default function Pricing({ session, isPremium }) {
               MOST POPULAR
             </span>
             <span className="text-xs font-extrabold uppercase tracking-wide text-green-600">Premium</span>
-            <h3 className="text-lg font-extrabold text-green-900">Unlimited planning and complete recipe access</h3>
-            <p className="mb-1 mt-0.5 text-xs font-bold text-green-700">A new meal plan whenever your week changes.</p>
+            <h3 className="text-lg font-extrabold text-green-900">Plan every week without limits</h3>
+            <p className="mb-1 mt-0.5 text-xs font-bold text-green-700">
+              Change your goals, replace meals, generate new weeks and access the complete recipe library whenever you need it.
+            </p>
             {yearly ? (
               <>
                 <div className="my-2 text-3xl font-extrabold text-green-900">
@@ -164,6 +166,11 @@ export default function Pricing({ session, isPremium }) {
               </>
             ) : (
               <>
+                {!yearly && (
+                  <p className="mb-2 text-center text-xs font-bold text-amber-700">
+                    🔓 Unlock every Premium feature free for seven days.
+                  </p>
+                )}
                 <button
                   onClick={goPremium}
                   disabled={loading}

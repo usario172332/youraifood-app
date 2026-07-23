@@ -81,6 +81,28 @@ export default function HomeContent() {
         </div>
       </section>
 
+      <section id="how-it-works" className="px-6 py-14">
+        <div className="mx-auto max-w-[1120px]">
+          <h2 className="text-center text-2xl font-extrabold text-green-900">How it works</h2>
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            {[
+              { n: '1', icon: '🎯', title: 'Tell us your goal', text: 'Choose weight loss, muscle building, or healthier eating.' },
+              { n: '2', icon: '📅', title: 'Receive your week', text: 'Get personalised meals with calculated calories, macros, and portions.' },
+              { n: '3', icon: '🛒', title: 'Shop and cook', text: 'Use one combined grocery list and replace anything you dislike.' },
+            ].map((step) => (
+              <div key={step.n} className="rounded-2xl border border-gray-200 bg-white p-6 text-center">
+                <span className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-sm font-extrabold text-white">
+                  {step.n}
+                </span>
+                <div className="mb-1.5 text-2xl">{step.icon}</div>
+                <h3 className="mb-1 text-sm font-extrabold text-green-900">{step.title}</h3>
+                <p className="text-sm text-ink-soft">{step.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <SamplePlan />
       <WhyYourAiFood />
       <TrustSection />

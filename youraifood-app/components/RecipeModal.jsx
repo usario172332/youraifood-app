@@ -188,9 +188,14 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
           <h3 id="recipe-modal-title" className="mt-1 text-xl font-extrabold text-green-900">
             {recipe.name}
             {locked && (
-              <span title="Premium recipe" className="ml-1.5 align-middle text-base">🔒</span>
+              <span title="Premium — preview available" className="ml-1.5 align-middle text-base">🔒</span>
             )}
           </h3>
+          <div className="mt-1">
+            <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-bold ${recipe.premium ? 'bg-amber-50 text-amber-700' : 'bg-green-50 text-green-700'}`}>
+              {recipe.premium ? (locked ? '🔒 Premium — preview available' : '⭐ Premium recipe') : '🆓 Free recipe'}
+            </span>
+          </div>
 
           {reviewsData && reviewsData.count > 0 && (
             <div className="mt-1.5 flex items-center gap-1.5 text-sm">

@@ -5,7 +5,7 @@ import { useState } from 'react';
 const FAQS = [
   {
     q: 'Can I customise my meal plan?',
-    a: 'Yes. Set your dietary needs, calorie and protein targets, budget, and cook time, and swap out any meal you don’t like without touching the rest of your week.',
+    a: 'Yes. Set your dietary needs, calorie and protein targets, ingredient preference, and cook time, and swap out any meal you don’t like without touching the rest of your week.',
   },
   {
     q: 'Is there a free version?',

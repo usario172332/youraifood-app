@@ -12,7 +12,7 @@ export default function TrustSection() {
   return (
     <section className="bg-green-50 px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
-        <h2 className="text-center text-2xl font-extrabold text-green-900">Built around real recipe data</h2>
+        <h2 className="text-center text-2xl font-extrabold text-green-900">Built to produce usable plans—not random AI suggestions</h2>
         <p className="mx-auto mb-10 mt-2 max-w-xl text-center text-ink-soft">
           Every number you see comes from the recipe itself — not a guess.
         </p>

@@ -29,13 +29,14 @@ const GOAL_CARDS = [
   { value: 'maintain', icon: '🥗', label: 'Eat Healthier', benefit: 'Balanced meals without the planning.' },
 ];
 
-// Note: the third option's internal `value` stays 'premium' to match the
+// Note: internal `value`s stay 'budget' / 'balanced' / 'premium' to match the
 // backend API contract (/api/generate-plan, /api/regenerate-day) — only the
-// displayed label changes, to avoid confusion with the paid Premium plan.
+// displayed labels/icons change. This is an ingredient-preference choice, not
+// a price estimate: we don't know local grocery prices, so we never promise one.
 const BUDGET_LEVELS = [
-  { value: 'budget', icon: '💰', label: 'Budget-Friendly', desc: 'Affordable staples' },
-  { value: 'balanced', icon: '💰💰', label: 'Balanced', desc: 'Everyday variety' },
-  { value: 'premium', icon: '💰💰💰', label: 'Flexible', desc: 'Quality & variety' },
+  { value: 'budget', icon: '🥕', label: 'Economical', desc: 'Everyday staples' },
+  { value: 'balanced', icon: '⚖️', label: 'Balanced', desc: 'A mix of both' },
+  { value: 'premium', icon: '🍽️', label: 'Varied', desc: 'Greater recipe variety' },
 ];
 
 const LOADING_STEPS = [
@@ -348,7 +349,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           <span className="text-xs font-normal text-ink-soft">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
         </button>
         <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
-          We use sensible defaults if you skip this — 30 min cook time, 1 person, balanced budget, and 4 dishes/day across breakfast, lunch/dinner &amp; snack.
+          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four meals per day: breakfast, lunch, dinner, and one snack.
         </p>
 
         {showCustomize && (
@@ -364,8 +365,8 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   onChange={(e) => setForm({ ...form, family: Number(e.target.value) })}
                   className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
               </Field>
-              <Field label="Budget level" id="budgetLevelGroup">
-                <div role="radiogroup" aria-label="Budget level" className="grid grid-cols-3 gap-1.5">
+              <Field label="Ingredient preference" id="budgetLevelGroup">
+                <div role="radiogroup" aria-label="Ingredient preference" className="grid grid-cols-3 gap-1.5">
                   {BUDGET_LEVELS.map((lvl) => (
                     <button
                       key={lvl.value}
@@ -423,7 +424,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   ≈ {form.meals.map((s) => `${dishSplit[s] || 0} ${MEAL_LABELS[s]}`).join(' · ')}
                 </p>
               </Field>
-              <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">We adjust ingredient choices by preference rather than promising an exact price — grocery prices vary a lot by country and retailer. This avoids inaccurate price expectations.</p>
+              <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">Choose whether you prefer economical everyday ingredients, a balanced mix, or greater recipe variety. We don't estimate exact grocery prices, since these vary a lot by country and retailer.</p>
             </div>
 
             <div className="mb-5 grid grid-cols-2 gap-4 md:max-w-md">

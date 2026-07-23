@@ -161,10 +161,11 @@ export default function SamplePlan() {
           <span className="rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-bold text-green-700">📦 Meal-prep friendly</span>
         </p>
         <div className="mb-5 rounded-xl border border-green-100 bg-green-50 px-4 py-3">
-          <p className="text-xs font-extrabold text-green-900">🔁 Smart repetition, not random repetition</p>
+          <p className="text-xs font-extrabold text-green-900">🍳 Cook once, eat twice</p>
           <p className="mt-1 text-xs text-ink-soft">
-            Lunches and dinners are intentionally reused during the week so you cook fewer times, buy fewer
-            ingredients, and waste less food.
+            Main dishes are made in 2-serving batches — e.g. <span className="font-semibold text-green-800">Monday dinner → Tuesday lunch:</span> cook
+            two servings and save one for tomorrow. Lunches and dinners are also intentionally reused during the
+            week so you cook fewer times, buy fewer ingredients, and waste less food.
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-semibold text-green-700">
             <span className="rounded-full bg-white px-2.5 py-1">♻️ Less food waste</span>
@@ -187,15 +188,31 @@ export default function SamplePlan() {
             <tbody>
               {SAMPLE_DAYS.map((row) => {
                 const breakfast = row.breakfastDishes?.[0] ? findRecipe(row.breakfastDishes[0].id) : null;
-                const main = row.mainDishes?.[0] ? findRecipe(row.mainDishes[0].id) : null;
+                const mainDish = row.mainDishes?.[0];
+                const main = mainDish ? findRecipe(mainDish.id) : null;
                 const snack = row.snackDishes?.[0] ? findRecipe(row.snackDishes[0].id) : null;
                 const totals = dayTotals(row);
                 const isMonday = row.day === 'Monday';
+                const isPrepDay = row.day === 'Sunday';
+                const makesLeftovers = mainDish && (mainDish.servings || 1) > 1;
                 return (
                   <tr key={row.day} className={`border-t border-gray-100 ${isMonday ? 'bg-green-50/70' : ''}`}>
-                    <td className={`px-4 py-3.5 font-extrabold text-green-900 ${isMonday ? 'border-l-4 border-l-green-500' : ''}`}>{row.day}</td>
+                    <td className={`px-4 py-3.5 font-extrabold text-green-900 ${isMonday ? 'border-l-4 border-l-green-500' : ''}`}>
+                      {row.day}
+                      {isPrepDay && (
+                        <span className="ml-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">📦 Prep day</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3.5 text-ink">{breakfast?.name || '—'}</td>
-                    <td className="px-4 py-3.5 text-ink">{main?.name || '—'}</td>
+                    <td className="px-4 py-3.5 text-ink">
+                      {main?.name || '—'}
+                      {main && (
+                        <div className="mt-1 flex flex-wrap gap-1 text-[10px] font-semibold text-ink-soft">
+                          <span>🕒 {main.time}min active</span>
+                          {makesLeftovers && <span className="text-green-700">♻️ Makes 2 servings — save one</span>}
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3.5 text-ink">{snack?.name || '—'}</td>
                     <td className="px-4 py-3.5 font-bold text-green-700">{totals.cal} kcal · {totals.protein}g protein</td>
                   </tr>

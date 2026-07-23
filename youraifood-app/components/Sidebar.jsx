@@ -5,15 +5,24 @@ import Link from 'next/link';
 import AuthWidget from './AuthWidget';
 import { useAuth } from '../lib/AuthContext';
 
-const LINKS = [
-  { href: '/profile', label: '👤 My Profile' },
-  { href: '/recipes', label: '🍽️ Recipes' },
-  { href: '/#planner', label: '📅 Plan my week' },
-  { href: '/#pricing', label: '💳 Pricing' },
-];
+// Logged-out visitors see Recipes / How It Works / Pricing / Create Free Plan,
+// with Sign In available via the AuthWidget below the nav. "My Profile" only
+// appears once someone is actually signed in.
+function getLinks(user) {
+  const base = [
+    { href: '/recipes', label: '🍽️ Recipes' },
+    { href: '/#how-it-works', label: '📋 How It Works' },
+    { href: '/#pricing', label: '💳 Pricing' },
+  ];
+  if (user) {
+    return [{ href: '/profile', label: '👤 My Profile' }, ...base, { href: '/#planner', label: '📅 Plan my week' }];
+  }
+  return [...base, { href: '/#planner', label: '✨ Create Free Plan' }];
+}
 
 export default function Sidebar() {
-  const { isPremium, signInPrompt } = useAuth();
+  const { user, isPremium, signInPrompt } = useAuth();
+  const LINKS = getLinks(user);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // When something elsewhere on the site asks the visitor to sign in (e.g. an

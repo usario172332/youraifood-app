@@ -272,9 +272,9 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                   >
                     {isFav ? '❤️' : '🤍'}
                   </button>
-                  {r.premium && (
+                  {locked && (
                     <span
-                      title="Premium recipe"
+                      title="Premium — preview available"
                       className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs text-amber-950 shadow"
                     >
                       🔒
@@ -298,6 +298,9 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                     <div className="text-[11px] font-extrabold uppercase tracking-wide text-green-600">{r.meal}</div>
                     <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
                     <div className="mb-2 flex flex-wrap gap-1">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${r.premium ? 'bg-amber-50 text-amber-700' : 'bg-green-50 text-green-700'}`}>
+                        {r.premium ? '⭐ Premium recipe' : '🆓 Free recipe'}
+                      </span>
                       {highProtein && (
                         <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">💪 High Protein</span>
                       )}
@@ -329,7 +332,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 <div className="px-4 pb-3">
                   {locked ? (
                     <span className="flex items-center gap-1 text-xs font-bold text-amber-600">
-                      🔒 Preview recipe
+                      🔒 Premium — preview available
                     </span>
                   ) : (
                     <span className="block text-xs font-bold text-green-600">View recipe →</span>
