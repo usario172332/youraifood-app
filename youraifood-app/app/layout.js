@@ -5,7 +5,7 @@ import AppShell from '../components/AppShell';
 const SITE_URL = 'https://youraifood.com';
 const SITE_TITLE = 'YourAiFood — Fitness Recipes & Personalised Meal Plans';
 const SITE_DESCRIPTION =
-  'Tell us your goal, diet, ingredient preference and time. YourAiFood builds a real AI-generated weekly menu, grocery list, and nutrition breakdown.';
+  'Tell us your goal, diet, ingredient preference and time. YourAiFood builds your weekly menu, grocery list, and nutrition breakdown from our curated recipe library and calculated nutrition data.';
 const SOCIAL_IMAGE = `${SITE_URL}/recipes/nb50.jpg`;
 
 export const metadata = {
