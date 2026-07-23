@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
@@ -43,6 +43,27 @@ const SORT_OPTIONS = [
 // the full library is one click away via the "Browse Recipes" CTA below.
 const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6'];
 
+// Editorial picks used purely to make cards easier to scan while browsing —
+// not derived from any popularity/view-tracking data (the app doesn't
+// collect any), so these are clearly decorative rather than a factual claim.
+const POPULAR_IDS = new Set(['nr1', 'b2', 'nr2', 'b1']);
+const CHEFS_PICK_IDS = new Set(['nr4', 'ps1', 'b12']);
+
+// One extra "special" badge per card, in priority order. The editorial picks
+// above take priority; the rest are computed live from real recipe data so
+// they stay honest — only shown on the full library page where the matching
+// sort options ("Highest protein", "Quickest", "Lowest calories") live too.
+function specialBadge(r, superlatives, compact) {
+  if (POPULAR_IDS.has(r.id)) return { icon: '⭐', label: 'Most popular', decorative: true };
+  if (CHEFS_PICK_IDS.has(r.id)) return { icon: '👨‍🍳', label: "Chef's pick", decorative: true };
+  if (!compact && superlatives) {
+    if (r.id === superlatives.highestProtein) return { icon: '💪', label: 'Highest protein', decorative: false };
+    if (r.id === superlatives.fastest) return { icon: '⚡', label: 'Fastest', decorative: false };
+    if (r.id === superlatives.lowestCal) return { icon: '🥗', label: 'Lowest calories', decorative: false };
+  }
+  return null;
+}
+
 // Priority order for which single extra attribute badge to show alongside
 // High Protein — cards stay compact, so only the two most useful badges
 // per recipe are surfaced instead of every attribute that applies.
@@ -83,6 +104,14 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   const [sortBy, setSortBy] = useState('default');
   const [active, setActive] = useState(null);
   const [reviewSummaries, setReviewSummaries] = useState({});
+
+  const superlatives = useMemo(() => {
+    if (!RECIPES.length) return null;
+    const highestProtein = RECIPES.reduce((a, b) => (b.protein > a.protein ? b : a));
+    const fastest = RECIPES.reduce((a, b) => (b.time < a.time ? b : a));
+    const lowestCal = RECIPES.reduce((a, b) => (b.cal < a.cal ? b : a));
+    return { highestProtein: highestProtein.id, fastest: fastest.id, lowestCal: lowestCal.id };
+  }, []);
 
   useEffect(() => {
     fetch('/api/reviews?summary=1')
@@ -257,6 +286,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
             const hero = getHero(r);
             const highProtein = isHighProtein(r);
             const badge = extraBadge(r);
+            const special = specialBadge(r, superlatives, compact);
             const summary = reviewSummaries[r.id];
             return (
               <div
@@ -306,6 +336,11 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                       )}
                       {badge && (
                         <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">{badge.icon} {badge.label}</span>
+                      )}
+                      {special && (
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${special.decorative ? 'bg-amber-100 text-amber-800' : 'bg-green-50 text-green-700'}`}>
+                          {special.icon} {special.label}
+                        </span>
                       )}
                       {r.diets.map((d) => (
                         <span key={d} className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">

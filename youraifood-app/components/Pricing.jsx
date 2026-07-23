@@ -16,10 +16,10 @@ const FREE_FEATURES = [
 ];
 
 const PREMIUM_FEATURES = [
-  'Unlimited weekly meal plans — generate a new week anytime',
+  'A new week planned whenever you need one — no monthly cap',
   "Replace meals you don't like, whenever you like",
   'Regenerate individual days without starting over',
-  'Access every recipe — all 235, not just 24',
+  'Every recipe unlocked whenever you need inspiration — all 235, not just 24',
   'Adjust your calorie and protein targets whenever needed',
 ];
 

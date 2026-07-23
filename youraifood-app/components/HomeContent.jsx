@@ -9,6 +9,7 @@ import RecipeGallery from './RecipeGallery';
 import FAQ from './FAQ';
 import Pricing from './Pricing';
 import FinalCTA from './FinalCTA';
+import EmailCapture from './EmailCapture';
 import { useAuth } from '../lib/AuthContext';
 
 export default function HomeContent() {
@@ -54,7 +55,7 @@ export default function HomeContent() {
             🍽️ Your Personalised AI Meal Planner
           </span>
           <h1 className="mx-auto mb-4 max-w-3xl text-4xl font-extrabold leading-tight text-green-900 sm:text-5xl">
-            Never wonder what to cook <span className="text-green-600">again</span>.
+            Your entire week of eating, planned in <span className="text-green-600">60 seconds</span>.
           </h1>
           <p className="mx-auto mb-8 max-w-xl text-lg text-ink-soft">
             A complete personalised weekly meal plan, built from our macro-tracked recipe library and matched
@@ -71,6 +72,35 @@ export default function HomeContent() {
             <span>Create your free meal plan without a credit card</span>
             <span className="text-gray-300">·</span>
             <span>Ready in under a minute</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 pb-10">
+        <div className="mx-auto max-w-[880px]">
+          <h2 className="mb-5 text-center text-lg font-extrabold text-green-900">
+            Everything meal planning normally costs you — handled automatically
+          </h2>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {[
+              'No manual calorie or macro counting',
+              'One combined shopping list, every week',
+              'Recipes matched to your goal — weight loss, muscle gain, or eating healthier',
+              'Swap out any meal without rebuilding your week',
+              'Scales to any household size, from 1 to 8 people',
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-2 rounded-xl bg-green-50 px-4 py-2.5 text-sm font-semibold text-ink">
+                <span className="mt-0.5 text-green-600">✔</span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-xs font-bold text-ink-soft">
+            <span>📚 235 macro-tracked recipes</span>
+            <span className="text-gray-300">·</span>
+            <span>⏱️ Plans generated in under a minute</span>
+            <span className="text-gray-300">·</span>
+            <span>🆓 5 free plans every month, no card required</span>
           </div>
         </div>
       </section>
@@ -108,6 +138,7 @@ export default function HomeContent() {
       <TrustSection />
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
       <Pricing session={session} isPremium={isPremium} />
+      <EmailCapture />
       <FAQ />
       <FinalCTA />
     </>

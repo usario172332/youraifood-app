@@ -15,6 +15,10 @@ export default function WhyYourAiFood() {
           <p className="mx-auto mt-3 text-ink-soft">
             A dedicated platform built for meal planning — not a chatbot you have to steer.
           </p>
+          <p className="mx-auto mt-2 text-sm text-ink-soft">
+            The AI selects and balances recipes from our recipe library so your calorie and protein targets are hit
+            automatically — no prompting or trial and error required.
+          </p>
         </div>
 
         <div className="mt-10 overflow-hidden rounded-2xl border border-gray-200 bg-white">
