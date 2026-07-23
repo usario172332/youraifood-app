@@ -138,7 +138,7 @@ export default function Pricing({ session, isPremium }) {
               Create My Free Meal Plan →
             </a>
           </div>
-          <div className="relative flex flex-col rounded-2xl border-[1.5px] border-green-600 p-7 shadow-lg">
+          <div className="relative flex flex-col rounded-2xl border-[1.5px] border-green-600 p-7 shadow-xl sm:-mt-3">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-amber-950">
               MOST POPULAR
             </span>

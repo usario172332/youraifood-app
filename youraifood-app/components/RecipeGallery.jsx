@@ -362,7 +362,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                     </div>
                     <div className="grid grid-cols-3 gap-1 border-t border-dashed border-gray-100 pt-2 text-center">
                       <div>
-                        <div className="text-xs font-extrabold text-green-900">{r.protein}g</div>
+                        <div className="text-sm font-extrabold text-green-700">{r.protein}g</div>
                         <div className="text-[10px] text-ink-soft">Protein</div>
                       </div>
                       <div>

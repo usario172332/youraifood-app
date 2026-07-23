@@ -253,7 +253,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
   }
 
   return (
-    <div id="planner" className="rounded-[20px] border border-gray-200 bg-white p-8 text-left shadow-xl">
+    <div id="planner" className="rounded-[20px] border border-gray-300 bg-white p-8 text-left shadow-2xl">
       <h2 className="mb-1 text-xl font-extrabold text-green-900">Start building your plan</h2>
       <p className="mb-5 text-sm text-ink-soft">Choose your goal and diet. We'll handle the rest.</p>
 

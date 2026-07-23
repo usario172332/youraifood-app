@@ -67,7 +67,7 @@ export default function HomeContent() {
           </p>
           <button
             onClick={scrollToPlanner}
-            className="rounded-full bg-green-600 px-7 py-3.5 text-base font-bold text-white shadow-sm transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0"
+            className="rounded-full bg-green-600 px-8 py-4 text-base font-extrabold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0"
           >
             Create My Free Meal Plan →
           </button>
@@ -108,7 +108,7 @@ export default function HomeContent() {
         </div>
       </section>
 
-      <section className="px-6 pb-10 pt-2">
+      <section className="px-6 pb-14 pt-4">
         <div className="mx-auto max-w-[1120px] text-center">
           <Planner user={user} session={session} isPremium={isPremium} favorites={favorites} onToggleFavorite={toggleFavorite} />
         </div>
