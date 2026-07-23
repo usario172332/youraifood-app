@@ -69,7 +69,7 @@ export default function HomeContent() {
             onClick={scrollToPlanner}
             className="rounded-full bg-green-600 px-8 py-4 text-base font-extrabold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0"
           >
-            Create My Free Meal Plan →
+            Generate My Week →
           </button>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-sm font-semibold text-ink-soft">
             <span>Create your free meal plan without a credit card</span>
@@ -136,7 +136,7 @@ export default function HomeContent() {
         </div>
       </section>
 
-      <InlineCTA label="Create My Free Meal Plan" />
+      <InlineCTA label="Generate My Week" />
       <WhoIsThisFor />
       <TypicalWeek />
       <SamplePlan />

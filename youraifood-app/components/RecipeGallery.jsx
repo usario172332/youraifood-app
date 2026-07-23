@@ -330,9 +330,9 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
                   {r.image ? (
-                    <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-20 w-full object-cover" />
+                    <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-[88px] w-full object-cover" />
                   ) : (
-                    <div className={`flex h-20 items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
+                    <div className={`flex h-[88px] items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
                       {hero.emoji}
                     </div>
                   )}

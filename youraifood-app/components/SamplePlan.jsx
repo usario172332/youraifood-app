@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { findRecipe } from '../lib/recipes';
+import { RECIPES, findRecipe } from '../lib/recipes';
 
 // A realistic 7-day plan built entirely from real recipes — nutrition
 // and the grocery list below are computed live from real recipe data,
@@ -19,6 +19,19 @@ const SAMPLE_DAYS = [
 ];
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const FAMILY_SIZE = 1;
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+// Alternate example weeks a visitor can flip through without signing up.
+// Each theme filters/sorts the SAME real recipe catalogue by a real field
+// (protein, calories, cost, diet tag) — nothing here is invented, it's just
+// a different honest slice of the actual 235-recipe library.
+const THEMES = [
+  { key: 'protein', label: 'High Protein', icon: '💪', sortBy: 'protein', sortDir: 'desc', family: 1 },
+  { key: 'weightloss', label: 'Weight Loss', icon: '🔥', sortBy: 'cal', sortDir: 'asc', family: 1 },
+  { key: 'vegetarian', label: 'Vegetarian', icon: '🥗', filterDiet: 'vegetarian', family: 1 },
+  { key: 'family', label: 'Family', icon: '👨‍👩‍👧', family: 4 },
+  { key: 'budget', label: 'Budget Friendly', icon: '💶', sortBy: 'cost', sortDir: 'asc', family: 1 },
+];
 
 function groceryKey(name) {
   const cleaned = name
@@ -31,17 +44,58 @@ function groceryKey(name) {
   return titled;
 }
 
-function buildGroceryList() {
+// Builds a themed candidate pool for one meal slot from the real recipe
+// catalogue — free recipes only, so the public example never shows a
+// locked/blurred card, filtered by diet if the theme calls for it, then
+// sorted by whatever real field the theme cares about (or a stable id
+// order by default, so results are deterministic).
+function buildPool(mealLabel, theme) {
+  let pool = RECIPES.filter((r) => r.meal === mealLabel && !r.premium);
+  if (theme.filterDiet) {
+    const withDiet = pool.filter((r) => r.diets.includes(theme.filterDiet));
+    if (withDiet.length) pool = withDiet;
+  }
+  if (theme.sortBy) {
+    const dir = theme.sortDir === 'asc' ? 1 : -1;
+    pool = [...pool].sort((a, b) => (a[theme.sortBy] - b[theme.sortBy]) * dir);
+  } else {
+    pool = [...pool].sort((a, b) => a.id.localeCompare(b.id));
+  }
+  return pool;
+}
+
+// Lays a themed pool out across a 7-day week using the same "cook once,
+// eat twice" pattern as the default example — a small rotating set of
+// real recipes rather than a different dish every single day.
+function buildThemeDays(theme) {
+  const breakfastPool = buildPool('Breakfast', theme);
+  const mainPool = buildPool('Lunch & Dinner', theme);
+  const snackPool = buildPool('Snack', theme);
+  if (!breakfastPool.length || !mainPool.length || !snackPool.length) return null;
+
+  const breakfastCycle = breakfastPool.slice(0, Math.min(2, breakfastPool.length));
+  const mainCycle = mainPool.slice(0, Math.min(3, mainPool.length));
+  const snackCycle = snackPool.slice(0, Math.min(2, snackPool.length));
+
+  return DAY_NAMES.map((day, i) => ({
+    day,
+    breakfastDishes: [{ id: breakfastCycle[i % breakfastCycle.length].id, servings: 1 }],
+    mainDishes: [{ id: mainCycle[Math.floor(i / 2) % mainCycle.length].id, servings: 2 }],
+    snackDishes: [{ id: snackCycle[i % snackCycle.length].id, servings: 1 }],
+  }));
+}
+
+function buildGroceryList(days, familySize) {
   const groceries = {};
   const addIngredients = (recipe, multiplier) => {
     if (!recipe) return;
     recipe.ingredients.forEach((ing) => {
       const key = groceryKey(ing.n);
       if (!groceries[key]) groceries[key] = { qty: 0, unit: ing.u, cat: ing.cat };
-      groceries[key].qty += ing.q * FAMILY_SIZE * multiplier;
+      groceries[key].qty += ing.q * familySize * multiplier;
     });
   };
-  SAMPLE_DAYS.forEach((row) => {
+  days.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
       (row[`${slot}Dishes`] || []).forEach((dish) => {
         addIngredients(findRecipe(dish.id), dish.servings || 1);
@@ -51,7 +105,7 @@ function buildGroceryList() {
   return groceries;
 }
 
-function buildStats() {
+function buildStats(days) {
   let totalProtein = 0;
   let totalCal = 0;
   let totalMeals = 0;
@@ -63,7 +117,7 @@ function buildStats() {
     usedRecipeIds.add(recipe.id);
     totalMeals += 1;
   };
-  SAMPLE_DAYS.forEach((row) => {
+  days.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
       (row[`${slot}Dishes`] || []).forEach((dish) => {
         addRecipe(findRecipe(dish.id), dish.servings || 1);
@@ -71,8 +125,8 @@ function buildStats() {
     });
   });
   return {
-    avgProtein: Math.round(totalProtein / 7),
-    avgCal: Math.round(totalCal / 7),
+    avgProtein: Math.round(totalProtein / days.length),
+    avgCal: Math.round(totalCal / days.length),
     distinctRecipes: usedRecipeIds.size,
     totalMeals,
   };
@@ -97,8 +151,19 @@ const PREVIEW_ITEMS_PER_CATEGORY = 4;
 
 export default function SamplePlan() {
   const [groceriesExpanded, setGroceriesExpanded] = useState(false);
-  const groceries = buildGroceryList();
-  const stats = buildStats();
+  const [themeIndex, setThemeIndex] = useState(-1); // -1 = original balanced example
+
+  const currentTheme = themeIndex >= 0 ? THEMES[themeIndex] : null;
+  const activeDays = currentTheme ? buildThemeDays(currentTheme) || SAMPLE_DAYS : SAMPLE_DAYS;
+  const activeFamily = currentTheme ? currentTheme.family : FAMILY_SIZE;
+
+  function cycleTheme() {
+    setGroceriesExpanded(false);
+    setThemeIndex((i) => (i + 1 >= THEMES.length ? -1 : i + 1));
+  }
+
+  const groceries = buildGroceryList(activeDays, activeFamily);
+  const stats = buildStats(activeDays);
 
   const byCat = {};
   Object.entries(groceries).forEach(([name, info]) => {
@@ -116,7 +181,7 @@ export default function SamplePlan() {
   })).filter((b) => b.items.length);
   const totalItems = Object.values(byCat).reduce((sum, items) => sum + items.length, 0);
   let rawIngredientCount = 0;
-  SAMPLE_DAYS.forEach((row) => {
+  activeDays.forEach((row) => {
     MEAL_SLOTS.forEach((slot) => {
       (row[`${slot}Dishes`] || []).forEach((dish) => {
         const r = findRecipe(dish.id);
@@ -129,7 +194,7 @@ export default function SamplePlan() {
   // real, computed from the actual sample data — so we can flag genuinely
   // reused recipes (and therefore reused ingredients) instead of a made-up label.
   const mainDishCounts = {};
-  SAMPLE_DAYS.forEach((row) => {
+  activeDays.forEach((row) => {
     const id = row.mainDishes?.[0]?.id;
     if (id) mainDishCounts[id] = (mainDishCounts[id] || 0) + 1;
   });
@@ -142,13 +207,18 @@ export default function SamplePlan() {
         </span>
         <h2 className="text-center text-2xl font-extrabold text-green-900">See exactly what you'll get</h2>
         <p className="mb-3 text-center text-ink-soft">Computed live from real recipes — not mocked up.</p>
-        <p className="mb-8 text-center text-xs font-semibold uppercase tracking-wide text-amber-600">
+        <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-amber-600">
           Example plan for illustration — your real plan is personalised to your goals
         </p>
+        <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
+          <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-extrabold text-green-700">
+            {currentTheme ? `${currentTheme.icon} ${currentTheme.label} example` : '⚖️ Balanced example'}
+          </span>
+        </div>
 
         <div className="mb-4 grid grid-cols-2 gap-3.5 md:grid-cols-4">
           <div className="rounded-2xl bg-green-900 px-4 py-5">
-            <div className="text-3xl font-extrabold text-white">{SAMPLE_DAYS.length}</div>
+            <div className="text-3xl font-extrabold text-white">{activeDays.length}</div>
             <div className="text-sm font-semibold text-green-100">Days planned</div>
           </div>
           <div className="rounded-2xl bg-green-900 px-4 py-5">
@@ -202,7 +272,7 @@ export default function SamplePlan() {
               </tr>
             </thead>
             <tbody>
-              {SAMPLE_DAYS.map((row) => {
+              {activeDays.map((row) => {
                 const breakfast = row.breakfastDishes?.[0] ? findRecipe(row.breakfastDishes[0].id) : null;
                 const mainDish = row.mainDishes?.[0];
                 const main = mainDish ? findRecipe(mainDish.id) : null;
@@ -247,6 +317,19 @@ export default function SamplePlan() {
             Don't like Tuesday's meals?{' '}
             <span className="font-extrabold text-green-700">Replace only Tuesday</span> without rebuilding your
             entire week.
+          </p>
+        </div>
+
+        <div className="mt-5 text-center">
+          <button
+            type="button"
+            onClick={cycleTheme}
+            className="rounded-full border-[1.5px] border-green-600 bg-white px-5 py-2.5 text-sm font-bold text-green-700 transition duration-200 hover:-translate-y-px hover:bg-green-50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+          >
+            🔁 Generate another sample week
+          </button>
+          <p className="mt-2 text-xs text-ink-soft">
+            High Protein · Weight Loss · Vegetarian · Family · Budget Friendly — no account needed
           </p>
         </div>
 

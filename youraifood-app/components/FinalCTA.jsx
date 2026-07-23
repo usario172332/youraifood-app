@@ -19,7 +19,7 @@ export default function FinalCTA() {
             onClick={scrollToPlanner}
             className="rounded-full bg-white px-7 py-3.5 text-base font-bold text-green-900 shadow-sm transition duration-200 hover:-translate-y-px hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900"
           >
-            Create My Free Meal Plan →
+            Generate My Week →
           </button>
           <p className="text-sm font-semibold text-green-100/80">
             Free forever plan available. Upgrade only if you need unlimited planning.

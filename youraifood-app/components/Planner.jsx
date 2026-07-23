@@ -259,9 +259,14 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
 
       {prefilled && (
         <div className="mb-4 rounded-lg bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-800">
-          ✓ Calorie & protein targets pre-filled from your macro calculator results.
+          ✓ Calorie &amp; protein targets pre-filled from your macro calculator results.
         </div>
       )}
+
+      <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-extrabold text-green-700">
+        <span>Start here — pick a goal</span>
+        <span className="inline-block animate-bounce">👇</span>
+      </div>
 
       <div className="mb-5">
         <label className="mb-2 block text-[13px] font-bold text-ink">Your goal</label>
@@ -272,8 +277,10 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
               type="button"
               onClick={() => setForm({ ...form, goal: g.value })}
               aria-pressed={form.goal === g.value}
-              className={`rounded-2xl border-2 p-4 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ${
-                form.goal === g.value ? 'border-green-600 bg-green-50 shadow-sm' : 'border-gray-200 hover:border-green-300'
+              className={`cursor-pointer rounded-2xl border-2 p-4 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ${
+                form.goal === g.value
+                  ? 'border-green-600 bg-green-50 shadow-sm'
+                  : 'border-gray-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md'
               }`}
             >
               <div className="mb-1.5 text-2xl">{g.icon}</div>
@@ -332,9 +339,12 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           disabled={loading}
           className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          {loading ? LOADING_STEPS[loadingStep] : 'Create My Free Meal Plan →'}
+          {loading ? LOADING_STEPS[loadingStep] : 'Generate My Week →'}
         </button>
       </div>
+      <p className="text-right text-[11px] font-semibold text-ink-soft">
+        ✓ Every plan includes automatically calculated macros
+      </p>
 
       {error && <p className="mt-2 text-sm font-semibold text-amber-700">{error}</p>}
 

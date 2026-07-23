@@ -135,10 +135,10 @@ export default function Pricing({ session, isPremium }) {
               }}
               className="block w-full rounded-full bg-green-600 py-2.5 text-center text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
             >
-              Create My Free Meal Plan →
+              Generate My Week →
             </a>
           </div>
-          <div className="relative flex flex-col rounded-2xl border-[1.5px] border-green-600 p-7 shadow-xl sm:-mt-3">
+          <div className="relative flex flex-col rounded-2xl border-2 border-green-600 p-7 shadow-2xl sm:-mt-3">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-amber-950">
               MOST POPULAR
             </span>
