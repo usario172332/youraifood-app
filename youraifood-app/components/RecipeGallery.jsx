@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
-import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero } from '../lib/recipeMeta';
+import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero, isMealPrepFriendly, isFreezerFriendly, isOnePan, isBeginnerFriendly, isQuick } from '../lib/recipeMeta';
 
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
@@ -12,8 +12,20 @@ const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'pre
 // Hand-picked homepage teaser — a compact mix of free recipes to prove
 // quality, plus a couple of premium ones (shown locked/blurred) to create
 // FOMO toward upgrading. Kept short on purpose so the homepage stays light;
-// the full library is one click away via the "Explore more" CTA below.
+// the full library is one click away via the "Browse Recipes" CTA below.
 const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6'];
+
+// Priority order for which single extra attribute badge to show alongside
+// High Protein — cards stay compact, so only the two most useful badges
+// per recipe are surfaced instead of every attribute that applies.
+function extraBadge(r) {
+  if (isQuick(r)) return { label: 'Under 20 Minutes', icon: '⏱️' };
+  if (isOnePan(r)) return { label: 'One Pan', icon: '🍳' };
+  if (isBeginnerFriendly(r)) return { label: 'Beginner Friendly', icon: '🌱' };
+  if (isMealPrepFriendly(r)) return { label: 'Meal Prep Friendly', icon: '📦' };
+  if (isFreezerFriendly(r)) return { label: 'Freezer Friendly', icon: '❄️' };
+  return null;
+}
 
 export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite, compact = false }) {
   const [meal, setMeal] = useState('all');
@@ -33,10 +45,10 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
     filter === 'all'
       ? byMeal
       : filter === 'premium'
-        ? byMeal.filter((r) => r.premium)
-        : filter === 'favorites'
-          ? byMeal.filter((r) => favorites?.has(r.id))
-          : byMeal.filter((r) => r.diets.includes(filter));
+      ? byMeal.filter((r) => r.premium)
+      : filter === 'favorites'
+      ? byMeal.filter((r) => favorites?.has(r.id))
+      : byMeal.filter((r) => r.diets.includes(filter));
 
   const list = compact
     ? TEASER_IDS.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean)
@@ -123,6 +135,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
             const isFav = favorites?.has(r.id);
             const hero = getHero(r);
             const highProtein = isHighProtein(r);
+            const badge = extraBadge(r);
             const summary = reviewSummaries[r.id];
             return (
               <div
@@ -143,6 +156,11 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                       PREMIUM
                     </span>
                   )}
+                  {summary && summary.count > 0 && (
+                    <span className="rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-extrabold text-amber-600 shadow">
+                      ⭐ {summary.average}
+                    </span>
+                  )}
                 </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
                   {r.image ? (
@@ -159,13 +177,16 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                       {highProtein && (
                         <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">💪 High Protein</span>
                       )}
+                      {badge && (
+                        <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">{badge.icon} {badge.label}</span>
+                      )}
                       {r.diets.map((d) => (
                         <span key={d} className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">
                           {d}
                         </span>
                       ))}
                     </div>
-                    <div className="grid grid-cols-4 gap-1 border-t border-dashed border-gray-100 pt-2 text-center">
+                    <div className="grid grid-cols-3 gap-1 border-t border-dashed border-gray-100 pt-2 text-center">
                       <div>
                         <div className="text-xs font-extrabold text-green-900">{r.protein}g</div>
                         <div className="text-[10px] text-ink-soft">Protein</div>
@@ -177,12 +198,6 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                       <div>
                         <div className="text-xs font-extrabold text-green-900">{r.time}m</div>
                         <div className="text-[10px] text-ink-soft">Time</div>
-                      </div>
-                      <div>
-                        <div className="text-xs font-extrabold text-green-900">
-                          {summary && summary.count > 0 ? `⭐${summary.average}` : '—'}
-                        </div>
-                        <div className="text-[10px] text-ink-soft">Rating</div>
                       </div>
                     </div>
                   </div>
@@ -207,7 +222,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
               href="/recipes"
               className="inline-block rounded-full border border-white/25 bg-white/10 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900"
             >
-              Explore hundreds more recipes →
+              Browse Recipes →
             </Link>
           </div>
         )}
@@ -224,13 +239,13 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 href="/recipes"
                 className="rounded-full bg-white px-6 py-3 text-sm font-bold text-green-900 transition hover:bg-gray-100"
               >
-                Browse all {RECIPES.length} recipes →
+                Browse Recipes →
               </Link>
               <button
                 onClick={() => goTo('pricing')}
                 className="rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-green-400"
               >
-                Go Premium — €7.77/mo
+                See Premium plans →
               </button>
             </div>
             <p className="mt-3 text-center text-xs text-white/60">7 days free · Cancel anytime, no fees</p>
