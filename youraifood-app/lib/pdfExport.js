@@ -65,9 +65,7 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
       return dishes
         .map(
           (d) =>
-            `${d.recipe.name}\n${Math.round(d.recipe.protein * d.servings)}g protein · ${d.recipe.time}min · €${(
-              d.recipe.cost * d.servings
-            ).toFixed(2)}`
+            `${d.recipe.name}\n${Math.round(d.recipe.protein * d.servings)}g protein · ${d.recipe.time}min`
         )
         .join('\n\n');
     });
