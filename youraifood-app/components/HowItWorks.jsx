@@ -23,7 +23,7 @@ const BENEFITS = [
 
 export default function HowItWorks() {
   return (
-    <section className="bg-gray-50 px-6 py-16">
+    <section id="how-it-works" className="bg-gray-50 px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-green-900">Why people choose YourAiFood</h2>
         <p className="mb-10 text-center text-ink-soft">Less deciding, less searching, more just... eating well.</p>
