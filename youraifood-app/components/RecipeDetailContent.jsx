@@ -247,7 +247,6 @@ export default function RecipeDetailContent({ recipe }) {
 
         <div className="mt-5 flex gap-6 text-sm text-ink-soft">
           <div><b className="block text-base text-green-900">{recipe.time} min</b>cook time</div>
-          <div><b className="block text-base text-green-900">€{recipe.cost.toFixed(2)}</b>per serving</div>
         </div>
 
         <div className="mt-8 mb-2 flex items-center justify-between">
