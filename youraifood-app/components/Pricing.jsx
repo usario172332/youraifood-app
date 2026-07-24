@@ -10,7 +10,7 @@ const YEARLY_SAVINGS_PCT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) 
 
 const FREE_FEATURES = [
   'Access to 24 free recipes',
-  '5 personalised weekly meal plans every month',
+  '3 personalised weekly meal plans every month',
   'Full grocery lists for every plan',
   'No credit card required',
 ];
@@ -124,7 +124,7 @@ export default function Pricing({ session, isPremium }) {
               ))}
             </ul>
             <p className="mb-6 text-[11px] text-ink-soft">
-              Each new weekly plan you generate — including regenerating a full week — counts as one of your 5
+              Each new weekly plan you generate — including regenerating a full week — counts as one of your 3
               monthly plans. Replacing a single day doesn't count against this limit.
             </p>
             <a
