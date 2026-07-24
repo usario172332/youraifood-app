@@ -124,8 +124,8 @@ export default function Pricing({ session, isPremium }) {
               ))}
             </ul>
             <p className="mb-6 text-[11px] text-ink-soft">
-              Each new weekly plan you generate — including regenerating a full week — counts as one of your 3
-              monthly plans. Replacing a single day doesn't count against this limit.
+              Each new weekly plan you generate — including regenerating a full week or a single day — counts as one of your 3
+              monthly plans.
             </p>
             <a
               href="#planner"
