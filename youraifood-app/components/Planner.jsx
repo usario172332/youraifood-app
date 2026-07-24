@@ -344,7 +344,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       </div>
       <p className="text-right text-[11px] font-semibold text-ink-soft">
         ✓ Every plan includes automatically calculated macros
-          {!isPremium && ' · This will use 1 of your 5 free monthly plans'}
+          {!isPremium && ' · This will use 1 of your 3 free monthly plans'}
       </p>
 
       {error && <p className="mt-2 text-sm font-semibold text-amber-700">{error}</p>}
