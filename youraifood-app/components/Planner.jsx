@@ -344,6 +344,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       </div>
       <p className="text-right text-[11px] font-semibold text-ink-soft">
         ✓ Every plan includes automatically calculated macros
+          {!isPremium && ' · This will use 1 of your 5 free monthly plans'}
       </p>
 
       {error && <p className="mt-2 text-sm font-semibold text-amber-700">{error}</p>}
@@ -359,7 +360,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           <span className="text-xs font-normal text-ink-soft">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
         </button>
         <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
-          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four meals per day: breakfast, lunch, dinner, and one snack.
+          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four eating occasions a day (breakfast, lunch, dinner and a snack), typically built from fewer dishes since lunch and dinner often share a batch-cooked main.
         </p>
 
         {showCustomize && (
