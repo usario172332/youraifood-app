@@ -67,12 +67,6 @@ export default function PrivacyPage() {
           <p>Questions about this policy or your data? Contact us at <b>privacy@youraifood.com</b>.</p>
         </section>
       </div>
-
-      <p className="mt-12 rounded-xl bg-green-50 p-4 text-xs text-green-900">
-        This policy is a general template and hasn't been reviewed by a lawyer. Before relying on it for
-        a live, paying product — especially one serving EU users — it's worth having it checked by a
-        professional to make sure it accurately reflects your actual practices and meets GDPR requirements.
-      </p>
     </div>
   );
 }
