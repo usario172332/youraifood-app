@@ -14,7 +14,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="mb-2 text-lg font-bold text-green-900">1. Who we are</h2>
           <p>
-            YourAiFood ("we", "us") operates youraifood.com, a service that generates personalized meal
+            YourAiFood ("we", "us") operates youraifood.com, a service that generates personalised meal
             plans using AI. This policy explains what personal data we collect, why, and how you can
             control it.
           </p>
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
 
         <section>
           <h2 className="mb-2 text-lg font-bold text-green-900">3. How we use your data</h2>
-          <p>We use your data to: generate your personalized meal plans, maintain your account and subscription status, enforce free-tier usage limits, process payments, and improve the service. We do not sell your personal data.</p>
+          <p>We use your data to: generate your personalised meal plans, maintain your account and subscription status, enforce free-tier usage limits, process payments, and improve the service. We do not sell your personal data.</p>
         </section>
 
         <section>
