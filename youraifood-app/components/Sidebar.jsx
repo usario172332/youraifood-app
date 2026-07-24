@@ -71,7 +71,18 @@ export default function Sidebar() {
             <a
               key={l.href}
               href={l.href}
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => {
+                              setMobileOpen(false);
+                              if (l.href.startsWith('/#') && window.location.pathname === '/') {
+                                                const targetId = l.href.slice(2);
+                                                const targetEl = document.getElementById(targetId);
+                                                if (targetEl) {
+                                                                    e.preventDefault();
+                                                                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                                    window.history.pushState(null, '', l.href);
+                                                }
+                              }
+              }}
               className="rounded-lg px-3 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
             >
               {l.label}
