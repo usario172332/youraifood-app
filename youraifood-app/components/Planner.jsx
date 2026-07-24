@@ -398,6 +398,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                     </button>
                   ))}
                 </div>
+                <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">Choose whether you prefer economical everyday ingredients, a balanced mix, or greater recipe variety. We don't estimate exact grocery prices, since these vary a lot by country and retailer.</p>
               </Field>
               <Field label="Dishes per day" hint="(across meals)">
                 <div className="flex flex-wrap gap-1.5">
@@ -436,7 +437,6 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   ≈ {form.meals.map((s) => `${dishSplit[s] || 0} ${MEAL_LABELS[s]}`).join(' · ')}
                 </p>
               </Field>
-              <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">Choose whether you prefer economical everyday ingredients, a balanced mix, or greater recipe variety. We don't estimate exact grocery prices, since these vary a lot by country and retailer.</p>
             </div>
 
             <div className="mb-5 grid grid-cols-2 gap-4 md:max-w-md">
