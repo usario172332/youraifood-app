@@ -21,6 +21,7 @@ const FAT_PCT_OF_CALORIES = 0.25;
 
 export default function MacroCalculator() {
   const [form, setForm] = useState(DEFAULT_FORM);
+  const [touched, setTouched] = useState(false);
 
   const targets = useMemo(
     () =>
@@ -69,7 +70,7 @@ export default function MacroCalculator() {
               max={250}
               step={1}
               value={form.weight}
-              onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
+              onChange={(e) => { setForm({ ...form, weight: Number(e.target.value) }); setTouched(true); }}
               className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
             />
           </Field>
@@ -80,7 +81,7 @@ export default function MacroCalculator() {
               max={230}
               step={1}
               value={form.height}
-              onChange={(e) => setForm({ ...form, height: Number(e.target.value) })}
+              onChange={(e) => { setForm({ ...form, height: Number(e.target.value) }); setTouched(true); }}
               className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
             />
           </Field>
@@ -91,14 +92,14 @@ export default function MacroCalculator() {
               max={100}
               step={1}
               value={form.age}
-              onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
+              onChange={(e) => { setForm({ ...form, age: Number(e.target.value) }); setTouched(true); }}
               className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
             />
           </Field>
           <Field label="Sex">
             <select
               value={form.sex}
-              onChange={(e) => setForm({ ...form, sex: e.target.value })}
+              onChange={(e) => { setForm({ ...form, sex: e.target.value }); setTouched(true); }}
               className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
             >
               <option value="male">Male</option>
@@ -108,7 +109,7 @@ export default function MacroCalculator() {
           <Field label="Activity">
             <select
               value={form.activityLevel}
-              onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
+              onChange={(e) => { setForm({ ...form, activityLevel: e.target.value }); setTouched(true); }}
               className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
             >
               {ACTIVITY_OPTIONS.map((a) => (
@@ -122,17 +123,24 @@ export default function MacroCalculator() {
 
         <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-green-700">Your goal</h3>
         <div className="mb-8 flex flex-wrap gap-2">
-          <GoalChip label="🔥 Lose weight" active={form.goal === 'lose'} onClick={() => setForm({ ...form, goal: 'lose' })} />
-          <GoalChip label="💪 Build muscle" active={form.goal === 'muscle'} onClick={() => setForm({ ...form, goal: 'muscle' })} />
+          <GoalChip label="🔥 Lose weight" active={form.goal === 'lose'} onClick={() => { setForm({ ...form, goal: 'lose' }); setTouched(true); }} />
+          <GoalChip label="💪 Build muscle" active={form.goal === 'muscle'} onClick={() => { setForm({ ...form, goal: 'muscle' }); setTouched(true); }} />
           <GoalChip
             label="⚖️ Maintain / general health"
             active={form.goal === 'maintain'}
-            onClick={() => setForm({ ...form, goal: 'maintain' })}
+            onClick={() => { setForm({ ...form, goal: 'maintain' }); setTouched(true); }}
           />
         </div>
 
         <div className="rounded-xl bg-green-50 p-5">
-          <b className="mb-3 block text-sm text-green-900">🔢 Your daily targets</b>
+          <b className="mb-3 block text-sm text-green-900">
+            🔢 {touched ? 'Your daily targets' : 'Example daily targets'}
+          </b>
+          {!touched && (
+            <p className="-mt-2 mb-3 text-xs text-green-700">
+              Based on placeholder stats — enter your own above for a personalised target.
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <MacroStat label="Calories" value={targets.calorieTarget} unit="kcal" />
             <MacroStat label="Protein" value={targets.proteinTarget} unit="g" />
