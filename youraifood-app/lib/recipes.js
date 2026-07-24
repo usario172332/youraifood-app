@@ -756,3 +756,314 @@ export function catalogForPrompt(includePremium = false) {
     cal: r.cal,
   }));
 }
+
+
+// Differentiated ingredient/method variants for High-Protein recipes, so each reads as a
+// genuinely different dish from its base-recipe counterpart rather than a portion-scaled copy.
+const HIGH_PROTEIN_VARIANTS = {
+    nr8: {
+          ingredients: [
+            { n: 'Shrimp', q: 250, u: 'g', cat: 'Protein' },
+            { n: 'Arborio rice', q: 45, u: 'g', cat: 'Pantry' },
+            { n: 'Vegetable stock', q: 350, u: 'ml', cat: 'Pantry' },
+            { n: 'Peas', q: 70, u: 'g', cat: 'Produce' },
+            { n: 'Lemon zest', q: 3, u: 'g', cat: 'Produce' },
+            { n: 'Fresh dill', q: 5, u: 'g', cat: 'Produce' },
+            { n: 'Garlic', q: 5, u: 'g', cat: 'Produce' },
+            { n: 'Chilli flakes', q: 1, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Sauté the garlic in a splash of stock, then add the rice and toast for 1-2 minutes.',
+                  'Add the stock gradually, stirring often, for about 16-18 minutes until nearly tender.',
+                  'Stir in the peas and shrimp for the final 3-4 minutes until the shrimp is opaque.',
+                  'Finish with lemon zest, dill and a pinch of chilli flakes, then serve.',
+                ],
+          protein: 45, cal: 415, carbs: 40, fat: 7,
+    },
+    nr14: {
+          ingredients: [
+            { n: 'Chicken breast', q: 280, u: 'g', cat: 'Protein' },
+            { n: 'Greek yogurt (0%)', q: 100, u: 'g', cat: 'Dairy/Alt' },
+            { n: 'Garlic', q: 10, u: 'g', cat: 'Produce' },
+            { n: 'Sundried tomatoes', q: 25, u: 'g', cat: 'Produce' },
+            { n: 'Mushrooms', q: 80, u: 'g', cat: 'Produce' },
+            { n: 'Fresh basil', q: 5, u: 'g', cat: 'Produce' },
+            { n: 'Chicken stock', q: 60, u: 'ml', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Season and pan-sear the chicken breast until golden and cooked through, then set aside.',
+                  'In the same pan, sauté the garlic and mushrooms until softened.',
+                  'Add the chicken stock and sundried tomatoes, then stir in the Greek yogurt off the heat to keep it creamy.',
+                  'Return the chicken to the pan, scatter with fresh basil and serve.',
+                ],
+          protein: 52, cal: 405, carbs: 17, fat: 13,
+    },
+    nr17: {
+          ingredients: [
+            { n: 'Chicken breast', q: 260, u: 'g', cat: 'Protein' },
+            { n: 'Greek yogurt', q: 80, u: 'g', cat: 'Dairy/Alt' },
+            { n: 'Tomato passata', q: 100, u: 'g', cat: 'Pantry' },
+            { n: 'Bell pepper', q: 60, u: 'g', cat: 'Produce' },
+            { n: 'Garam masala', q: 6, u: 'g', cat: 'Pantry' },
+            { n: 'Garlic', q: 5, u: 'g', cat: 'Produce' },
+            { n: 'Ginger', q: 5, u: 'g', cat: 'Produce' },
+            { n: 'Cooked rice', q: 90, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Marinate the chicken in half the Greek yogurt with garam masala, garlic and ginger for a few minutes.',
+                  'Sear the chicken until browned, then add the bell pepper and tomato passata and simmer for 10-12 minutes.',
+                  'Stir in the remaining Greek yogurt off the heat for a creamy finish.',
+                  'Serve over the cooked rice.',
+                ],
+          protein: 48, cal: 435, carbs: 34, fat: 11,
+    },
+    nr20: {
+          ingredients: [
+            { n: 'Chicken breast', q: 240, u: 'g', cat: 'Protein' },
+            { n: 'Chickpeas', q: 150, u: 'g', cat: 'Pantry' },
+            { n: 'Spinach', q: 90, u: 'g', cat: 'Produce' },
+            { n: 'Tomato passata', q: 100, u: 'g', cat: 'Pantry' },
+            { n: 'Cumin', q: 5, u: 'g', cat: 'Pantry' },
+            { n: 'Turmeric', q: 3, u: 'g', cat: 'Pantry' },
+            { n: 'Onion', q: 40, u: 'g', cat: 'Produce' },
+            { n: 'Garlic', q: 5, u: 'g', cat: 'Produce' },
+                ],
+          steps: [
+                  'Sauté the onion and garlic until softened, then add cumin and turmeric and cook for 1 minute.',
+                  'Add the chicken and brown on all sides.',
+                  'Stir in the chickpeas and tomato passata, and simmer for 12-15 minutes.',
+                  'Fold in the spinach until wilted, then serve.',
+                ],
+          protein: 50, cal: 442, carbs: 31, fat: 11,
+    },
+    nr28: {
+          ingredients: [
+            { n: 'Beef strips', q: 260, u: 'g', cat: 'Protein' },
+            { n: 'Broccoli', q: 180, u: 'g', cat: 'Produce' },
+            { n: 'Red bell pepper', q: 60, u: 'g', cat: 'Produce' },
+            { n: 'Black pepper', q: 3, u: 'g', cat: 'Pantry' },
+            { n: 'Oyster sauce', q: 15, u: 'ml', cat: 'Pantry' },
+            { n: 'Garlic', q: 5, u: 'g', cat: 'Produce' },
+            { n: 'Cooked rice', q: 80, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Sear the beef strips over high heat for 2-3 minutes, then set aside.',
+                  'Stir-fry the broccoli, bell pepper and garlic for 3-4 minutes.',
+                  'Return the beef to the pan, add the oyster sauce and black pepper, and toss to combine.',
+                  'Serve over the cooked rice.',
+                ],
+          protein: 50, cal: 435, carbs: 29, fat: 13,
+    },
+    nr34: {
+          ingredients: [
+            { n: 'High-protein tortilla', q: 1, u: 'pc', cat: 'Pantry' },
+            { n: 'Chicken breast', q: 220, u: 'g', cat: 'Protein' },
+            { n: 'Bell pepper', q: 60, u: 'g', cat: 'Produce' },
+            { n: 'Onion', q: 40, u: 'g', cat: 'Produce' },
+            { n: 'Chipotle sauce', q: 20, u: 'g', cat: 'Pantry' },
+            { n: 'Sweetcorn', q: 50, u: 'g', cat: 'Produce' },
+            { n: 'Cooked rice', q: 60, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Slice the chicken and pan-fry with the bell pepper and onion until charred and cooked through.',
+                  'Stir in the sweetcorn and chipotle sauce and warm through.',
+                  'Warm the tortilla, then fill with the rice and chicken mixture.',
+                  'Roll up tightly and serve.',
+                ],
+          protein: 50, cal: 455, carbs: 35, fat: 9,
+    },
+    nr37: {
+          ingredients: [
+            { n: 'High-protein tortilla', q: 1, u: 'pc', cat: 'Pantry' },
+            { n: 'Lean beef mince', q: 220, u: 'g', cat: 'Protein' },
+            { n: 'Chimichurri sauce', q: 25, u: 'g', cat: 'Pantry' },
+            { n: 'Bell pepper', q: 50, u: 'g', cat: 'Produce' },
+            { n: 'Sweetcorn', q: 50, u: 'g', cat: 'Produce' },
+            { n: 'Cooked rice', q: 60, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Brown the beef mince in a hot pan, breaking it up as it cooks.',
+                  'Stir in the bell pepper and sweetcorn and cook for 3-4 minutes.',
+                  'Warm the tortilla, fill with the rice and beef mixture, then drizzle with chimichurri sauce.',
+                  'Roll up tightly and serve.',
+                ],
+          protein: 48, cal: 455, carbs: 33, fat: 11,
+    },
+    nr40: {
+          ingredients: [
+            { n: 'Chicken breast', q: 260, u: 'g', cat: 'Protein' },
+            { n: 'Egg white', q: 60, u: 'g', cat: 'Protein' },
+            { n: 'Panko breadcrumbs', q: 30, u: 'g', cat: 'Pantry' },
+            { n: 'Gochujang', q: 10, u: 'g', cat: 'Pantry' },
+            { n: 'Sesame seeds', q: 3, u: 'g', cat: 'Pantry' },
+            { n: 'Garlic powder', q: 2, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Dip the chicken in the egg white, then coat in panko breadcrumbs and garlic powder.',
+                  'Air fry at 200°C for 12-14 minutes, turning halfway, until golden and cooked through.',
+                  'Warm the gochujang slightly to loosen it, then brush over the crispy chicken.',
+                  'Scatter with sesame seeds and serve.',
+                ],
+          protein: 50, cal: 380, carbs: 23, fat: 9,
+    },
+    nr49: {
+          ingredients: [
+            { n: 'High-protein tortilla', q: 2, u: 'pc', cat: 'Pantry' },
+            { n: 'Lean beef mince', q: 220, u: 'g', cat: 'Protein' },
+            { n: 'Light cheddar', q: 30, u: 'g', cat: 'Dairy/Alt' },
+            { n: 'Red onion', q: 30, u: 'g', cat: 'Produce' },
+            { n: 'Jalapeño', q: 15, u: 'g', cat: 'Produce' },
+            { n: 'Smoky BBQ seasoning', q: 5, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Brown the beef mince with the BBQ seasoning and red onion until cooked through.',
+                  'Scatter the cheddar and jalapeño over one tortilla, top with the beef, then close with the second tortilla.',
+                  'Cook in a dry pan for 2-3 minutes per side until golden and the cheese has melted.',
+                  'Slice into wedges and serve.',
+                ],
+          protein: 48, cal: 430, carbs: 29, fat: 13,
+    },
+    nr52: {
+          ingredients: [
+            { n: 'High-protein tortilla', q: 2, u: 'pc', cat: 'Pantry' },
+            { n: 'Cooked chicken breast', q: 220, u: 'g', cat: 'Protein' },
+            { n: 'Light feta', q: 30, u: 'g', cat: 'Dairy/Alt' },
+            { n: 'Spinach', q: 40, u: 'g', cat: 'Produce' },
+            { n: 'Oregano', q: 2, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Warm the shredded chicken with the spinach until just wilted.',
+                  'Scatter the feta and oregano over one tortilla, top with the chicken and spinach, then close with the second tortilla.',
+                  'Cook in a dry pan for 2-3 minutes per side until golden and the cheese has softened.',
+                  'Slice into wedges and serve.',
+                ],
+          protein: 50, cal: 420, carbs: 27, fat: 11,
+    },
+    nr57: {
+          ingredients: [
+            { n: 'Beef chunks (lean)', q: 280, u: 'g', cat: 'Protein' },
+            { n: 'Tomato passata', q: 110, u: 'g', cat: 'Pantry' },
+            { n: 'Green beans', q: 70, u: 'g', cat: 'Produce' },
+            { n: 'Peanut butter', q: 15, u: 'g', cat: 'Pantry' },
+            { n: 'Lime juice', q: 10, u: 'ml', cat: 'Produce' },
+            { n: 'Cumin', q: 4, u: 'g', cat: 'Pantry' },
+            { n: 'Coriander', q: 3, u: 'g', cat: 'Produce' },
+            { n: 'Chilli flakes', q: 1, u: 'g', cat: 'Pantry' },
+            { n: 'Cooked rice', q: 80, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Brown the beef chunks, then add the cumin and cook for 1 minute.',
+                  'Stir in the tomato passata and peanut butter, and simmer for 25-30 minutes until the beef is tender.',
+                  'Add the green beans for the final 5 minutes.',
+                  'Finish with lime juice, coriander and chilli flakes, then serve over the rice.',
+                ],
+          protein: 50, cal: 455, carbs: 29, fat: 15,
+    },
+    nr63: {
+          ingredients: [
+            { n: 'Chicken breast', q: 260, u: 'g', cat: 'Protein' },
+            { n: 'Snap peas', q: 100, u: 'g', cat: 'Produce' },
+            { n: 'Carrot', q: 60, u: 'g', cat: 'Produce' },
+            { n: 'Peanut sauce', q: 25, u: 'g', cat: 'Pantry' },
+            { n: 'Sesame seeds', q: 3, u: 'g', cat: 'Pantry' },
+            { n: 'Cooked rice', q: 80, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Slice the chicken and stir-fry over high heat until browned and cooked through.',
+                  'Add the snap peas and carrot and stir-fry for 3-4 minutes.',
+                  'Stir in the peanut sauce and toss to coat.',
+                  'Scatter with sesame seeds and serve over the rice.',
+                ],
+          protein: 48, cal: 410, carbs: 31, fat: 11,
+    },
+    nr66: {
+          ingredients: [
+            { n: 'Chicken breast', q: 280, u: 'g', cat: 'Protein' },
+            { n: 'White beans', q: 120, u: 'g', cat: 'Pantry' },
+            { n: 'Kale', q: 70, u: 'g', cat: 'Produce' },
+            { n: 'Sundried tomato', q: 20, u: 'g', cat: 'Produce' },
+            { n: 'Chicken stock', q: 200, u: 'ml', cat: 'Pantry' },
+            { n: 'Thyme', q: 2, u: 'g', cat: 'Pantry' },
+            { n: 'Garlic', q: 5, u: 'g', cat: 'Produce' },
+                ],
+          steps: [
+                  'Place the chicken, white beans, sundried tomato, garlic, thyme and stock in the slow cooker.',
+                  'Cook on low for 5-6 hours until the chicken is tender.',
+                  'Stir in the kale for the final 15 minutes until wilted.',
+                  'Shred the chicken through the casserole and serve.',
+                ],
+          protein: 48, cal: 395, carbs: 25, fat: 9,
+    },
+    nr72: {
+          ingredients: [
+            { n: 'Chicken breast', q: 270, u: 'g', cat: 'Protein' },
+            { n: 'Sesame-ginger glaze', q: 25, u: 'ml', cat: 'Pantry' },
+            { n: 'Cooked rice', q: 90, u: 'g', cat: 'Pantry' },
+            { n: 'Pak choi', q: 100, u: 'g', cat: 'Produce' },
+            { n: 'Chilli flakes', q: 1, u: 'g', cat: 'Pantry' },
+            { n: 'Sesame seeds', q: 3, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Pan-fry the chicken until golden and cooked through.',
+                  'Add the sesame-ginger glaze and simmer for 2-3 minutes until sticky.',
+                  'Wilt the pak choi in the same pan for 2 minutes.',
+                  'Scatter with chilli flakes and sesame seeds, and serve over the rice.',
+                ],
+          protein: 50, cal: 400, carbs: 29, fat: 9,
+    },
+    nr81: {
+          ingredients: [
+            { n: 'Chicken breast', q: 250, u: 'g', cat: 'Protein' },
+            { n: 'Kale', q: 100, u: 'g', cat: 'Produce' },
+            { n: 'Cherry tomatoes', q: 60, u: 'g', cat: 'Produce' },
+            { n: 'Cucumber', q: 50, u: 'g', cat: 'Produce' },
+            { n: 'Greek yogurt-tahini dressing', q: 30, u: 'g', cat: 'Dairy/Alt' },
+                ],
+          steps: [
+                  'Grill or pan-sear the chicken breast until cooked through, then slice.',
+                  'Massage the kale with a little of the dressing to soften it.',
+                  'Toss the kale with the cherry tomatoes and cucumber.',
+                  'Top with the sliced chicken and drizzle with the remaining dressing.',
+                ],
+          protein: 46, cal: 365, carbs: 13, fat: 13,
+    },
+    nr83: {
+          ingredients: [
+            { n: 'Chicken breast', q: 260, u: 'g', cat: 'Protein' },
+            { n: 'Lime', q: 1, u: 'pc', cat: 'Produce' },
+            { n: 'Fresh coriander', q: 8, u: 'g', cat: 'Produce' },
+            { n: 'Red chilli', q: 5, u: 'g', cat: 'Produce' },
+            { n: 'Cooked rice', q: 90, u: 'g', cat: 'Pantry' },
+            { n: 'Garlic', q: 5, u: 'g', cat: 'Produce' },
+                ],
+          steps: [
+                  'Pan-sear the chicken with the garlic and red chilli until golden and cooked through.',
+                  'Squeeze over the lime juice and toss to coat.',
+                  'Scatter with fresh coriander.',
+                  'Serve over the cooked rice.',
+                ],
+          protein: 48, cal: 398, carbs: 29, fat: 9,
+    },
+    nr86: {
+          ingredients: [
+            { n: 'Canned tuna (drained)', q: 220, u: 'g', cat: 'Protein' },
+            { n: 'Cooked rice', q: 100, u: 'g', cat: 'Pantry' },
+            { n: 'Cucumber', q: 50, u: 'g', cat: 'Produce' },
+            { n: 'Pickled ginger', q: 15, u: 'g', cat: 'Produce' },
+            { n: 'Light spicy mayo', q: 15, u: 'g', cat: 'Pantry' },
+            { n: 'Nori (seaweed) flakes', q: 2, u: 'g', cat: 'Pantry' },
+                ],
+          steps: [
+                  'Flake the tuna into a bowl with the cooked rice.',
+                  'Add the cucumber and pickled ginger.',
+                  'Drizzle with the spicy mayo and toss gently.',
+                  'Scatter with nori flakes and serve.',
+                ],
+          protein: 46, cal: 385, carbs: 27, fat: 9,
+    },
+};
+
+for (const r of RECIPES) {
+    const v = HIGH_PROTEIN_VARIANTS[r.id];
+    if (v) Object.assign(r, v);
+}
