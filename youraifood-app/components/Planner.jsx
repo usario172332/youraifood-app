@@ -360,7 +360,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           <span className="text-xs font-normal text-ink-soft">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
         </button>
         <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
-          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four eating occasions a day (breakfast, lunch, dinner and a snack), typically built from fewer dishes since lunch and dinner often share a batch-cooked main.
+          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four meals a day (breakfast, lunch, dinner and a snack), typically built from fewer dishes since lunch and dinner often share a batch-cooked main.
         </p>
 
         {showCustomize && (
