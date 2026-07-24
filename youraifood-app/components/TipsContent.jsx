@@ -60,7 +60,7 @@ function MethodCard(m) {
 export default function TipsContent() {
     return h('div', { className: 'mx-auto max-w-4xl px-6 py-16 text-ink' },
                  h('a', { href: '/', className: 'text-sm font-semibold text-green-700' }, '← Back to YourAiFood'),
-                 h('span', { className: 'mb-3 mt-4 inline-block rounded-full bg-green-50 px-3.5 py-1.5 text-[13px] font-bold text-green-700' }, '🧰 Useful Tips'),
+                 h('span', { className: 'mb-3 mt-4 inline-block rounded-full bg-green-50 px-3.5 py-1.5 text-[13px] font-bold text-green-700' }, '🧰 Guides'),
                  h('h1', { className: 'mb-2 text-3xl font-extrabold text-green-900' }, 'Kitchen tools & cooking basics'),
                  h('p', { className: 'mb-10 max-w-2xl text-ink-soft' }, "A quick reference for the equipment and cooking methods that come up most often across YourAiFood recipes — handy if you're stocking a kitchen or just want a refresher on timings and ratios."),
                  h('section', { className: 'mb-12' },
