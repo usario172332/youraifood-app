@@ -10,7 +10,7 @@ export const maxDuration = 60;
 const FREE_MONTHLY_LIMIT = 3;
 
 function currentMonthKey(date = new Date()) {
-return \`\${date.getUTCFullYear()}-\${date.getUTCMonth()}\`;
+return `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
 }
 
 async function getOrCreateProfile(admin, user) {
@@ -53,7 +53,7 @@ const threshold = calorieTarget * 0.9;
 days.forEach((dayRow) => {
 const dishRefs = [];
 meals.forEach((slot) => {
-(dayRow[\`\${slot}Dishes\`] || []).forEach((dish) => {
+(dayRow[`${slot}Dishes`] || []).forEach((dish) => {
 const recipe = findRecipe(dish.id);
 if (recipe) dishRefs.push({ dish, recipe });
 });
@@ -101,7 +101,7 @@ groceries[key].qty += ing.q * family * multiplier;
 };
 days.forEach((row) => {
 meals.forEach((slot) => {
-(row[\`\${slot}Dishes\`] || []).forEach((dish) => {
+(row[`${slot}Dishes`] || []).forEach((dish) => {
 addIngredients(findRecipe(dish.id), dish.servings || 1);
 });
 });
@@ -129,7 +129,7 @@ usedRecipeIds.add(recipe.id);
 
 days.forEach((row) => {
 meals.forEach((slot) => {
-(row[\`\${slot}Dishes\`] || []).forEach((dish) => {
+(row[`${slot}Dishes`] || []).forEach((dish) => {
 addRecipe(findRecipe(dish.id), dish.servings || 1);
 });
 });
@@ -188,7 +188,7 @@ const claim = Array.isArray(claimRows) ? claimRows[0] : claimRows;
 if (!claim || !claim.allowed) {
 return NextResponse.json(
 {
-error: \`You've used all \${FREE_MONTHLY_LIMIT} free plans this month. Upgrade to Premium for unlimited plans.\`,
+error: `You've used all ${FREE_MONTHLY_LIMIT} free plans this month. Upgrade to Premium for unlimited plans.`,
 limitReached: true,
 },
 { status: 402 }
@@ -225,7 +225,7 @@ return recipe.id;
 const days = aiResult.days.map((row, i) => {
 const dayRow = { day: row.day || DAYS[i] };
 mealSlots.forEach((slot) => {
-const rawSlotDishes = Array.isArray(row[\`\${slot}Dishes\`]) ? row[\`\${slot}Dishes\`] : [];
+const rawSlotDishes = Array.isArray(row[`${slot}Dishes`]) ? row[`${slot}Dishes`] : [];
 const seen = new Set();
 const resolved = [];
 rawSlotDishes.forEach((d) => {
@@ -234,7 +234,7 @@ if (!id || seen.has(id)) return;
 seen.add(id);
 resolved.push({ id, servings: servingsValue(d && d.servings) });
 });
-dayRow[\`\${slot}Dishes\`] = resolved;
+dayRow[`${slot}Dishes`] = resolved;
 });
 return dayRow;
 });
