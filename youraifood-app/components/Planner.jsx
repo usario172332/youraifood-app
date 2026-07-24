@@ -738,7 +738,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
                             {d.recipe.name}
                           </div>
                           <div className="text-xs text-ink-soft">
-                            {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min · €{(d.recipe.cost * d.servings).toFixed(2)}
+                            {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min
                           </div>
                         </div>
                       ))}
