@@ -24,7 +24,7 @@ export default function AboutContent() {
         <section>
           <h2 className="mb-2 text-lg font-extrabold text-green-900">How it's different</h2>
           <p className="text-ink-soft">
-            Every recipe in the catalog has real, calculated macros, cost, and cook time — the AI picks from that
+            Every recipe in the catalog has real, calculated macros and cook time — the AI picks from that
             catalog rather than inventing numbers, so what you see is what you get. Calorie and protein targets are
             calculated from your own stats using the Mifflin-St Jeor formula, not a generic guess.
           </p>
