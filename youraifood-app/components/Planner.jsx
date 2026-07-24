@@ -114,6 +114,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
   const [showCustomize, setShowCustomize] = useState(false);
   const [showPersonalize, setShowPersonalize] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
+  const [statsTouched, setStatsTouched] = useState(false);
 
   useEffect(() => {
     if (!loading) return;
@@ -478,24 +479,24 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-5">
                     <Field label="Current weight" hint="(kg)" id="weightInput">
                       <input id="weightInput" type="number" min={30} max={250} step={1} value={form.weight}
-                        onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
+                        onChange={(e) => { setForm({ ...form, weight: Number(e.target.value) }); setStatsTouched(true); }}
                         className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
                     </Field>
                     <Field label="Height" hint="(cm)" id="heightInput">
                       <input id="heightInput" type="number" min={120} max={230} step={1} value={form.height}
-                        onChange={(e) => setForm({ ...form, height: Number(e.target.value) })}
+                        onChange={(e) => { setForm({ ...form, height: Number(e.target.value) }); setStatsTouched(true); }}
                         className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
                     </Field>
                     <Field label="Age" id="ageInput">
                       <input id="ageInput" type="number" min={14} max={100} step={1} value={form.age}
-                        onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
+                        onChange={(e) => { setForm({ ...form, age: Number(e.target.value) }); setStatsTouched(true); }}
                         className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm" />
                     </Field>
                     <Field label="Sex" id="sexSelect">
                       <select
                         id="sexSelect"
                         value={form.sex}
-                        onChange={(e) => setForm({ ...form, sex: e.target.value })}
+                        onChange={(e) => { setForm({ ...form, sex: e.target.value }); setStatsTouched(true); }}
                         className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
                       >
                         <option value="male">Male</option>
@@ -506,7 +507,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                       <select
                         id="activityLevelSelect"
                         value={form.activityLevel}
-                        onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
+                        onChange={(e) => { setForm({ ...form, activityLevel: e.target.value }); setStatsTouched(true); }}
                         className="w-full rounded-lg border-[1.5px] border-gray-200 px-3 py-2.5 text-sm"
                       >
                         {ACTIVITY_OPTIONS.map((a) => (
@@ -517,7 +518,10 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   </div>
 
                   <div className="rounded-xl bg-green-50 p-4 text-sm text-green-900">
-                    <b className="mb-1 block">🔢 Your calculated daily targets</b>
+                    <b className="mb-1 block">🔢 {statsTouched ? 'Your calculated daily targets' : 'Example daily targets'}</b>
+                    {!statsTouched && (
+                      <p className="-mt-1 mb-2 text-xs text-green-700">Based on placeholder stats above — enter your own for a personalised target.</p>
+                    )}
                     <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
                     <span className="mx-2 text-green-700/50">·</span>
                     <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
