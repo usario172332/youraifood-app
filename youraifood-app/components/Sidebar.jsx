@@ -11,14 +11,14 @@ import { useAuth } from '../lib/AuthContext';
 function getLinks(user) {
   const base = [
     { href: '/recipes', label: '🍽️ Recipes' },
-    { href: '/tips', label: '🧰 Useful Tips' },
+    { href: '/tips', label: '🧰 Guides' },
     { href: '/#how-it-works', label: '📋 How It Works' },
     { href: '/#pricing', label: '💳 Pricing' },
   ];
   if (user) {
-    return [{ href: '/profile', label: '👤 My Profile' }, ...base, { href: '/#planner', label: '📅 Plan my week' }];
+    return [{ href: '/profile', label: '👤 My Profile' }, ...base, { href: '/#planner', label: '📅 Plan my week', cta: true }];
   }
-  return [...base, { href: '/#planner', label: '✨ Create Free Plan' }];
+  return [...base, { href: '/#planner', label: '✨ Create Free Plan', cta: true }];
 }
 
 export default function Sidebar() {
@@ -84,7 +84,7 @@ export default function Sidebar() {
                                                 }
                               }
               }}
-              className="rounded-lg px-3 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+              className={l.cta ? 'mt-2 rounded-full bg-green-600 px-3 py-2.5 text-center text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2' : 'rounded-lg px-3 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2'}
             >
               {l.label}
             </a>
