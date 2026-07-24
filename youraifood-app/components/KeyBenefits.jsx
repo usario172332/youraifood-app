@@ -29,7 +29,7 @@ export default function KeyBenefits() {
       h('div', { className: 'mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-xs font-bold text-ink-soft' },
         h('span', null, '235 macro-tracked recipes'),
         h('span', { className: 'text-gray-300' }, '\u00b7'),
-        h('span', null, '5 free plans every month, no card required')
+        h('span', null, '3 free plans every month, no card required')
       )
     )
   );
