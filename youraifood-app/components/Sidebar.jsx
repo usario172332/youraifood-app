@@ -11,6 +11,7 @@ import { useAuth } from '../lib/AuthContext';
 function getLinks(user) {
   const base = [
     { href: '/recipes', label: '🍽️ Recipes' },
+    { href: '/tips', label: '🧰 Useful Tips' },
     { href: '/#how-it-works', label: '📋 How It Works' },
     { href: '/#pricing', label: '💳 Pricing' },
   ];
