@@ -9,7 +9,7 @@ const FAQS = [
   },
   {
     q: 'Is there a free version?',
-    a: 'Yes. Free gives you 5 personalised weekly meal plans every month, access to 24 free recipes, and a full grocery list with every plan — no credit card required. Premium (€7.77/month) removes the monthly limit and unlocks all 235 recipes, so you can generate and regenerate as often as you like.',
+    a: 'Yes. Free gives you 3 personalised weekly meal plans every month, access to 24 free recipes, and a full grocery list with every plan — no credit card required. Premium (€7.77/month) removes the monthly limit and unlocks all 235 recipes, so you can generate and regenerate as often as you like.',
   },
   {
     q: 'Can I regenerate meals?',
