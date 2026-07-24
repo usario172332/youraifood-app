@@ -243,7 +243,6 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onToggleFavor
 
           <div className="mb-5 flex gap-5 text-sm text-ink-soft">
             <div><b className="block text-base text-green-900">{recipe.time} min</b>cook time</div>
-            <div><b className="block text-base text-green-900">€{recipe.cost.toFixed(2)}</b>per serving</div>
           </div>
 
           <div className="mb-2 flex items-center justify-between">
