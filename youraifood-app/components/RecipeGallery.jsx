@@ -198,7 +198,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
         </h2>
         <p className="mb-8 text-center text-white/70">
           {compact
-            ? `${RECIPES.length} fitness recipes with real photos, full macros and AI meal planning behind them`
+            ? `${RECIPES.length} fitness recipes — a photo, full macros and AI meal planning for every one`
             : 'Search, filter, and sort — find exactly the recipe you need'}
         </p>
 
