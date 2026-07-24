@@ -89,7 +89,7 @@ export default function EmailCapture() {
             </span>
           </div>
         </div>
-        <p className="mb-6 text-xs font-semibold text-ink-soft">Preview of your personalised weekly meal plan.</p>
+        <p className="mb-6 text-xs font-semibold text-ink-soft">Preview of the free high-protein plan you'll receive.</p>
 
         {status === 'done' ? (
           <p className="font-bold text-green-800">
