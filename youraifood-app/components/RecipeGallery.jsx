@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
+import { getRecipeSlug } from '../lib/recipeSlug';
 import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero, isMealPrepFriendly, isFreezerFriendly, isOnePan, isBeginnerFriendly, isQuick } from '../lib/recipeMeta';
 
 const DIET_ICON = {
@@ -180,6 +181,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   }
 
   function handleHeartClick(e, r) {
+    e.preventDefault();
     e.stopPropagation();
     if (!user) {
       goTo('planner');
@@ -301,10 +303,10 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
             const special = specialBadge(r, superlatives, compact);
             const summary = reviewSummaries[r.id];
             return (
-              <div
+              <Link
                 key={r.id}
-                onClick={() => handleCardClick(r)}
-                className="relative cursor-pointer overflow-hidden rounded-2xl bg-white transition hover:-translate-y-0.5 hover:shadow-xl"
+                href={'/recipes/' + getRecipeSlug(r)}
+                className="relative block cursor-pointer overflow-hidden rounded-2xl bg-white transition hover:-translate-y-0.5 hover:shadow-xl"
               >
                 <div className="absolute right-2 top-2 z-10 flex flex-col items-end gap-1.5">
                   <button
@@ -385,7 +387,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                     <span className="block text-xs font-bold text-green-600">View recipe →</span>
                   )}
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
