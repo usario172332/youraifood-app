@@ -56,6 +56,20 @@ export async function POST(req) {
                                                           ...premiumConfirmationEmail({ planInterval, unitAmount, currency, renewalDateLabel, isTrial }),
                                           });
                             }
+            try {
+              const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_USER;
+              if (adminEmail && email) {
+                const priceLabel = `${(unitAmount / 100).toFixed(2)} ${(currency || 'eur').toUpperCase()}`;
+                await sendEmail({
+                  to: adminEmail,
+                  subject: `New Premium subscriber: ${email}`,
+                  html: `<p>Someone just subscribed to YourAiFood Premium.</p><p><strong>Email:</strong> ${email}</p><p><strong>Plan:</strong> ${planInterval === 'year' ? 'Yearly' : 'Monthly'} — ${priceLabel}${isTrial ? ' (trial)' : ''}</p>`,
+                  text: `New Premium subscriber: ${email} (${planInterval}, ${priceLabel}${isTrial ? ', trial' : ''})`,
+                });
+              }
+            } catch (adminEmailErr) {
+              console.error('Admin subscription notification failed:', adminEmailErr);
+            }
                 } catch (emailErr) {
                             console.error('Premium confirmation email failed:', emailErr);
                 }
