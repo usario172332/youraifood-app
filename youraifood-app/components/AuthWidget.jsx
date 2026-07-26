@@ -53,6 +53,13 @@ export default function AuthWidget({ compact, openSignal }) {
           ? await supabase.auth.signUp({ email, password })
           : await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
+      if (mode === 'signup') {
+        fetch('/api/notify-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        }).catch(() => {});
+      }
       if (data.user) {
         handleAuthChange(data.user, data.session);
         setOpen(false);
