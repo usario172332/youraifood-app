@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sendEmail } from '../../../../lib/email';
+import { sendEmail } from '../../../lib/email';
 
 // Fired (fire-and-forget from the client) right after a successful
 // supabase.auth.signUp() so the site owner gets a heads-up email whenever
