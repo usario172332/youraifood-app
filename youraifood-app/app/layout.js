@@ -1,5 +1,6 @@
 import './globals.css';
 import CookieBanner from '../components/CookieBanner';
+import { Analytics } from '@vercel/analytics/next';
 import AppShell from '../components/AppShell';
 
 const SITE_URL = 'https://youraifood.com';
@@ -60,6 +61,7 @@ export default function RootLayout({ children }) {
         />
         <AppShell>{children}</AppShell>
         <CookieBanner />
+        <Analytics />
       </body>
     </html>
   );
