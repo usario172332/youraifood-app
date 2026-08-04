@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../lib/AuthContext';
+import { maskEmail } from '../lib/maskEmail';
 
 export default function AuthWidget({ compact, openSignal }) {
  const { user, handleAuthChange, signOut } = useAuth();
@@ -30,7 +31,7 @@ export default function AuthWidget({ compact, openSignal }) {
   if (user) {
     return (
       <div className={`flex ${compact ? 'flex-col items-start' : 'items-center'} gap-2 text-sm`}>
-        <span className="truncate text-ink-soft">{user.email}</span>
+        <span className="truncate text-ink-soft" title={user.email}>{maskEmail(user.email)}</span>
         <button
           onClick={signOut}
           className="font-semibold text-green-700 hover:text-green-900"
