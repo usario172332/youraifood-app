@@ -5,6 +5,7 @@ import { useAuth } from '../lib/AuthContext';
 import { RECIPES, findRecipe } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
 import { getHero } from '../lib/recipeMeta';
+import { maskEmail } from '../lib/maskEmail';
 
 export default function ProfileContent() {
   const { user, session, isPremium, favorites, toggleFavorite, authReady } = useAuth();
@@ -70,7 +71,7 @@ function AccountCard({ user, session, isPremium }) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="text-sm text-ink-soft">Signed in as</div>
-          <div className="font-semibold text-ink">{user.email}</div>
+          <div className="font-semibold text-ink" title={user.email}>{maskEmail(user.email)}</div>
           <span
             className={`mt-2 inline-block rounded-full px-3 py-1 text-[11px] font-extrabold ${
               isPremium ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-ink-soft'
