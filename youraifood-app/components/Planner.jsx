@@ -116,7 +116,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
-  const [showCustomize, setShowCustomize] = useState(false);
+  const [showCustomize, setShowCustomize] = useState(true);
   const [showPersonalize, setShowPersonalize] = useState(true);
   const [prefilled, setPrefilled] = useState(false);
   const [statsTouched, setStatsTouched] = useState(false);
@@ -380,13 +380,13 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           type="button"
           onClick={() => setShowCustomize((v) => !v)}
           aria-expanded={showCustomize}
-          className="flex w-full items-center justify-between rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-bold text-green-800 transition duration-200 hover:border-green-300 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+          className="flex w-full items-center justify-between rounded-xl border-2 border-green-300 bg-green-50 px-5 py-4 text-left shadow-sm transition duration-200 hover:border-green-400 hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
         >
-          <span>⚙️ Customise My Plan (optional)</span>
-          <span className="text-xs font-normal text-ink-soft">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
+          <span className="text-base font-extrabold text-green-800">⚙️ Customise My Plan</span>
+          <span className="text-xs font-semibold text-green-700">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
         </button>
         <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
-          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four meals a day (breakfast, lunch, dinner and a snack), typically built from fewer dishes since lunch and dinner often share a batch-cooked main. Add your weight here for calorie and protein targets built around you.
+          Add your weight, cook time, household size, dishes per day, ingredients to avoid and more — we use sensible defaults (30 min cook time, 1 person, a balanced ingredient mix, four meals a day) for anything you skip.
         </p>
 
         {showCustomize && (
@@ -525,10 +525,10 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                 type="button"
                 onClick={() => setShowPersonalize((v) => !v)}
                 aria-expanded={showPersonalize}
-                className="flex w-full items-center justify-between rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-bold text-green-800 transition duration-200 hover:border-green-300 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                className="flex w-full items-center justify-between rounded-xl border-2 border-blue-200 bg-blue-50 px-4 py-3 text-left text-sm font-bold text-blue-800 transition duration-200 hover:border-blue-300 hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
-                <span>🔒 Add your weight, height & age (optional)</span>
-                <span className="text-xs font-normal text-ink-soft">{showPersonalize ? 'Hide ▲' : 'Show ▼'}</span>
+                <span>⚖️ Add your weight, height & age (optional, for personalised targets)</span>
+                <span className="text-xs font-semibold text-blue-700">{showPersonalize ? 'Hide ▲' : 'Show ▼'}</span>
               </button>
               <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
                 Add your weight, height, age &amp; activity level for calorie and protein targets calculated just for you.
