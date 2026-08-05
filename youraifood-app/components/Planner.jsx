@@ -6,6 +6,7 @@ import { useAuth } from '../lib/AuthContext';
 import { calculateTargets, ACTIVITY_OPTIONS } from '../lib/nutrition';
 import RecipeModal from './RecipeModal';
 import { MEAT_CATEGORIES } from '../lib/meatType';
+import { AVOID_INGREDIENT_OPTIONS } from '../lib/avoidIngredients';
 
 const DIET_OPTIONS = [
   { key: 'vegan', label: 'Vegan' },
@@ -105,6 +106,7 @@ const DEFAULT_FORM = {
   meals: ['breakfast', 'main', 'snack'],
   dishesPerDay: 4,
   avoidMeats: [],
+  avoidIngredients: [],
   minimiseIngredients: false,
 };
 
@@ -183,6 +185,13 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
     }));
   }
 
+  function toggleAvoidIngredient(key) {
+    setForm((f) => ({
+      ...f,
+      avoidIngredients: f.avoidIngredients.includes(key) ? f.avoidIngredients.filter((m) => m !== key) : [...f.avoidIngredients, key],
+    }));
+  }
+
   function toggleMeal(key) {
     setForm((f) => {
       const has = f.meals.includes(key);
@@ -213,6 +222,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           meals: form.meals,
           dishesPerDay: form.dishesPerDay,
           avoidMeats: form.avoidMeats,
+          avoidIngredients: form.avoidIngredients,
           minimiseIngredients: form.minimiseIngredients,
         }),
       });
@@ -251,6 +261,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           meals: form.meals,
           dishesPerDay: form.dishesPerDay,
           avoidMeats: form.avoidMeats,
+          avoidIngredients: form.avoidIngredients,
           minimiseIngredients: form.minimiseIngredients,
         }),
       });
@@ -448,6 +459,22 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   ))}
                 </div>
                 <p className="mt-1.5 text-[11px] text-ink-soft">Leave unchecked to allow any meat. Doesn't affect vegetarian/vegan recipes.</p>
+              </Field>
+              <Field label="Ingredients to avoid" hint="(optional)">
+                <div className="flex flex-wrap gap-1.5">
+                  {AVOID_INGREDIENT_OPTIONS.map((m) => (
+                    <label
+                      key={m.value}
+                      className={`flex items-center rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold transition duration-200 ${
+                        form.avoidIngredients.includes(m.value) ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
+                      }`}
+                    >
+                      <input type="checkbox" className="mr-1" checked={form.avoidIngredients.includes(m.value)} onChange={() => toggleAvoidIngredient(m.value)} />
+                      {m.label} <span className="font-normal text-ink-soft">({m.desc})</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-1.5 text-[11px] text-ink-soft">This is a preference filter, not a certified allergy check — always double-check ingredients yourself if you have a serious allergy.</p>
               </Field>
               <Field label="Grocery list size">
                 <label className="flex items-start gap-2 rounded-lg border-[1.5px] border-gray-200 px-3 py-2 text-xs font-semibold text-ink">
