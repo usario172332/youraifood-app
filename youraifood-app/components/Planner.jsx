@@ -5,6 +5,7 @@ import { findRecipe } from '../lib/recipes';
 import { useAuth } from '../lib/AuthContext';
 import { calculateTargets, ACTIVITY_OPTIONS } from '../lib/nutrition';
 import RecipeModal from './RecipeModal';
+import { MEAT_CATEGORIES } from '../lib/meatType';
 
 const DIET_OPTIONS = [
   { key: 'vegan', label: 'Vegan' },
@@ -103,6 +104,8 @@ const DEFAULT_FORM = {
   diets: [],
   meals: ['breakfast', 'main', 'snack'],
   dishesPerDay: 4,
+  avoidMeats: [],
+  minimiseIngredients: false,
 };
 
 export default function Planner({ user, session, isPremium, favorites, onToggleFavorite }) {
@@ -173,6 +176,13 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
     }));
   }
 
+  function toggleAvoidMeat(key) {
+    setForm((f) => ({
+      ...f,
+      avoidMeats: f.avoidMeats.includes(key) ? f.avoidMeats.filter((m) => m !== key) : [...f.avoidMeats, key],
+    }));
+  }
+
   function toggleMeal(key) {
     setForm((f) => {
       const has = f.meals.includes(key);
@@ -202,6 +212,8 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           diets: form.diets,
           meals: form.meals,
           dishesPerDay: form.dishesPerDay,
+          avoidMeats: form.avoidMeats,
+          minimiseIngredients: form.minimiseIngredients,
         }),
       });
       const data = await res.json();
@@ -238,6 +250,8 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           diets: form.diets,
           meals: form.meals,
           dishesPerDay: form.dishesPerDay,
+          avoidMeats: form.avoidMeats,
+          minimiseIngredients: form.minimiseIngredients,
         }),
       });
       const data = await res.json();
@@ -415,6 +429,33 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                     </button>
                   ))}
                 </div>
+              </Field>
+            </div>
+
+            <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field label="Meats to avoid" hint="(optional)">
+                <div className="flex flex-wrap gap-1.5">
+                  {MEAT_CATEGORIES.map((m) => (
+                    <label
+                      key={m.value}
+                      className={`flex items-center rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold transition duration-200 ${
+                        form.avoidMeats.includes(m.value) ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
+                      }`}
+                    >
+                      <input type="checkbox" className="mr-1" checked={form.avoidMeats.includes(m.value)} onChange={() => toggleAvoidMeat(m.value)} />
+                      {m.label} <span className="font-normal text-ink-soft">({m.desc})</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-1.5 text-[11px] text-ink-soft">Leave unchecked to allow any meat. Doesn't affect vegetarian/vegan recipes.</p>
+              </Field>
+              <Field label="Grocery list size">
+                <label className="flex items-start gap-2 rounded-lg border-[1.5px] border-gray-200 px-3 py-2 text-xs font-semibold text-ink">
+                  <input type="checkbox" className="mt-0.5" checked={form.minimiseIngredients} onChange={() => setForm((f) => ({ ...f, minimiseIngredients: !f.minimiseIngredients }))} />
+                  <span>🧺 Minimise my grocery list
+                    <span className="mt-0.5 block font-normal text-ink-soft">Reuses the same recipes more across the week so you buy fewer different ingredients — expect less day-to-day variety.</span>
+                  </span>
+                </label>
               </Field>
             </div>
 
