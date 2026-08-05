@@ -36,6 +36,7 @@ const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const SERVINGS_OPTIONS = [1, 1.5, 2];
 const MIN_DISHES_PER_DAY = 3;
 const MAX_DISHES_PER_DAY = 6;
+const MEAT_CATEGORY_VALUES = ['poultry', 'redMeat', 'fish'];
 
 function servingsValue(raw) {
 const n = Number(raw);
@@ -166,7 +167,7 @@ return NextResponse.json(
 await getOrCreateProfile(admin, user);
 
 const body = await req.json();
-const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay } = body;
+const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay, avoidMeats, minimiseIngredients } = body;
 
 if (!goal || !proteinTarget || !calorieTarget || !budgetLevel || !maxTime || !family) {
 return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 400 });
@@ -176,6 +177,8 @@ const mealSlots = Array.isArray(meals) && meals.length ? meals.filter((m) => MEA
 if (!mealSlots.length) {
 return NextResponse.json({ error: 'Select at least one meal type to include.' }, { status: 400 });
 }
+
+const safeAvoidMeats = Array.isArray(avoidMeats) ? avoidMeats.filter((m) => MEAT_CATEGORY_VALUES.includes(m)) : [];
 
 const { data: claimRows, error: claimError } = await admin.rpc('claim_free_plan_slot', {
 p_user_id: user.id,
@@ -213,6 +216,8 @@ diets: Array.isArray(diets) ? diets : [],
 isPremium,
 meals: mealSlots,
 dishesPerDay: totalDishes,
+avoidMeats: safeAvoidMeats,
+minimiseIngredients: !!minimiseIngredients,
 });
 
 const resolveRecipe = (id) => {
@@ -246,7 +251,7 @@ const stats = buildNutritionAndCost(days, family, mealSlots);
 
 await admin.from('saved_plans').insert({
 user_id: user.id,
-inputs: { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes },
+inputs: { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes, avoidMeats: safeAvoidMeats, minimiseIngredients: !!minimiseIngredients },
 plan_days: days,
 coach_note: aiResult.coachNote,
 });
