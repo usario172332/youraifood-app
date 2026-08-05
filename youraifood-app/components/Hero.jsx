@@ -19,7 +19,7 @@ export default function Hero({ onCta }) {
                                                              type: 'button',
                                                              onClick: onCta,
                                                              className: 'rounded-full bg-green-600 px-8 py-4 text-base font-extrabold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 active:translate-y-0',
-                                               }, 'Continue to My Plan →'),
+                                               }, 'Generate My Plan →'),
                                                h('p', { className: 'max-w-sm text-center text-xs font-semibold text-ink-soft lg:text-left' },
                                                              'Next: customise calories, protein, cooking time and household size. No payment details required.'
                                                            )
