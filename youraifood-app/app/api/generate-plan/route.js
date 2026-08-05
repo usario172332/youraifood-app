@@ -83,6 +83,7 @@ candidate.dish.servings = after;
 function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal) {
   if (!proteinTarget || !calorieTarget || goal === 'muscle') return;
   const tolerance = proteinTarget * 0.05;
+  const calFloor = calorieTarget * 0.9;
 
   days.forEach((dayRow) => {
     const dishRefs = [];
@@ -115,10 +116,10 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal) {
         protein += dishRefs[i].recipe.protein * combo[i];
         cal += dishRefs[i].recipe.cal * combo[i];
       }
+      if (cal < calFloor) continue;
       const proteinDev = Math.abs(protein - proteinTarget);
       const calDev = Math.abs(cal - calorieTarget);
-      const proteinOk = proteinDev <= tolerance;
-      const score = (proteinOk ? 0 : 1000000 + proteinDev * 10) + calDev;
+      const score = proteinDev * 10 + calDev;
       if (!best || score < best.score) {
         best = { score, combo };
       }
@@ -131,7 +132,6 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal) {
     }
   });
 }
-
 const PLURAL_TO_SINGULAR = {
   'Bell peppers': 'Bell pepper',
   'Carrots': 'Carrot',
