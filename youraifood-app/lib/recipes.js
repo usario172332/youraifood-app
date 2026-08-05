@@ -3,6 +3,7 @@
 // real numbers from this data, so nutrition/cost are never hallucinated).
 
 import { matchesAvoidedMeat } from './meatType';
+import { matchesAvoidedIngredient } from './avoidIngredients';
 
 export const RECIPES = [
   // BREAKFASTS
@@ -746,8 +747,8 @@ export function findRecipe(id) {
 // small and cheap. Full recipe objects (with steps) stay server/client side.
 // Premium recipes are only included when includePremium is true, so a
 // free-tier user's generated plan can never contain a Premium-only recipe.
-export function catalogForPrompt(includePremium = false, avoidMeats = []) {
-  return RECIPES.filter((r) => includePremium || !r.premium).filter((r) => !matchesAvoidedMeat(r, avoidMeats)).map((r) => ({
+export function catalogForPrompt(includePremium = false, avoidMeats = [], avoidIngredients = []) {
+  return RECIPES.filter((r) => includePremium || !r.premium).filter((r) => !matchesAvoidedMeat(r, avoidMeats)).filter((r) => !matchesAvoidedIngredient(r, avoidIngredients)).map((r) => ({
     id: r.id,
     name: r.name,
     meal: r.meal,
