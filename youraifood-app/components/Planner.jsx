@@ -285,6 +285,39 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       <h2 className="mb-1 text-xl font-extrabold text-green-900">Start building your plan</h2>
       <p className="mb-5 text-sm text-ink-soft">Choose your goal and diet. We'll handle the rest.</p>
 
+      <div className="mb-5 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
+                    <b className="mb-1 block">🔢 {statsTouched ? 'Your calculated daily targets' : 'Example daily targets'}</b>
+                    {!statsTouched && (
+                      <p className="-mt-1 mb-2 text-xs text-green-700">Based on placeholder stats — add your weight, height and age below for a personalised target.</p>
+                    )}
+                    <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
+                    <span className="mx-2 text-green-700/50">·</span>
+                    <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
+                    <div className="mt-1 text-xs text-green-700">
+                      BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-green-700">
+                      {form.calorieTouched && (
+                        <button
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, calorieTouched: false, customCalorieTarget: null }))}
+                          className="font-bold underline"
+                        >
+                          Use calculated calorie target ({targets.calorieTarget} kcal)
+                        </button>
+                      )}
+                      {form.proteinTouched && form.protein !== targets.proteinTarget && (
+                        <button
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, protein: targets.proteinTarget, proteinTouched: false }))}
+                          className="font-bold underline"
+                        >
+                          Use calculated protein target ({targets.proteinTarget}g)
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
       {prefilled && (
         <div className="mb-4 rounded-lg bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-800">
           ✓ Calorie &amp; protein targets pre-filled from your macro calculator results.
@@ -585,39 +618,6 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                         ))}
                       </select>
                     </Field>
-                  </div>
-
-                  <div className="rounded-xl bg-green-50 p-4 text-sm text-green-900">
-                    <b className="mb-1 block">🔢 {statsTouched ? 'Your calculated daily targets' : 'Example daily targets'}</b>
-                    {!statsTouched && (
-                      <p className="-mt-1 mb-2 text-xs text-green-700">Based on placeholder stats above — enter your own for a personalised target.</p>
-                    )}
-                    <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
-                    <span className="mx-2 text-green-700/50">·</span>
-                    <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
-                    <div className="mt-1 text-xs text-green-700">
-                      BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-green-700">
-                      {form.calorieTouched && (
-                        <button
-                          type="button"
-                          onClick={() => setForm((f) => ({ ...f, calorieTouched: false, customCalorieTarget: null }))}
-                          className="font-bold underline"
-                        >
-                          Use calculated calorie target ({targets.calorieTarget} kcal)
-                        </button>
-                      )}
-                      {form.proteinTouched && form.protein !== targets.proteinTarget && (
-                        <button
-                          type="button"
-                          onClick={() => setForm((f) => ({ ...f, protein: targets.proteinTarget, proteinTouched: false }))}
-                          className="font-bold underline"
-                        >
-                          Use calculated protein target ({targets.proteinTarget}g)
-                        </button>
-                      )}
-                    </div>
                   </div>
                 </div>
               )}
