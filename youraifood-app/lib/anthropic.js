@@ -50,15 +50,17 @@ export function splitDishes(total, slots) {
 
 // When the user wants to minimise their grocery list, we cap how many
 // DIFFERENT recipe ids the model may use per meal slot across the whole
-// week — heavy reuse of the same few recipes is what actually shrinks the
-// distinct-ingredient count, far more reliably than asking the model to
-// reason about ingredient overlap (it never even sees ingredient lists).
-const MIN_VARIETY_CAP = { breakfast: 2, main: 2, snack: 1 };
+// week. Catalog entries also get a "key" array of each recipe's 2-3 main
+// ingredients when this flag is on, so within that cap the model can spend
+// its variety budget on DIFFERENT recipes that still share most of their
+// shopping list (e.g. two different chicken-and-rice dishes), not only on
+// literally repeating the same recipe id.
+const MIN_VARIETY_CAP = { breakfast: 3, main: 3, snack: 2 };
 
 function varietyInstruction(mealSlots, minimiseIngredients) {
   if (!minimiseIngredients) return '';
   const caps = mealSlots.map((s) => `at most ${MIN_VARIETY_CAP[s] || 2} distinct ${MEAL_LABELS[s]} recipe id${(MIN_VARIETY_CAP[s] || 2) > 1 ? 's' : ''} across all 7 days`).join('; ');
-  return `\n- MINIMISE GROCERY LIST: the user explicitly wants to shrink their shopping list this week by buying fewer different ingredients. To achieve this, heavily REUSE the same recipe ids across the week instead of introducing new ones — use ${caps}. Prioritise this over day-to-day variety; repeating the same meals several times this week is expected and desired.`;
+  return `\n- MINIMISE GROCERY LIST: the user explicitly wants to shrink their shopping list this week by buying fewer different ingredients. Stay within ${caps}. You don't have to repeat the exact same recipe id every time to achieve this — each catalog entry includes a "key" array of its 2-3 main ingredients, so when you do introduce a different recipe id, strongly prefer one whose key ingredients overlap with a recipe you've already picked this week over one that shares nothing with the rest of the plan. This keeps the shopping list small while still allowing some day-to-day variety.`;
 }
 
 function avoidMeatInstruction(avoidMeats) {
@@ -135,7 +137,7 @@ export async function generateWeeklyPlan(inputs) {
 
   const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients } = inputs;
   const budgetGuidance = BUDGET_LEVEL_GUIDANCE[budgetLevel] || BUDGET_LEVEL_GUIDANCE.balanced;
-  const catalog = catalogForPrompt(isPremium, avoidMeats, avoidIngredients);
+  const catalog = catalogForPrompt(isPremium, avoidMeats, avoidIngredients, minimiseIngredients);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
   const total = Number(dishesPerDay) || mealSlots.length;
@@ -243,7 +245,7 @@ export async function regenerateDay(inputs) {
 
   const { dayName, goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidIds, avoidMeats, avoidIngredients, minimiseIngredients } = inputs;
   const budgetGuidance = BUDGET_LEVEL_GUIDANCE[budgetLevel] || BUDGET_LEVEL_GUIDANCE.balanced;
-  const catalog = catalogForPrompt(isPremium, avoidMeats, avoidIngredients);
+  const catalog = catalogForPrompt(isPremium, avoidMeats, avoidIngredients, minimiseIngredients);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
   const total = Number(dishesPerDay) || mealSlots.length;
@@ -257,9 +259,9 @@ The user is regenerating a single day (${dayName}) of an existing weekly plan be
 - Each dish within a meal slot must be a DIFFERENT recipe id.
 - Respect every diet tag the user selected (a recipe must include ALL of them to qualify).
 - Respect the max cook time per meal.
-- Where reasonably possible, prefer recipe ids NOT already used elsewhere in this week's plan (listed below) so the regenerated day adds real variety — but it's fine to reuse one if it's clearly the best fit for the target.${minimiseIngredients ? ' UNLESS the user has asked to minimise their grocery list (see below), in which case prefer REUSING an id already used elsewhere this week instead.' : ''}
+- Where reasonably possible, prefer recipe ids NOT already used elsewhere in this week's plan (listed below) so the regenerated day adds real variety — but it's fine to reuse one if it's clearly the best fit for the target.${minimiseIngredients ? ' UNLESS the user has asked to minimise their grocery list (see below), in which case prefer an id already used elsewhere this week, or a different id that shares its main ingredients with one already used, over an unrelated new recipe.' : ''}
 - Aim for the daily protein target of ${proteinTarget}g.
-- Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.${minimiseIngredients ? '\n- MINIMISE GROCERY LIST: the user wants to shrink their shopping list this week — strongly prefer reusing a recipe id already used elsewhere in the week (listed below) rather than a brand new one.' : ''}${avoidMeatInstruction(avoidMeats)}${avoidIngredientInstruction(avoidIngredients)}
+- Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.${minimiseIngredients ? '\n- MINIMISE GROCERY LIST: the user wants to shrink their shopping list this week — strongly prefer reusing a recipe id already used elsewhere in the week (listed below), or a different recipe id that shares most of its main ingredients (see each catalog entry\'s "key" array) with one already used, over an unrelated brand-new recipe.' : ''}${avoidMeatInstruction(avoidMeats)}${avoidIngredientInstruction(avoidIngredients)}
 Call the build_day tool with your answer. Do not include any text outside the tool call.`;
 
   const user = `Recipe catalog (JSON):
