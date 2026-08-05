@@ -2,6 +2,8 @@
 // and the AI prompt (the model picks recipe ids; the app computes the
 // real numbers from this data, so nutrition/cost are never hallucinated).
 
+import { matchesAvoidedMeat } from './meatType';
+
 export const RECIPES = [
   // BREAKFASTS
   { id: 'b1', name: 'Overnight Oats with Berries', meal: 'Breakfast', diets: ['vegan', 'vegetarian', 'dairy-free', 'gluten-free'], time: 5, cost: 1.2, protein: 12, cal: 350, carbs: 55, fat: 8, image: '/recipes/b1.jpg',
@@ -744,8 +746,8 @@ export function findRecipe(id) {
 // small and cheap. Full recipe objects (with steps) stay server/client side.
 // Premium recipes are only included when includePremium is true, so a
 // free-tier user's generated plan can never contain a Premium-only recipe.
-export function catalogForPrompt(includePremium = false) {
-  return RECIPES.filter((r) => includePremium || !r.premium).map((r) => ({
+export function catalogForPrompt(includePremium = false, avoidMeats = []) {
+  return RECIPES.filter((r) => includePremium || !r.premium).filter((r) => !matchesAvoidedMeat(r, avoidMeats)).map((r) => ({
     id: r.id,
     name: r.name,
     meal: r.meal,
