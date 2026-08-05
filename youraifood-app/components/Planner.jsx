@@ -131,6 +131,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
   }, [loading]);
   const [error, setError] = useState('');
   const [activeRecipe, setActiveRecipe] = useState(null);
+  const [showReadyModal, setShowReadyModal] = useState(false);
 
   // Pre-fill calorie/protein targets when arriving from the free Macro
   // Calculator (?calories=2200&protein=160#planner) so visitors don't have
@@ -271,6 +272,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
         return;
       }
       setResult(data);
+      setShowReadyModal(true);
     } catch (err) {
       setError('Network error — please try again.');
     } finally {
@@ -651,6 +653,64 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
             : undefined
         }
       />
+
+      {showReadyModal && (
+        <PlanReadyModal
+          onClose={() => setShowReadyModal(false)}
+          onJumpToPlan={() => {
+            setShowReadyModal(false);
+            document.getElementById('plan-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+          onJumpToGroceries={() => {
+            setShowReadyModal(false);
+            document.getElementById('grocery-list-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function PlanReadyModal({ onClose, onJumpToPlan, onJumpToGroceries }) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-5"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="plan-ready-title"
+        className="relative w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-3 top-3 rounded-full p-1.5 text-lg leading-none text-ink-soft transition duration-200 hover:bg-gray-100"
+        >
+          ✕
+        </button>
+        <div className="mb-3 text-4xl">🎉</div>
+        <h3 id="plan-ready-title" className="mb-1.5 text-lg font-extrabold text-green-900">Your plan is ready!</h3>
+        <p className="mb-5 text-sm text-ink-soft">Your personalised week and grocery list have been generated.</p>
+        <div className="flex flex-col gap-2.5">
+          <button
+            type="button"
+            onClick={onJumpToPlan}
+            className="rounded-full bg-green-600 px-5 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700"
+          >
+            📅 Jump to my plan
+          </button>
+          <button
+            type="button"
+            onClick={onJumpToGroceries}
+            className="rounded-full border-[1.5px] border-green-600 bg-white px-5 py-3 text-sm font-bold text-green-700 transition duration-200 hover:bg-green-50"
+          >
+            🛒 Jump to grocery list
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -723,7 +783,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
   }
 
   return (
-    <div className="mt-9 rounded-2xl border-2 border-green-200 bg-green-50/30 p-6 text-left">
+    <div id="plan-results" className="mt-9 rounded-2xl border-2 border-green-200 bg-green-50/30 p-6 text-left">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3.5 py-1.5 text-xs font-extrabold text-white">
@@ -831,7 +891,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
         <NutriBar label="Fat" val={stats.avgFat} unit="g" max={120} />
       </div>
 
-      <h3 className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimised grocery list</h3>
+      <h3 id="grocery-list-section" className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimised grocery list</h3>
       <p className="mb-3 text-xs text-ink-soft">
         {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy.
       </p>
