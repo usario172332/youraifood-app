@@ -8,6 +8,7 @@ const BUDGET_LEVEL_GUIDANCE = {
 };
 
 const MEAT_LABELS = { poultry: 'poultry (chicken/turkey)', redMeat: 'red meat (beef/pork/lamb)', fish: 'fish & seafood' };
+const AVOID_INGREDIENT_LABELS = { nuts: 'nuts', mushrooms: 'mushrooms', shellfish: 'shellfish', fish: 'fish', dairy: 'dairy', eggs: 'eggs', soy: 'soy' };
 
 let client = null;
 function getClient() {
@@ -64,6 +65,12 @@ function avoidMeatInstruction(avoidMeats) {
   if (!Array.isArray(avoidMeats) || !avoidMeats.length) return '';
   const list = avoidMeats.map((m) => MEAT_LABELS[m] || m).join(', ');
   return `\n- The user wants to avoid these meat categories entirely: ${list}. The catalog you were given has already excluded matching recipes, so simply never worry about reintroducing them.`;
+}
+
+function avoidIngredientInstruction(avoidIngredients) {
+  if (!Array.isArray(avoidIngredients) || !avoidIngredients.length) return '';
+  const list = avoidIngredients.map((m) => AVOID_INGREDIENT_LABELS[m] || m).join(', ');
+  return `\n- The user wants to avoid these ingredients: ${list}. The catalog you were given has already excluded matching recipes, so simply never worry about reintroducing them.`;
 }
 
 function buildPlanTool(meals, dishCounts) {
@@ -126,9 +133,9 @@ export async function generateWeeklyPlan(inputs) {
     );
   }
 
-  const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidMeats, minimiseIngredients } = inputs;
+  const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients } = inputs;
   const budgetGuidance = BUDGET_LEVEL_GUIDANCE[budgetLevel] || BUDGET_LEVEL_GUIDANCE.balanced;
-  const catalog = catalogForPrompt(isPremium, avoidMeats);
+  const catalog = catalogForPrompt(isPremium, avoidMeats, avoidIngredients);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
   const total = Number(dishesPerDay) || mealSlots.length;
@@ -151,7 +158,7 @@ The user only wants these meal types included in their plan: ${mealList}. The us
 - Aim for the daily protein target on average across the week.
 - Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.
 - Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking a totally different recipe for every dish.
-- Vary meals enough that it doesn't feel repetitive day to day.${varietyInstruction(mealSlots, minimiseIngredients)}${avoidMeatInstruction(avoidMeats)}
+- Vary meals enough that it doesn't feel repetitive day to day.${varietyInstruction(mealSlots, minimiseIngredients)}${avoidMeatInstruction(avoidMeats)}${avoidIngredientInstruction(avoidIngredients)}
 Call the build_weekly_plan tool with your answer. Do not include any text outside the tool call.`;
 
   const user = `Recipe catalog (JSON):
@@ -234,9 +241,9 @@ export async function regenerateDay(inputs) {
     );
   }
 
-  const { dayName, goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidIds, avoidMeats, minimiseIngredients } = inputs;
+  const { dayName, goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidIds, avoidMeats, avoidIngredients, minimiseIngredients } = inputs;
   const budgetGuidance = BUDGET_LEVEL_GUIDANCE[budgetLevel] || BUDGET_LEVEL_GUIDANCE.balanced;
-  const catalog = catalogForPrompt(isPremium, avoidMeats);
+  const catalog = catalogForPrompt(isPremium, avoidMeats, avoidIngredients);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const mealList = mealSlots.map((s) => MEAL_LABELS[s]).join(', ');
   const total = Number(dishesPerDay) || mealSlots.length;
@@ -252,7 +259,7 @@ The user is regenerating a single day (${dayName}) of an existing weekly plan be
 - Respect the max cook time per meal.
 - Where reasonably possible, prefer recipe ids NOT already used elsewhere in this week's plan (listed below) so the regenerated day adds real variety — but it's fine to reuse one if it's clearly the best fit for the target.${minimiseIngredients ? ' UNLESS the user has asked to minimise their grocery list (see below), in which case prefer REUSING an id already used elsewhere this week instead.' : ''}
 - Aim for the daily protein target of ${proteinTarget}g.
-- Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.${minimiseIngredients ? '\n- MINIMISE GROCERY LIST: the user wants to shrink their shopping list this week — strongly prefer reusing a recipe id already used elsewhere in the week (listed below) rather than a brand new one.' : ''}${avoidMeatInstruction(avoidMeats)}
+- Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.${minimiseIngredients ? '\n- MINIMISE GROCERY LIST: the user wants to shrink their shopping list this week — strongly prefer reusing a recipe id already used elsewhere in the week (listed below) rather than a brand new one.' : ''}${avoidMeatInstruction(avoidMeats)}${avoidIngredientInstruction(avoidIngredients)}
 Call the build_day tool with your answer. Do not include any text outside the tool call.`;
 
   const user = `Recipe catalog (JSON):
