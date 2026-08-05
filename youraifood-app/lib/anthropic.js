@@ -63,6 +63,22 @@ function varietyInstruction(mealSlots, minimiseIngredients) {
   return `\n- MINIMISE GROCERY LIST: the user explicitly wants to shrink their shopping list this week by buying fewer different ingredients. Stay within ${caps}. You don't have to repeat the exact same recipe id every time to achieve this — each catalog entry includes a "key" array of its 2-3 main ingredients, so when you do introduce a different recipe id, strongly prefer one whose key ingredients overlap with a recipe you've already picked this week over one that shares nothing with the rest of the plan. This keeps the shopping list small while still allowing some day-to-day variety.`;
 }
 
+function proteinDensityLine(goal, proteinTarget, calorieTarget) {
+  if (goal === 'muscle') {
+    return `- Protein target: ${proteinTarget}g is a MINIMUM for this Build Muscle plan, not a precise target to match — see the protein rule below for why landing above it is fine and expected.`;
+  }
+  const perHundred = (proteinTarget / calorieTarget * 100).toFixed(1);
+  const densityPct = Math.round((proteinTarget * 4 / calorieTarget) * 100);
+  return `- Target protein density: ${perHundred}g protein per 100 kcal (about ${densityPct}% of calories from protein) — use this to judge which recipes and servings will land close to BOTH targets at once, not just calories`;
+}
+
+function proteinRuleInstruction(goal, proteinTarget) {
+  if (goal === 'muscle') {
+    return `HIT THE DAILY PROTEIN TARGET AS A MINIMUM, NOT A PRECISE TARGET — for a Build Muscle plan, protein landing above ${proteinTarget}g is not a problem, so don't hold back on serving sizes to avoid it. Select dishes the same way you would for a moderate, everyday plan (similar recipe mix and protein density to a typical Lose Weight or Eat Healthier day) rather than hunting for lower-protein options, then use servings (1, 1.25, 1.5, 1.75 or 2) to scale portions up until the day meets the calorie target. Bigger portions of the same kind of meals is the expected way to reach a muscle-building calorie target, even when that pushes the day's protein comfortably above ${proteinTarget}g.`;
+  }
+  return `HIT THE DAILY PROTEIN TARGET PRECISELY TOO — this is just as important as the calorie target, not a secondary concern. Before picking dishes, compare each candidate recipe's protein-per-calorie density to the target protein density given above and favour combinations close to it, rather than defaulting to the highest-protein option available. After choosing dishes, mentally sum that day's protein (each dish's protein × its servings) and its calories. Aim to land within ±5% of the ${proteinTarget}g protein target — only accept up to ±10% if no combination of catalog recipes, dish counts, and the 1, 1.25, 1.5, 1.75, 2 serving options gets closer while still meeting the diet and time rules. Use the finer 1.25/1.75 serving increments specifically to fine-tune protein and calories together instead of only using 1.5/2. If a combination would push protein outside this range, swap in a different protein-density dish, adjust a serving size, or pick a different recipe combination — do not settle for a plan where hitting calories means overshooting protein by a wide margin.`;
+}
+
 function avoidMeatInstruction(avoidMeats) {
   if (!Array.isArray(avoidMeats) || !avoidMeats.length) return '';
   const list = avoidMeats.map((m) => MEAT_LABELS[m] || m).join(', ');
@@ -157,7 +173,7 @@ The user only wants these meal types included in their plan: ${mealList}. The us
   1. Dish count is already fixed by the user's choice above (${dishSummary}) — always fill every dish slot.
   2. Serving multipliers — set "servings" on any individual dish to 1.25, 1.5, 1.75 or 2 to scale up that dish's calories, protein and cost proportionally. Use the finer 1.25/1.75 values to land closer to both the calorie and protein targets at once instead of overshooting with 1.5/2. Do not default to 1x out of caution — scale confidently whenever the math calls for it.
   Never scale a dish below 1x or above 2x.
-- HIT THE DAILY PROTEIN TARGET PRECISELY TOO — this is just as important as the calorie target, not a secondary concern. Before picking dishes, compare each candidate recipe's protein-per-calorie density to the target protein density given above and favour combinations close to it, rather than defaulting to the highest-protein option available. After choosing dishes, mentally sum that day's protein (each dish's protein × its servings) and its calories. Aim to land within ±5% of the ${proteinTarget}g protein target — only accept up to ±10% if no combination of catalog recipes, dish counts, and the 1, 1.25, 1.5, 1.75, 2 serving options gets closer while still meeting the diet and time rules. Use the finer 1.25/1.75 serving increments specifically to fine-tune protein and calories together instead of only using 1.5/2. If a combination would push protein outside this range, swap in a different protein-density dish, adjust a serving size, or pick a different recipe combination — do not settle for a plan where hitting calories means overshooting protein by a wide margin.
+- ${proteinRuleInstruction(goal, proteinTarget)}
 - Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.
 - Deliberately REUSE a small set of recipes across the week (this reduces grocery waste) rather than picking a totally different recipe for every dish.
 - Vary meals enough that it doesn't feel repetitive day to day.${varietyInstruction(mealSlots, minimiseIngredients)}${avoidMeatInstruction(avoidMeats)}${avoidIngredientInstruction(avoidIngredients)}
@@ -170,7 +186,7 @@ User targets:
 - Fitness goal: ${goal}
 - Daily calorie target: ${calorieTarget} kcal
 - Daily protein target: ${proteinTarget}g
-- Target protein density: ${(proteinTarget / calorieTarget * 100).toFixed(1)}g protein per 100 kcal (about ${Math.round((proteinTarget * 4 / calorieTarget) * 100)}% of calories from protein) — use this to judge which recipes and servings will land close to BOTH targets at once, not just calories
+${proteinDensityLine(goal, proteinTarget, calorieTarget)}
 - Budget level: ${budgetLevel === 'budget' ? 'Budget-friendly' : budgetLevel === 'premium' ? 'Premium' : 'Balanced'} for ${family} ${family === 1 ? 'person' : 'people'}
 - Max cook time per meal: ${maxTime} minutes
 - Dietary needs: ${diets.length ? diets.join(', ') : 'none'}
@@ -261,7 +277,7 @@ The user is regenerating a single day (${dayName}) of an existing weekly plan be
 - Respect every diet tag the user selected (a recipe must include ALL of them to qualify).
 - Respect the max cook time per meal.
 - Where reasonably possible, prefer recipe ids NOT already used elsewhere in this week's plan (listed below) so the regenerated day adds real variety — but it's fine to reuse one if it's clearly the best fit for the target.${minimiseIngredients ? ' UNLESS the user has asked to minimise their grocery list (see below), in which case prefer an id already used elsewhere this week, or a different id that shares its main ingredients with one already used, over an unrelated new recipe.' : ''}
-- HIT THE DAILY PROTEIN TARGET PRECISELY TOO — compare candidate recipes' protein density to the target protein density given above before picking. After scaling for calories, sum this day's protein and keep it within ±5% of ${proteinTarget}g (up to ±10% only if no available combination gets closer). Use the finer 1.25/1.75 serving increments to fine-tune. If it would land outside that range, swap in a different protein-density dish or adjust a serving size instead of just scaling everything up.
+- ${proteinRuleInstruction(goal, proteinTarget)}
 - Ingredient budget level: ${budgetGuidance} This guides ingredient choice only — it never overrides the calorie or protein targets, dietary restrictions, or allergies.${minimiseIngredients ? '\n- MINIMISE GROCERY LIST: the user wants to shrink their shopping list this week — strongly prefer reusing a recipe id already used elsewhere in the week (listed below), or a different recipe id that shares most of its main ingredients (see each catalog entry\'s "key" array) with one already used, over an unrelated brand-new recipe.' : ''}${avoidMeatInstruction(avoidMeats)}${avoidIngredientInstruction(avoidIngredients)}
 Call the build_day tool with your answer. Do not include any text outside the tool call.`;
 
@@ -272,7 +288,7 @@ Day to regenerate: ${dayName}
 - Fitness goal: ${goal}
 - Daily calorie target: ${calorieTarget} kcal
 - Daily protein target: ${proteinTarget}g
-- Target protein density: ${(proteinTarget / calorieTarget * 100).toFixed(1)}g protein per 100 kcal (about ${Math.round((proteinTarget * 4 / calorieTarget) * 100)}% of calories from protein) — use this to judge which recipes and servings will land close to BOTH targets at once, not just calories
+${proteinDensityLine(goal, proteinTarget, calorieTarget)}
 - Dietary needs: ${diets.length ? diets.join(', ') : 'none'}
 - Meals to include: ${mealList}
 - Dishes: ${total} (${dishSummary})
