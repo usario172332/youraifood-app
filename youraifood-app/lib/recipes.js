@@ -747,7 +747,40 @@ export function findRecipe(id) {
 // small and cheap. Full recipe objects (with steps) stay server/client side.
 // Premium recipes are only included when includePremium is true, so a
 // free-tier user's generated plan can never contain a Premium-only recipe.
-export function catalogForPrompt(includePremium = false, avoidMeats = [], avoidIngredients = []) {
+// Cook-method prefixes / parenthetical notes stripped so different recipes
+// that use the "same" ingredient (e.g. "Chicken breast" vs "Grilled chicken
+// breast (boneless)") are recognised as sharing it.
+const PREP_PREFIX_RE = /^(cooked|grilled|roasted|baked|sliced|diced|chopped|shredded|steamed|boiled|minced|grated)\s+/i;
+function normaliseIngredientName(name) {
+  return name
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(PREP_PREFIX_RE, '')
+    .trim()
+    .toLowerCase();
+}
+
+// A recipe's 2-3 defining ingredients (protein first, then the next-largest
+// quantities) — lets us spot recipes that are DIFFERENT dishes but share
+// most of their shopping list, so "minimise my grocery list" can offer more
+// variety than literally repeating the same recipe id.
+export function keyIngredients(recipe) {
+  const list = recipe?.ingredients || [];
+  const sorted = [...list].sort((a, b) => {
+    const aProtein = a.cat === 'Protein' ? 1 : 0;
+    const bProtein = b.cat === 'Protein' ? 1 : 0;
+    if (aProtein !== bProtein) return bProtein - aProtein;
+    return (b.q || 0) - (a.q || 0);
+  });
+  const keys = [];
+  for (const ing of sorted) {
+    const key = normaliseIngredientName(ing.n);
+    if (key && !keys.includes(key)) keys.push(key);
+    if (keys.length >= 3) break;
+  }
+  return keys;
+}
+
+export function catalogForPrompt(includePremium = false, avoidMeats = [], avoidIngredients = [], minimiseIngredients = false) {
   return RECIPES.filter((r) => includePremium || !r.premium).filter((r) => !matchesAvoidedMeat(r, avoidMeats)).filter((r) => !matchesAvoidedIngredient(r, avoidIngredients)).map((r) => ({
     id: r.id,
     name: r.name,
@@ -757,6 +790,7 @@ export function catalogForPrompt(includePremium = false, avoidMeats = [], avoidI
     cost: r.cost,
     protein: r.protein,
     cal: r.cal,
+    ...(minimiseIngredients ? { key: keyIngredients(r) } : {}),
   }));
 }
 
