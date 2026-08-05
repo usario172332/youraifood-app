@@ -33,7 +33,7 @@ return created;
 }
 
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
-const SERVINGS_OPTIONS = [1, 1.5, 2];
+const SERVINGS_OPTIONS = [1, 1.25, 1.5, 1.75, 2];
 const MIN_DISHES_PER_DAY = 3;
 const MAX_DISHES_PER_DAY = 6;
 const MEAT_CATEGORY_VALUES = ['poultry', 'redMeat', 'fish'];
@@ -78,6 +78,58 @@ total += candidate.recipe.cal * (after - before);
 candidate.dish.servings = after;
 }
 });
+}
+
+function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal) {
+  if (!proteinTarget || !calorieTarget || goal === 'muscle') return;
+  const tolerance = proteinTarget * 0.05;
+
+  days.forEach((dayRow) => {
+    const dishRefs = [];
+    meals.forEach((slot) => {
+      (dayRow[`${slot}Dishes`] || []).forEach((dish) => {
+        const recipe = findRecipe(dish.id);
+        if (recipe) dishRefs.push({ dish, recipe });
+      });
+    });
+    if (!dishRefs.length) return;
+
+    const n = dishRefs.length;
+    const combos = Math.pow(SERVINGS_OPTIONS.length, n);
+    if (combos > 200000) return;
+
+    const currentProtein = dishRefs.reduce((sum, { dish, recipe }) => sum + recipe.protein * dish.servings, 0);
+    if (Math.abs(currentProtein - proteinTarget) <= tolerance) return;
+
+    let best = null;
+    for (let idx = 0; idx < combos; idx++) {
+      let rem = idx;
+      const combo = new Array(n);
+      for (let i = 0; i < n; i++) {
+        combo[i] = SERVINGS_OPTIONS[rem % SERVINGS_OPTIONS.length];
+        rem = Math.floor(rem / SERVINGS_OPTIONS.length);
+      }
+      let protein = 0;
+      let cal = 0;
+      for (let i = 0; i < n; i++) {
+        protein += dishRefs[i].recipe.protein * combo[i];
+        cal += dishRefs[i].recipe.cal * combo[i];
+      }
+      const proteinDev = Math.abs(protein - proteinTarget);
+      const calDev = Math.abs(cal - calorieTarget);
+      const proteinOk = proteinDev <= tolerance;
+      const score = (proteinOk ? 0 : 1000000 + proteinDev * 10) + calDev;
+      if (!best || score < best.score) {
+        best = { score, combo };
+      }
+    }
+
+    if (best) {
+      dishRefs.forEach(({ dish }, i) => {
+        dish.servings = best.combo[i];
+      });
+    }
+  });
 }
 
 const PLURAL_TO_SINGULAR = {
@@ -259,6 +311,7 @@ return dayRow;
 });
 
 enforceCalorieTarget(days, mealSlots, calorieTarget);
+enforceProteinTarget(days, mealSlots, proteinTarget, calorieTarget, goal);
 
 const groceries = buildGroceryList(days, family, mealSlots);
 const stats = buildNutritionAndCost(days, family, mealSlots);
