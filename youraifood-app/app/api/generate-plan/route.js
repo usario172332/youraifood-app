@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUserFromToken, supabaseAdmin } from '../../../lib/supabaseAdmin';
 import { generateWeeklyPlan } from '../../../lib/anthropic';
-import { findRecipe, DAYS } from '../../../lib/recipes';
+import { findRecipe, DAYS, catalogForPrompt } from '../../../lib/recipes';
 
 // The Claude call can take 15-20+ seconds; Vercel's default function
 // timeout is shorter than that, so this must be set explicitly.
@@ -34,6 +34,7 @@ return created;
 
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const SERVINGS_OPTIONS = [1, 1.25, 1.5, 1.75, 2];
+const SLOT_TO_MEAL = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 const MIN_DISHES_PER_DAY = 3;
 const MAX_DISHES_PER_DAY = 6;
 const MEAT_CATEGORY_VALUES = ['poultry', 'redMeat', 'fish'];
@@ -80,55 +81,117 @@ candidate.dish.servings = after;
 });
 }
 
-function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal) {
+function bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget) {
+  const n = dishRefs.length;
+  const combos = Math.pow(SERVINGS_OPTIONS.length, n);
+  if (combos > 200000) return null;
+
+  let best = null;
+  for (let idx = 0; idx < combos; idx++) {
+    let rem = idx;
+    const combo = new Array(n);
+    for (let i = 0; i < n; i++) {
+      combo[i] = SERVINGS_OPTIONS[rem % SERVINGS_OPTIONS.length];
+      rem = Math.floor(rem / SERVINGS_OPTIONS.length);
+    }
+    let protein = 0;
+    let cal = 0;
+    for (let i = 0; i < n; i++) {
+      protein += dishRefs[i].recipe.protein * combo[i];
+      cal += dishRefs[i].recipe.cal * combo[i];
+    }
+    if (cal < calFloor) continue;
+    const proteinDev = Math.abs(protein - proteinTarget);
+    const calDev = Math.abs(cal - calorieTarget);
+    const score = proteinDev * 10 + calDev;
+    if (!best || score < best.score) {
+      best = { score, combo, protein, cal };
+    }
+  }
+  return best;
+}
+
+function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, catalog, maxTime, diets) {
   if (!proteinTarget || !calorieTarget || goal === 'muscle') return;
   const tolerance = proteinTarget * 0.05;
   const calFloor = calorieTarget * 0.9;
+  const requiredDiets = Array.isArray(diets) ? diets.filter(Boolean) : [];
+  const timeLimit = Number(maxTime);
 
   days.forEach((dayRow) => {
     const dishRefs = [];
     meals.forEach((slot) => {
       (dayRow[`${slot}Dishes`] || []).forEach((dish) => {
         const recipe = findRecipe(dish.id);
-        if (recipe) dishRefs.push({ dish, recipe });
+        if (recipe) dishRefs.push({ dish, recipe, slot });
       });
     });
     if (!dishRefs.length) return;
 
-    const n = dishRefs.length;
-    const combos = Math.pow(SERVINGS_OPTIONS.length, n);
-    if (combos > 200000) return;
+    const proteinOf = () => dishRefs.reduce((sum, { dish, recipe }) => sum + recipe.protein * dish.servings, 0);
 
-    const currentProtein = dishRefs.reduce((sum, { dish, recipe }) => sum + recipe.protein * dish.servings, 0);
-    if (Math.abs(currentProtein - proteinTarget) <= tolerance) return;
+    if (Math.abs(proteinOf() - proteinTarget) <= tolerance) return;
 
-    let best = null;
-    for (let idx = 0; idx < combos; idx++) {
-      let rem = idx;
-      const combo = new Array(n);
-      for (let i = 0; i < n; i++) {
-        combo[i] = SERVINGS_OPTIONS[rem % SERVINGS_OPTIONS.length];
-        rem = Math.floor(rem / SERVINGS_OPTIONS.length);
-      }
-      let protein = 0;
-      let cal = 0;
-      for (let i = 0; i < n; i++) {
-        protein += dishRefs[i].recipe.protein * combo[i];
-        cal += dishRefs[i].recipe.cal * combo[i];
-      }
-      if (cal < calFloor) continue;
-      const proteinDev = Math.abs(protein - proteinTarget);
-      const calDev = Math.abs(cal - calorieTarget);
-      const score = proteinDev * 10 + calDev;
-      if (!best || score < best.score) {
-        best = { score, combo };
-      }
+    const fit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
+    if (fit) {
+      dishRefs.forEach(({ dish }, i) => {
+        dish.servings = fit.combo[i];
+      });
     }
 
-    if (best) {
-      dishRefs.forEach(({ dish }, i) => {
-        dish.servings = best.combo[i];
+    if (Math.abs(proteinOf() - proteinTarget) <= tolerance) return;
+    if (!Array.isArray(catalog) || !catalog.length) return;
+
+    const maxAttempts = dishRefs.length * 3;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const protein = proteinOf();
+      const dev = protein - proteinTarget;
+      if (Math.abs(dev) <= tolerance) break;
+
+      const sorted = [...dishRefs].sort((a, b) => {
+        const da = a.recipe.protein / a.recipe.cal;
+        const db = b.recipe.protein / b.recipe.cal;
+        return dev > 0 ? db - da : da - db;
       });
+      const target = sorted[0];
+      const usedIds = new Set(dishRefs.map((r) => r.recipe.id));
+      const slotMeal = SLOT_TO_MEAL[target.slot];
+
+      const candidates = catalog.filter((r) => {
+        if (r.meal !== slotMeal) return false;
+        if (usedIds.has(r.id)) return false;
+        if (Number.isFinite(timeLimit) && timeLimit > 0 && r.time > timeLimit) return false;
+        if (requiredDiets.length) {
+          const rd = Array.isArray(r.diets) ? r.diets : [];
+          if (!requiredDiets.every((d) => rd.includes(d))) return false;
+        }
+        return true;
+      });
+      if (!candidates.length) break;
+
+      const targetDensity = target.recipe.protein / target.recipe.cal;
+      candidates.sort((a, b) => {
+        const da = a.protein / a.cal;
+        const db = b.protein / b.cal;
+        return dev > 0 ? da - db : db - da;
+      });
+      const replacement = candidates[0];
+      const replacementDensity = replacement.protein / replacement.cal;
+      if (dev > 0 && replacementDensity >= targetDensity) break;
+      if (dev < 0 && replacementDensity <= targetDensity) break;
+
+      const newRecipe = findRecipe(replacement.id);
+      if (!newRecipe) break;
+      target.dish.id = newRecipe.id;
+      target.recipe = newRecipe;
+      target.dish.servings = 1;
+
+      const refit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
+      if (refit) {
+        dishRefs.forEach(({ dish }, i) => {
+          dish.servings = refit.combo[i];
+        });
+      }
     }
   });
 }
@@ -311,7 +374,8 @@ return dayRow;
 });
 
 enforceCalorieTarget(days, mealSlots, calorieTarget);
-enforceProteinTarget(days, mealSlots, proteinTarget, calorieTarget, goal);
+const swapCatalog = catalogForPrompt(isPremium, safeAvoidMeats, safeAvoidIngredients, false);
+enforceProteinTarget(days, mealSlots, proteinTarget, calorieTarget, goal, swapCatalog, maxTime, diets);
 
 const groceries = buildGroceryList(days, family, mealSlots);
 const stats = buildNutritionAndCost(days, family, mealSlots);
