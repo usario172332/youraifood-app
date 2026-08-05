@@ -37,6 +37,7 @@ const SERVINGS_OPTIONS = [1, 1.5, 2];
 const MIN_DISHES_PER_DAY = 3;
 const MAX_DISHES_PER_DAY = 6;
 const MEAT_CATEGORY_VALUES = ['poultry', 'redMeat', 'fish'];
+const AVOID_INGREDIENT_VALUES = ['nuts', 'mushrooms', 'shellfish', 'fish', 'dairy', 'eggs', 'soy'];
 
 function servingsValue(raw) {
 const n = Number(raw);
@@ -178,7 +179,7 @@ return NextResponse.json(
 await getOrCreateProfile(admin, user);
 
 const body = await req.json();
-const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay, avoidMeats, minimiseIngredients } = body;
+const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients } = body;
 
 if (!goal || !proteinTarget || !calorieTarget || !budgetLevel || !maxTime || !family) {
 return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 400 });
@@ -190,6 +191,7 @@ return NextResponse.json({ error: 'Select at least one meal type to include.' },
 }
 
 const safeAvoidMeats = Array.isArray(avoidMeats) ? avoidMeats.filter((m) => MEAT_CATEGORY_VALUES.includes(m)) : [];
+const safeAvoidIngredients = Array.isArray(avoidIngredients) ? avoidIngredients.filter((m) => AVOID_INGREDIENT_VALUES.includes(m)) : [];
 
 const { data: claimRows, error: claimError } = await admin.rpc('claim_free_plan_slot', {
 p_user_id: user.id,
@@ -228,6 +230,7 @@ isPremium,
 meals: mealSlots,
 dishesPerDay: totalDishes,
 avoidMeats: safeAvoidMeats,
+avoidIngredients: safeAvoidIngredients,
 minimiseIngredients: !!minimiseIngredients,
 });
 
@@ -262,7 +265,7 @@ const stats = buildNutritionAndCost(days, family, mealSlots);
 
 await admin.from('saved_plans').insert({
 user_id: user.id,
-inputs: { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes, avoidMeats: safeAvoidMeats, minimiseIngredients: !!minimiseIngredients },
+inputs: { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes, avoidMeats: safeAvoidMeats, avoidIngredients: safeAvoidIngredients, minimiseIngredients: !!minimiseIngredients },
 plan_days: days,
 coach_note: aiResult.coachNote,
 });
