@@ -9,6 +9,7 @@ const FREE_MONTHLY_LIMIT = 3;
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
 const SERVINGS_OPTIONS = [1, 1.5, 2];
 const MEAT_CATEGORY_VALUES = ['poultry', 'redMeat', 'fish'];
+const AVOID_INGREDIENT_VALUES = ['nuts', 'mushrooms', 'shellfish', 'fish', 'dairy', 'eggs', 'soy'];
 
 function currentMonthKey(date = new Date()) {
 return `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
@@ -155,7 +156,7 @@ return NextResponse.json({ error: 'Supabase is not configured on the server yet.
 await getOrCreateProfile(admin, user);
 
 const body = await req.json();
-const { dayIndex, days, goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay, avoidMeats, minimiseIngredients } = body;
+const { dayIndex, days, goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients } = body;
 
 if (!Array.isArray(days) || dayIndex == null || !days[dayIndex]) {
 return NextResponse.json({ error: 'Missing plan context for regeneration.' }, { status: 400 });
@@ -165,6 +166,7 @@ return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 4
 }
 
 const safeAvoidMeats = Array.isArray(avoidMeats) ? avoidMeats.filter((m) => MEAT_CATEGORY_VALUES.includes(m)) : [];
+const safeAvoidIngredients = Array.isArray(avoidIngredients) ? avoidIngredients.filter((m) => AVOID_INGREDIENT_VALUES.includes(m)) : [];
 
 const { data: claimRows, error: claimError } = await admin.rpc('claim_free_plan_slot', {
 p_user_id: user.id,
@@ -212,6 +214,7 @@ meals: mealSlots,
 dishesPerDay: total,
 avoidIds: Array.from(avoidIds),
 avoidMeats: safeAvoidMeats,
+avoidIngredients: safeAvoidIngredients,
 minimiseIngredients: !!minimiseIngredients,
 });
 
