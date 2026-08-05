@@ -51,15 +51,26 @@ candidate.dish.servings = after;
 }
 }
 
+const PLURAL_TO_SINGULAR = {
+  'Bell peppers': 'Bell pepper',
+  'Carrots': 'Carrot',
+  'Egg whites': 'Egg white',
+  'Soft-boiled eggs': 'Soft-boiled egg',
+  'Sundried tomatoes': 'Sundried tomato',
+  'Tomatoes': 'Tomato',
+};
+
 function groceryKey(name) {
-const cleaned = name
-.replace(/\s*\([^)]*\)\s*/g, ' ')
-.replace(/^\s*(cooked|grilled|roasted|baked|sliced|diced|chopped|shredded|steamed|boiled|minced|grated)\s+/i, '')
-.replace(/\s+/g, ' ')
-.trim();
-const titled = cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
-if (titled === 'Eggs') return 'Egg';
-return titled;
+  const cleaned = name
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\bchili\b/gi, 'chilli')
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(/^\s*(cooked|grilled|roasted|baked|sliced|diced|chopped|shredded|steamed|boiled|minced|grated)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const titled = cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+  if (titled === 'Eggs') return 'Egg';
+  return PLURAL_TO_SINGULAR[titled] || titled;
 }
 
 function buildGroceryList(days, family, meals) {
