@@ -115,7 +115,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [showCustomize, setShowCustomize] = useState(false);
-  const [showPersonalize, setShowPersonalize] = useState(false);
+  const [showPersonalize, setShowPersonalize] = useState(true);
   const [prefilled, setPrefilled] = useState(false);
   const [statsTouched, setStatsTouched] = useState(false);
 
@@ -375,7 +375,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           <span className="text-xs font-normal text-ink-soft">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
         </button>
         <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
-          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four meals a day (breakfast, lunch, dinner and a snack), typically built from fewer dishes since lunch and dinner often share a batch-cooked main.
+          We use sensible defaults if you skip this — 30 min cook time, 1 person, a balanced ingredient mix, and four meals a day (breakfast, lunch, dinner and a snack), typically built from fewer dishes since lunch and dinner often share a batch-cooked main. Add your weight here for calorie and protein targets built around you.
         </p>
 
         {showCustomize && (
@@ -500,7 +500,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                 aria-expanded={showPersonalize}
                 className="flex w-full items-center justify-between rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-bold text-green-800 transition duration-200 hover:border-green-300 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
               >
-                <span>🔒 Personalise using my stats (optional)</span>
+                <span>🔒 Add your weight, height & age (optional)</span>
                 <span className="text-xs font-normal text-ink-soft">{showPersonalize ? 'Hide ▲' : 'Show ▼'}</span>
               </button>
               <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
