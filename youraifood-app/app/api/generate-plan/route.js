@@ -33,7 +33,7 @@ return created;
 }
 
 const MEAL_SLOTS = ['breakfast', 'main', 'snack'];
-const SERVINGS_OPTIONS = [1, 1.25, 1.5, 1.75, 2];
+const SERVINGS_OPTIONS = [1, 1.25, 1.5, 1.75, 2, 2.5, 3];
 const SLOT_TO_MEAL = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 const MIN_DISHES_PER_DAY = 3;
 const MAX_DISHES_PER_DAY = 6;
@@ -51,14 +51,17 @@ if (idx === -1 || idx === SERVINGS_OPTIONS.length - 1) return null;
 return SERVINGS_OPTIONS[idx + 1];
 }
 
-function enforceCalorieTarget(days, meals, calorieTarget) {
+function enforceCalorieTarget(days, meals, calorieTarget, catalog, maxTime, diets) {
 const threshold = calorieTarget * 0.9;
+const requiredDiets = Array.isArray(diets) ? diets.filter(Boolean) : [];
+const timeLimit = Number(maxTime);
+const slotPriority = ['main', 'breakfast', 'snack'];
 days.forEach((dayRow) => {
 const dishRefs = [];
 meals.forEach((slot) => {
 (dayRow[`${slot}Dishes`] || []).forEach((dish) => {
 const recipe = findRecipe(dish.id);
-if (recipe) dishRefs.push({ dish, recipe });
+if (recipe) dishRefs.push({ dish, recipe, slot });
 });
 });
 if (!dishRefs.length) return;
@@ -72,11 +75,44 @@ guard += 1;
 const candidate = dishRefs
 .filter(({ dish }) => nextServing(dish.servings) !== null)
 .sort((a, b) => a.dish.servings - b.dish.servings)[0];
-if (!candidate) break;
+if (candidate) {
 const before = candidate.dish.servings;
 const after = nextServing(before);
 total += candidate.recipe.cal * (after - before);
 candidate.dish.servings = after;
+continue;
+}
+
+if (!Array.isArray(catalog) || !catalog.length || dishRefs.length >= MAX_DISHES_PER_DAY) break;
+
+const usedIds = new Set(dishRefs.map((r) => r.recipe.id));
+let added = null;
+for (const slot of slotPriority) {
+if (!meals.includes(slot)) continue;
+const slotMeal = SLOT_TO_MEAL[slot];
+const options = catalog
+.filter((r) => r.meal === slotMeal)
+.filter((r) => !usedIds.has(r.id))
+.filter((r) => !Number.isFinite(timeLimit) || timeLimit <= 0 || r.time <= timeLimit)
+.filter((r) => {
+if (!requiredDiets.length) return true;
+const rd = Array.isArray(r.diets) ? r.diets : [];
+return requiredDiets.every((d) => rd.includes(d));
+})
+.sort((a, b) => b.cal - a.cal);
+if (options.length) {
+added = { slot, recipe: options[0] };
+break;
+}
+}
+if (!added) break;
+
+const newRecipe = findRecipe(added.recipe.id);
+if (!newRecipe) break;
+const newDish = { id: newRecipe.id, servings: 1 };
+dayRow[`${added.slot}Dishes`] = [...(dayRow[`${added.slot}Dishes`] || []), newDish];
+dishRefs.push({ dish: newDish, recipe: newRecipe, slot: added.slot });
+total += newRecipe.cal;
 }
 });
 }
@@ -375,8 +411,8 @@ dayRow[`${slot}Dishes`] = resolved;
 return dayRow;
 });
 
-enforceCalorieTarget(days, mealSlots, calorieTarget);
 const swapCatalog = catalogForPrompt(isPremium, safeAvoidMeats, safeAvoidIngredients, false);
+enforceCalorieTarget(days, mealSlots, calorieTarget, swapCatalog, maxTime, diets);
 enforceProteinTarget(days, mealSlots, proteinTarget, calorieTarget, goal, swapCatalog, maxTime, diets);
 
 const groceries = buildGroceryList(days, family, mealSlots);
