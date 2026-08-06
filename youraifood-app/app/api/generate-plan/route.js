@@ -265,10 +265,10 @@ addRecipe(findRecipe(dish.id), dish.servings || 1);
 
 return {
 totalCost,
-avgProtein: Math.round(totalProtein / 7),
-avgCal: Math.round(totalCal / 7),
-avgCarbs: Math.round(totalCarbs / 7),
-avgFat: Math.round(totalFat / 7),
+avgProtein: Math.round(totalProtein / days.length),
+avgCal: Math.round(totalCal / days.length),
+avgCarbs: Math.round(totalCarbs / days.length),
+avgFat: Math.round(totalFat / days.length),
 distinctRecipes: usedRecipeIds.size,
 };
 }
@@ -294,7 +294,8 @@ return NextResponse.json(
 await getOrCreateProfile(admin, user);
 
 const body = await req.json();
-const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients } = body;
+const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients, numDays } = body;
+const safeNumDays = [1, 3, 5, 7].includes(Number(numDays)) ? Number(numDays) : 7;
 
 if (!goal || !proteinTarget || !calorieTarget || !budgetLevel || !maxTime || !family) {
 return NextResponse.json({ error: 'Missing required plan inputs.' }, { status: 400 });
@@ -347,6 +348,7 @@ dishesPerDay: totalDishes,
 avoidMeats: safeAvoidMeats,
 avoidIngredients: safeAvoidIngredients,
 minimiseIngredients: !!minimiseIngredients,
+numDays: safeNumDays,
 });
 
 const resolveRecipe = (id) => {
@@ -382,7 +384,7 @@ const stats = buildNutritionAndCost(days, family, mealSlots);
 
 await admin.from('saved_plans').insert({
 user_id: user.id,
-inputs: { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes, avoidMeats: safeAvoidMeats, avoidIngredients: safeAvoidIngredients, minimiseIngredients: !!minimiseIngredients },
+inputs: { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, meals: mealSlots, dishesPerDay: totalDishes, avoidMeats: safeAvoidMeats, avoidIngredients: safeAvoidIngredients, minimiseIngredients: !!minimiseIngredients, numDays: safeNumDays },
 plan_days: days,
 coach_note: aiResult.coachNote,
 });
