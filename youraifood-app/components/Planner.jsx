@@ -693,6 +693,18 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           }}
         />
       )}
+
+      {!result && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 sm:pb-6">
+          <button
+            onClick={generate}
+            disabled={loading}
+            className="pointer-events-auto flex items-center gap-2 rounded-full bg-green-600 px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_30px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
+          >
+            {loading ? LOADING_STEPS[loadingStep] : 'Generate My Plan →'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
