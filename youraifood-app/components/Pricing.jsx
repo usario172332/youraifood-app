@@ -135,7 +135,7 @@ export default function Pricing({ session, isPremium }) {
               }}
               className="block w-full rounded-full bg-green-600 py-2.5 text-center text-sm font-bold text-white transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
             >
-              Generate My Week →
+              Generate My Plan →
             </a>
           </div>
           <div className="relative flex flex-col rounded-2xl border-2 border-green-600 p-7 shadow-2xl sm:-mt-3">
