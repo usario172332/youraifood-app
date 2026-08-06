@@ -410,7 +410,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           disabled={loading}
           className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          {loading ? LOADING_STEPS[loadingStep] : 'Generate My Week →'}
+          {loading ? LOADING_STEPS[loadingStep] : 'Generate My Plan →'}
         </button>
       </div>
       <p className="text-right text-[11px] font-semibold text-ink-soft">
@@ -919,7 +919,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
 
       <h3 id="grocery-list-section" className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimised grocery list</h3>
       <p className="mb-3 text-xs text-ink-soft">
-        {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy.
+        {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy{form.family > 1 ? ` — quantities scaled for ${form.family} people` : ''}.
       </p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {groceryBuckets.map((b) => (
