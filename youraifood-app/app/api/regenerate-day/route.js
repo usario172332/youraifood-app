@@ -119,10 +119,10 @@ addRecipe(findRecipe(dish.id), dish.servings || 1);
 });
 return {
 totalCost,
-avgProtein: Math.round(totalProtein / 7),
-avgCal: Math.round(totalCal / 7),
-avgCarbs: Math.round(totalCarbs / 7),
-avgFat: Math.round(totalFat / 7),
+avgProtein: Math.round(totalProtein / days.length),
+avgCal: Math.round(totalCal / days.length),
+avgCarbs: Math.round(totalCarbs / days.length),
+avgFat: Math.round(totalFat / days.length),
 distinctRecipes: usedRecipeIds.size,
 };
 }
