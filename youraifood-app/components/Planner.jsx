@@ -846,7 +846,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
         </div>
       )}
 
-      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your ${plan.days ? plan.days.length : 7}-day menu</h3>
+      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your ${days.length}-day menu</h3>
       <p className="mb-3 text-xs text-ink-soft">
         Some meals include more than one dish, and portions are sometimes scaled up, so each day reaches your calorie target.
         Not happy with a day? Use the 🔄 next to it to regenerate just that day.
