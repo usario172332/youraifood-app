@@ -153,6 +153,7 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
   const calFloor = calorieTarget * 0.9;
   const requiredDiets = Array.isArray(diets) ? diets.filter(Boolean) : [];
   const timeLimit = Number(maxTime);
+  const slotOrder = ['main', 'breakfast', 'snack'];
 
   days.forEach((dayRow) => {
     const dishRefs = [];
@@ -166,7 +167,7 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
 
     const proteinOf = () => dishRefs.reduce((sum, { dish, recipe }) => sum + recipe.protein * dish.servings, 0);
 
-    if (Math.abs(proteinOf() - proteinTarget) <= tolerance) return;
+    if (Math.abs(proteinOf() - proteinTarget) < tolerance) return;
 
     const fit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
     if (fit) {
@@ -175,14 +176,14 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
       });
     }
 
-    if (Math.abs(proteinOf() - proteinTarget) <= tolerance) return;
+    if (Math.abs(proteinOf() - proteinTarget) < tolerance) return;
     if (!Array.isArray(catalog) || !catalog.length) return;
 
-    const maxAttempts = dishRefs.length * 3;
+    const maxAttempts = dishRefs.length * 3 + MAX_DISHES_PER_DAY;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const protein = proteinOf();
       const dev = protein - proteinTarget;
-      if (Math.abs(dev) <= tolerance) break;
+      if (Math.abs(dev) < tolerance) break;
 
       const sorted = [...dishRefs].sort((a, b) => {
         const da = a.recipe.protein / a.recipe.cal;
@@ -203,34 +204,77 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
         }
         return true;
       });
-      if (!candidates.length) break;
 
-      const targetDensity = target.recipe.protein / target.recipe.cal;
-      candidates.sort((a, b) => {
-        const da = a.protein / a.cal;
-        const db = b.protein / b.cal;
-        return dev > 0 ? da - db : db - da;
-      });
-      const replacement = candidates[0];
-      const replacementDensity = replacement.protein / replacement.cal;
-      if (dev > 0 && replacementDensity >= targetDensity) break;
-      if (dev < 0 && replacementDensity <= targetDensity) break;
-
-      const newRecipe = findRecipe(replacement.id);
-      if (!newRecipe) break;
-      target.dish.id = newRecipe.id;
-      target.recipe = newRecipe;
-      target.dish.servings = 1;
-
-      const refit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
-      if (refit) {
-        dishRefs.forEach(({ dish }, i) => {
-          dish.servings = refit.combo[i];
+      let acted = false;
+      if (candidates.length) {
+        const targetDensity = target.recipe.protein / target.recipe.cal;
+        candidates.sort((a, b) => {
+          const da = a.protein / a.cal;
+          const db = b.protein / b.cal;
+          return dev > 0 ? da - db : db - da;
         });
+        const replacement = candidates[0];
+        const replacementDensity = replacement.protein / replacement.cal;
+        const improves = dev > 0 ? replacementDensity < targetDensity : replacementDensity > targetDensity;
+        if (improves) {
+          const newRecipe = findRecipe(replacement.id);
+          if (newRecipe) {
+            target.dish.id = newRecipe.id;
+            target.recipe = newRecipe;
+            target.dish.servings = 1;
+            const refit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
+            if (refit) {
+              dishRefs.forEach(({ dish }, i) => {
+                dish.servings = refit.combo[i];
+              });
+            }
+            acted = true;
+          }
+        }
       }
+
+      if (!acted && dev < 0 && dishRefs.length < MAX_DISHES_PER_DAY) {
+        let added = null;
+        for (const slot of slotOrder) {
+          if (!meals.includes(slot)) continue;
+          const slotMeal2 = SLOT_TO_MEAL[slot];
+          const options = catalog
+            .filter((r) => r.meal === slotMeal2)
+            .filter((r) => !usedIds.has(r.id))
+            .filter((r) => !Number.isFinite(timeLimit) || timeLimit <= 0 || r.time <= timeLimit)
+            .filter((r) => {
+              if (!requiredDiets.length) return true;
+              const rd = Array.isArray(r.diets) ? r.diets : [];
+              return requiredDiets.every((d) => rd.includes(d));
+            })
+            .sort((a, b) => (b.protein / b.cal) - (a.protein / a.cal));
+          if (options.length) {
+            added = { slot, recipe: options[0] };
+            break;
+          }
+        }
+        if (added) {
+          const newRecipe = findRecipe(added.recipe.id);
+          if (newRecipe) {
+            const newDish = { id: newRecipe.id, servings: 1 };
+            dayRow[`${added.slot}Dishes`] = [...(dayRow[`${added.slot}Dishes`] || []), newDish];
+            dishRefs.push({ dish: newDish, recipe: newRecipe, slot: added.slot });
+            const refit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
+            if (refit) {
+              dishRefs.forEach(({ dish }, i) => {
+                dish.servings = refit.combo[i];
+              });
+            }
+            acted = true;
+          }
+        }
+      }
+
+      if (!acted) break;
     }
   });
 }
+
 const PLURAL_TO_SINGULAR = {
   'Bell peppers': 'Bell pepper',
   'Carrots': 'Carrot',
