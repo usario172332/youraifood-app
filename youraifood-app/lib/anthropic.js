@@ -91,7 +91,7 @@ function avoidIngredientInstruction(avoidIngredients) {
   return `\n- The user wants to avoid these ingredients: ${list}. The catalog you were given has already excluded matching recipes, so simply never worry about reintroducing them.`;
 }
 
-function buildPlanTool(meals, dishCounts) {
+function buildPlanTool(meals, dishCounts, numDays, dayNames) {
   const dayProps = { day: { type: 'string' } };
   const required = ['day', ...meals.map((s) => `${s}Dishes`)];
 
@@ -120,13 +120,13 @@ function buildPlanTool(meals, dishCounts) {
 
   return {
     name: 'build_weekly_plan',
-    description: 'Return a 7-day meal plan built entirely from the provided recipe catalog.',
+    description: `Return a ${numDays}-day meal plan built entirely from the provided recipe catalog.`,
     input_schema: {
       type: 'object',
       properties: {
         days: {
           type: 'array',
-          description: 'Exactly 7 entries, Monday through Sunday.',
+          description: `Exactly ${numDays} entries: ${dayNames.join(', ')}.`,
           items: {
             type: 'object',
             properties: dayProps,
@@ -151,7 +151,7 @@ export async function generateWeeklyPlan(inputs) {
     );
   }
 
-  const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients } = inputs;
+  const { goal, proteinTarget, calorieTarget, budgetLevel, maxTime, family, diets, isPremium, meals, dishesPerDay, avoidMeats, avoidIngredients, minimiseIngredients, numDays } = inputs;
   const budgetGuidance = BUDGET_LEVEL_GUIDANCE[budgetLevel] || BUDGET_LEVEL_GUIDANCE.balanced;
   const catalog = catalogForPrompt(isPremium, avoidMeats, avoidIngredients, minimiseIngredients);
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
@@ -159,11 +159,13 @@ export async function generateWeeklyPlan(inputs) {
   const total = Number(dishesPerDay) || mealSlots.length;
   const dishCounts = splitDishes(total, mealSlots);
   const dishSummary = mealSlots.map((s) => `${dishCounts[s]} ${MEAL_LABELS[s]}`).join(', ');
+  const dayCount = [1, 3, 5, 7].includes(Number(numDays)) ? Number(numDays) : 7;
+  const dayNames = DAYS.slice(0, dayCount);
 
   const system = `You are the meal-planning engine behind YourAiFood, a fitness recipe app.
 You will be given a recipe catalog (id, meal type, diet tags, cook time in minutes, cost per serving in EUR, protein in grams, calories) and a user's targets.
 The user's calorie and protein targets were calculated from their actual body stats (weight, height, age, sex, activity level) using the Mifflin-St Jeor formula, adjusted for their goal — treat them as real, meaningful targets, not rough guesses.
-The user only wants these meal types included in their plan: ${mealList}. The user has chosen ${total} dishes per day in total, split as: ${dishSummary}. Build a 7-day plan using ONLY recipe ids that appear in the catalog, filling exactly this many dishes per meal slot every day — never more, never fewer. Rules:
+The user only wants these meal types included in their plan: ${mealList}. The user has chosen ${total} dishes per day in total, split as: ${dishSummary}. Build a ${dayCount}-day plan (covering ${dayNames.join(', ')}) using ONLY recipe ids that appear in the catalog, filling exactly this many dishes per meal slot every day — never more, never fewer. Rules:
 - HITTING THE DAILY CALORIE TARGET IS YOUR TOP PRIORITY — more important than variety, budget, or reuse. Before finalizing each day, mentally sum that day's calories (each dish's calories × its servings). If that sum is more than ~10% below the ${calorieTarget} kcal target, you MUST scale up dishes (set "servings" to 1.25, 1.5, 1.75 or 2) until the day is within range — do not submit a day left significantly under target. It is normal and expected for MOST dishes to end up scaled above 1x whenever the target is high relative to a single serving of each dish, especially with fewer dishes per day or a higher-calorie goal like muscle gain. When scaling dishes up to hit the calorie target, don't only reach for high-protein dishes — mix in at least one lower-protein, carb- or fat-leaning dish per day where the catalog allows, so calories can be hit without dragging protein far past its own target (see the protein rule below).
 - Each dish within a meal slot must be a DIFFERENT recipe id (no duplicates within the same slot on the same day). The same recipe id may reappear on other days or in other slots.
 - Respect every diet tag the user selected (a recipe must include ALL of them to qualify).
@@ -191,14 +193,15 @@ ${proteinDensityLine(goal, proteinTarget, calorieTarget)}
 - Max cook time per meal: ${maxTime} minutes
 - Dietary needs: ${diets.length ? diets.join(', ') : 'none'}
 - Meals to include each day: ${mealList}
-- Dishes per day: ${total} (${dishSummary})`;
+- Dishes per day: ${total} (${dishSummary})
+- Plan length: ${dayCount} days (${dayNames.join(', ')})`;
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-5',
     max_tokens: 3200,
     system,
     messages: [{ role: 'user', content: user }],
-    tools: [buildPlanTool(mealSlots, dishCounts)],
+    tools: [buildPlanTool(mealSlots, dishCounts, dayCount, dayNames)],
     tool_choice: { type: 'tool', name: 'build_weekly_plan' },
   });
 
