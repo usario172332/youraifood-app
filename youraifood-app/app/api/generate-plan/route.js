@@ -100,10 +100,10 @@ function bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget) {
       protein += dishRefs[i].recipe.protein * combo[i];
       cal += dishRefs[i].recipe.cal * combo[i];
     }
-    if (cal < calFloor) continue;
+    const shortfall = Math.max(0, calFloor - cal);
     const proteinDev = Math.abs(protein - proteinTarget);
     const calDev = Math.abs(cal - calorieTarget);
-    const score = proteinDev * 10 + calDev;
+    const score = proteinDev * 10 + calDev + shortfall * 50;
     if (!best || score < best.score) {
       best = { score, combo, protein, cal };
     }
