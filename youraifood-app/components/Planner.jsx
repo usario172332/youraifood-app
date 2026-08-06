@@ -383,27 +383,6 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
         </Field>
       </div>
 
-      {loading && (
-        <div className="mb-3 flex items-center justify-center gap-2">
-          {PROGRESS_STAGES.map((stage, i) => {
-            const current = progressStageIndex(loadingStep);
-            const state = i < current ? 'done' : i === current ? 'active' : 'pending';
-            return (
-              <div key={stage} className="flex items-center gap-2">
-                <span
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                    state === 'pending' ? 'bg-gray-100 text-ink-soft' : 'bg-green-600 text-white'
-                  }`}
-                >
-                  {state === 'done' ? '✓' : i + 1} {stage}
-                </span>
-                {i < PROGRESS_STAGES.length - 1 && <span className="text-gray-300">→</span>}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       <div className="mb-2 flex justify-end">
         <button
           onClick={generate}
@@ -694,6 +673,8 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
         />
       )}
 
+      {loading && <PlanLoadingModal step={loadingStep} />}
+
       {!result && (
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 sm:pb-6">
           <button
@@ -705,6 +686,49 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function PlanLoadingModal({ step }) {
+  const current = progressStageIndex(step);
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="plan-loading-title"
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-5"
+    >
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-2xl">
+        <div className="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center">
+          <span className="absolute inset-0 animate-ping rounded-full bg-green-200 opacity-75" />
+          <span className="absolute inset-0 animate-spin rounded-full border-4 border-green-100 border-t-green-600" />
+          <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-2xl">
+            🍽️
+          </span>
+        </div>
+        <h3 id="plan-loading-title" className="mb-1.5 text-lg font-extrabold text-green-900">
+          Preparing your plan…
+        </h3>
+        <p className="mb-5 text-sm text-ink-soft">{LOADING_STEPS[step]}</p>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {PROGRESS_STAGES.map((stage, i) => {
+            const state = i < current ? 'done' : i === current ? 'active' : 'pending';
+            return (
+              <div key={stage} className="flex items-center gap-2">
+                <span
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                    state === 'pending' ? 'bg-gray-100 text-ink-soft' : 'bg-green-600 text-white'
+                  }`}
+                >
+                  {state === 'done' ? '✓' : i + 1} {stage}
+                </span>
+                {i < PROGRESS_STAGES.length - 1 && <span className="text-gray-300">→</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
