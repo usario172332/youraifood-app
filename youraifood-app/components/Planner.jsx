@@ -66,6 +66,13 @@ const DISH_PRESETS = [
   { value: 6, label: '6', hint: 'max variety' },
 ];
 
+const PLAN_LENGTH_PRESETS = [
+  { value: 1, label: '1', hint: 'today only' },
+  { value: 3, label: '3', hint: 'few days' },
+  { value: 5, label: '5', hint: 'workweek' },
+  { value: 7, label: '7', hint: 'full week' },
+];
+
 // Mirrors the server-side split in lib/anthropic.js — used here only to show
 // a live preview of how the chosen dish count breaks down per meal type.
 const SPLIT_PRIORITY = ['main', 'breakfast', 'snack'];
@@ -105,6 +112,7 @@ const DEFAULT_FORM = {
   diets: [],
   meals: ['breakfast', 'main', 'snack'],
   dishesPerDay: 4,
+  numDays: 7,
   avoidMeats: [],
   avoidIngredients: [],
   minimiseIngredients: false,
@@ -222,6 +230,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           diets: form.diets,
           meals: form.meals,
           dishesPerDay: form.dishesPerDay,
+          numDays: form.numDays,
           avoidMeats: form.avoidMeats,
           avoidIngredients: form.avoidIngredients,
           minimiseIngredients: form.minimiseIngredients,
@@ -261,6 +270,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           diets: form.diets,
           meals: form.meals,
           dishesPerDay: form.dishesPerDay,
+          numDays: form.numDays,
           avoidMeats: form.avoidMeats,
           avoidIngredients: form.avoidIngredients,
           minimiseIngredients: form.minimiseIngredients,
@@ -469,6 +479,22 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                       onClick={() => setForm((f) => ({ ...f, dishesPerDay: d.value }))}
                       className={`rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold transition duration-200 ${
                         form.dishesPerDay === d.value ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
+                      }`}
+                    >
+                      {d.label} <span className="font-normal">({d.hint})</span>
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <Field label="Plan length" hint="(days)">
+                <div className="flex flex-wrap gap-1.5">
+                  {PLAN_LENGTH_PRESETS.map((d) => (
+                    <button
+                      key={d.value}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, numDays: d.value }))}
+                      className={`rounded-lg border-[1.5px] px-2.5 py-2 text-xs font-semibold transition duration-200 ${
+                        form.numDays === d.value ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-200 text-ink-soft'
                       }`}
                     >
                       {d.label} <span className="font-normal">({d.hint})</span>
@@ -820,7 +846,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
         </div>
       )}
 
-      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your 7-day menu</h3>
+      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your ${plan.days ? plan.days.length : 7}-day menu</h3>
       <p className="mb-3 text-xs text-ink-soft">
         Some meals include more than one dish, and portions are sometimes scaled up, so each day reaches your calorie target.
         Not happy with a day? Use the 🔄 next to it to regenerate just that day.
