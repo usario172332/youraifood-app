@@ -117,7 +117,7 @@ total += newRecipe.cal;
 });
 }
 
-function bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget) {
+function bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget, proteinTolerance) {
   const n = dishRefs.length;
   const combos = Math.pow(SERVINGS_OPTIONS.length, n);
   if (combos > 200000) return null;
@@ -139,7 +139,8 @@ function bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget) {
     const shortfall = Math.max(0, calFloor - cal);
     const proteinDev = Math.abs(protein - proteinTarget);
     const calDev = Math.abs(cal - calorieTarget);
-    const score = proteinDev * 10 + calDev + shortfall * 50;
+    const inTolerance = Number.isFinite(proteinTolerance) && proteinDev < proteinTolerance;
+    const score = inTolerance ? (calDev - 1000000) : (proteinDev * 10 + calDev + shortfall * 50);
     if (!best || score < best.score) {
       best = { score, combo, protein, cal };
     }
@@ -167,9 +168,7 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
 
     const proteinOf = () => dishRefs.reduce((sum, { dish, recipe }) => sum + recipe.protein * dish.servings, 0);
 
-    if (Math.abs(proteinOf() - proteinTarget) < tolerance) return;
-
-    const fit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
+    const fit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget, tolerance);
     if (fit) {
       dishRefs.forEach(({ dish }, i) => {
         dish.servings = fit.combo[i];
@@ -222,7 +221,7 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
             target.dish.id = newRecipe.id;
             target.recipe = newRecipe;
             target.dish.servings = 1;
-            const refit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
+            const refit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget, tolerance);
             if (refit) {
               dishRefs.forEach(({ dish }, i) => {
                 dish.servings = refit.combo[i];
@@ -234,7 +233,9 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
       }
 
       if (!acted && dev < 0 && dishRefs.length < MAX_DISHES_PER_DAY) {
-        let added = null;
+        const baseFit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget, tolerance);
+        const baseScore = baseFit ? baseFit.score : Infinity;
+        let bestOption = null;
         for (const slot of slotOrder) {
           if (!meals.includes(slot)) continue;
           const slotMeal2 = SLOT_TO_MEAL[slot];
@@ -248,25 +249,24 @@ function enforceProteinTarget(days, meals, proteinTarget, calorieTarget, goal, c
               return requiredDiets.every((d) => rd.includes(d));
             })
             .sort((a, b) => (b.protein / b.cal) - (a.protein / a.cal));
-          if (options.length) {
-            added = { slot, recipe: options[0] };
-            break;
+          const candidateRecipe = options[0];
+          if (!candidateRecipe) continue;
+          const newRecipeForTrial = findRecipe(candidateRecipe.id);
+          if (!newRecipeForTrial) continue;
+          const trialRefs = [...dishRefs, { dish: { id: newRecipeForTrial.id, servings: 1 }, recipe: newRecipeForTrial, slot }];
+          const trialFit = bestServingsCombo(trialRefs, proteinTarget, calFloor, calorieTarget, tolerance);
+          if (trialFit && (!bestOption || trialFit.score < bestOption.fit.score)) {
+            bestOption = { slot, recipe: newRecipeForTrial, fit: trialFit };
           }
         }
-        if (added) {
-          const newRecipe = findRecipe(added.recipe.id);
-          if (newRecipe) {
-            const newDish = { id: newRecipe.id, servings: 1 };
-            dayRow[`${added.slot}Dishes`] = [...(dayRow[`${added.slot}Dishes`] || []), newDish];
-            dishRefs.push({ dish: newDish, recipe: newRecipe, slot: added.slot });
-            const refit = bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget);
-            if (refit) {
-              dishRefs.forEach(({ dish }, i) => {
-                dish.servings = refit.combo[i];
-              });
-            }
-            acted = true;
-          }
+        if (bestOption && bestOption.fit.score < baseScore) {
+          const newDish = { id: bestOption.recipe.id, servings: 1 };
+          dayRow[`${bestOption.slot}Dishes`] = [...(dayRow[`${bestOption.slot}Dishes`] || []), newDish];
+          dishRefs.push({ dish: newDish, recipe: bestOption.recipe, slot: bestOption.slot });
+          dishRefs.forEach(({ dish }, i) => {
+            dish.servings = bestOption.fit.combo[i];
+          });
+          acted = true;
         }
       }
 
