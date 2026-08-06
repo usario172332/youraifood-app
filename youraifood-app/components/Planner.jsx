@@ -816,7 +816,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
             ✨ Your plan is ready
           </span>
           <p className="mt-2 text-sm font-semibold text-green-800">
-            {mealSlots.map((s) => `7 ${MEAL_LABELS[s]}`).join(' · ')} · shopping list included
+            {mealSlots.map((s) => `${days.length} ${MEAL_LABELS[s]}`).join(' · ')} · shopping list included
             {calorieOnTarget ? ' · calories on target' : ''}
             {proteinOnTarget ? ' · protein target hit' : ''}
           </p>
@@ -846,7 +846,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
         </div>
       )}
 
-      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your ${days.length}-day menu</h3>
+      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your {days.length}-day menu</h3>
       <p className="mb-3 text-xs text-ink-soft">
         Some meals include more than one dish, and portions are sometimes scaled up, so each day reaches your calorie target.
         Not happy with a day? Use the 🔄 next to it to regenerate just that day.
