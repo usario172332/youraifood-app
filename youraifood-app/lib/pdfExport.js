@@ -39,7 +39,7 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
   doc.setFontSize(10.5);
   doc.setTextColor(20, 100, 60);
   doc.text(
-    `Est. weekly cost €${stats.totalCost.toFixed(0)}   ·   Avg daily protein ${stats.avgProtein}g   ·   Avg daily calories ${stats.avgCal} kcal   ·   ${stats.distinctRecipes} distinct recipes`,
+    `Avg daily protein ${stats.avgProtein}g   ·   Avg daily calories ${stats.avgCal} kcal   ·   ${stats.distinctRecipes} distinct recipes`,
     margin,
     y
   );
