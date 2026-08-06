@@ -139,7 +139,7 @@ function bestServingsCombo(dishRefs, proteinTarget, calFloor, calorieTarget, pro
     const shortfall = Math.max(0, calFloor - cal);
     const proteinDev = Math.abs(protein - proteinTarget);
     const calDev = Math.abs(cal - calorieTarget);
-    const inTolerance = Number.isFinite(proteinTolerance) && proteinDev < proteinTolerance && (!Number.isFinite(calCeiling) || cal <= calCeiling);
+    const inTolerance = Number.isFinite(proteinTolerance) && proteinDev < proteinTolerance && (!Number.isFinite(calCeiling) || cal <= calCeiling) && cal >= calFloor;
     const score = inTolerance ? (calDev - 1000000) : (proteinDev * 10 + calDev + shortfall * 50);
     if (!best || score < best.score) {
       best = { score, combo, protein, cal };
