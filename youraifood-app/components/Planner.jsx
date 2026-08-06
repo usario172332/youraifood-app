@@ -919,7 +919,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
 
       <h3 id="grocery-list-section" className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimised grocery list</h3>
       <p className="mb-3 text-xs text-ink-soft">
-        {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy{form.family > 1 ? ` — quantities scaled for ${form.family} people` : ''}.
+        {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy{family > 1 ? ` — quantities scaled for ${family} people` : ''}.
       </p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {groceryBuckets.map((b) => (
