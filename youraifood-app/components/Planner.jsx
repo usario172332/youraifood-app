@@ -296,6 +296,9 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       }
       setResult(data);
       setShowReadyModal(true);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('plan-generated'));
+      }
     } catch (err) {
       setError('Network error — please try again.');
     } finally {
