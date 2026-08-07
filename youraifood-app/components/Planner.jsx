@@ -137,6 +137,19 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
     }, 1700);
     return () => clearInterval(id);
   }, [loading]);
+
+  const [showStickyBtn, setShowStickyBtn] = useState(true);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const el = document.getElementById('planner');
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyBtn(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   const [error, setError] = useState('');
   const [activeRecipe, setActiveRecipe] = useState(null);
   const [showReadyModal, setShowReadyModal] = useState(false);
@@ -675,7 +688,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
 
       {loading && <PlanLoadingModal step={loadingStep} />}
 
-      {!result && (
+      {!result && showStickyBtn && (
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 sm:pb-6">
           <button
             onClick={generate}
