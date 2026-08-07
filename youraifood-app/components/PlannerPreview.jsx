@@ -50,6 +50,15 @@ function dayStats(row) {
 export default function PlannerPreview() {
   const { session } = useAuth();
   const [latestPlan, setLatestPlan] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    function handlePlanGenerated() {
+      setRefreshKey((k) => k + 1);
+    }
+    window.addEventListener('plan-generated', handlePlanGenerated);
+    return () => window.removeEventListener('plan-generated', handlePlanGenerated);
+  }, []);
 
   useEffect(() => {
     if (!session) {
@@ -68,7 +77,7 @@ export default function PlannerPreview() {
     return () => {
       cancelled = true;
     };
-  }, [session]);
+  }, [session, refreshKey]);
 
   const todayIdx = (new Date().getDay() + 6) % 7; // Mon=0 ... Sun=6, matches real "today"
   const todayFull = DAYS_FULL[todayIdx];
