@@ -30,9 +30,8 @@ export default function Testimonials() {
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
-        <h2 className="text-center text-2xl font-extrabold text-green-900">What early testers are saying</h2>
         <p className="mx-auto mb-10 mt-2 max-w-xl text-center text-ink-soft">
-          Real feedback from people who tried YourAiFood before launch.
+          Real feedback from people who tried YourAiFood.
         </p>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {TESTIMONIALS.map((t) => (
