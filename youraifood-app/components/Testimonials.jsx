@@ -40,7 +40,7 @@ export default function Testimonials() {
               key={t.highlight}
               className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-6"
             >
-              <div className="text-sm text-amber-400" aria-label="5 out of 5 stars">{\u2605.repeat(5)}</div>
+              <div className="text-sm text-amber-400" aria-label="5 out of 5 stars">{'\u2605'.repeat(5)}</div>
               <p className="font-extrabold text-ink">&quot;{t.highlight}&quot;</p>
               <p className="text-sm text-ink-soft">{t.quote}</p>
             </div>
