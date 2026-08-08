@@ -8,6 +8,7 @@ import WhyYourAiFood from './WhyYourAiFood';
 import SamplePlan from './SamplePlan';
 import TrustSection from './TrustSection';
 import RecipeGallery from './RecipeGallery';
+import Testimonials from './Testimonials';
 import FounderNote from './FounderNote';
 import FAQ from './FAQ';
 import Pricing from './Pricing';
@@ -62,6 +63,7 @@ return (
 <InlineCTA label="See My Personalised Week" />
 <TrustSection />
 <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} compact />
+<Testimonials />
 <Pricing session={session} isPremium={isPremium} />
 <FounderNote />
 <EmailCapture />
