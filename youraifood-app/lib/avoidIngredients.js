@@ -34,7 +34,9 @@ export const AVOID_INGREDIENT_OPTIONS = [
 ];
 
 function wordMatches(text, word) {
-  return new RegExp(`\\b${word}\\b`, 'i').test(text);
+  // Allow a simple trailing plural ('mushroom' -> 'mushrooms') since
+  // ingredient names in the recipe data are almost always plural.
+  return new RegExp(`\\b${word}s?\\b`, 'i').test(text);
 }
 
 function ingredientMatchesCategory(name, keywords) {
