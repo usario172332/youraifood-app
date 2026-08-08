@@ -17,7 +17,7 @@ const TESTIMONIALS = [
   {
     highlight: 'I stopped asking myself what I should cook every day.',
     quote:
-      'That was the biggest difference for me. I have the week mapped out, I know what I need from the supermarket, and if I don't like a day I can just regenerate it.',
+      'That was the biggest difference for me. I have the week mapped out, I know what I need from the supermarket, and if I don\'t like a day I can just regenerate it.',
   },
   {
     highlight: 'Exactly what I wanted for cutting.',
