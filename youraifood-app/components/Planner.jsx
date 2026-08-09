@@ -26,27 +26,27 @@ const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Sn
 const GOAL_LABELS = { lose: 'Lose Weight', muscle: 'Build Muscle', maintain: 'Eat Healthier' };
 
 const GOAL_CARDS = [
-  { value: 'lose', icon: 'ð¥', label: 'Lose Weight', benefit: 'High-protein meals within your calorie target.' },
-  { value: 'muscle', icon: 'ðª', label: 'Build Muscle', benefit: 'Protein-focused meals to support muscle growth.' },
-  { value: 'maintain', icon: 'ð¥', label: 'Eat Healthier', benefit: 'Balanced meals without the planning.' },
+  { value: 'lose', icon: '🔥', label: 'Lose Weight', benefit: 'High-protein meals within your calorie target.' },
+  { value: 'muscle', icon: '💪', label: 'Build Muscle', benefit: 'Protein-focused meals to support muscle growth.' },
+  { value: 'maintain', icon: '🥗', label: 'Eat Healthier', benefit: 'Balanced meals without the planning.' },
 ];
 
 // Note: internal `value`s stay 'budget' / 'balanced' / 'premium' to match the
-// backend API contract (/api/generate-plan, /api/regenerate-day) â only the
+// backend API contract (/api/generate-plan, /api/regenerate-day) — only the
 // displayed labels/icons change. This is an ingredient-preference choice, not
 // a price estimate: we don't know local grocery prices, so we never promise one.
 const BUDGET_LEVELS = [
-  { value: 'budget', icon: 'ð¥', label: 'Economical', desc: 'Everyday staples' },
-  { value: 'balanced', icon: 'âï¸', label: 'Balanced', desc: 'A mix of both' },
-  { value: 'premium', icon: 'ð½ï¸', label: 'Varied', desc: 'Greater recipe variety' },
+  { value: 'budget', icon: '🥕', label: 'Economical', desc: 'Everyday staples' },
+  { value: 'balanced', icon: '⚖️', label: 'Balanced', desc: 'A mix of both' },
+  { value: 'premium', icon: '🍽️', label: 'Varied', desc: 'Greater recipe variety' },
 ];
 
 const LOADING_STEPS = [
-  'Understanding your goalsâ¦',
-  'Selecting suitable recipesâ¦',
-  'Balancing calories and macrosâ¦',
-  'Creating your shopping listâ¦',
-  'Finalising your personalised weekâ¦',
+  'Understanding your goals…',
+  'Selecting suitable recipes…',
+  'Balancing calories and macros…',
+  'Creating your shopping list…',
+  'Finalising your personalised week…',
 ];
 
 // Maps the more granular LOADING_STEPS onto the 3 stages shown in the
@@ -73,7 +73,7 @@ const PLAN_LENGTH_PRESETS = [
   { value: 7, label: '7', hint: 'full week' },
 ];
 
-// Mirrors the server-side split in lib/anthropic.js â used here only to show
+// Mirrors the server-side split in lib/anthropic.js — used here only to show
 // a live preview of how the chosen dish count breaks down per meal type.
 const SPLIT_PRIORITY = ['main', 'breakfast', 'snack'];
 function splitDishes(total, slots) {
@@ -209,7 +209,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
   );
 
   // Keep the protein field in sync with the calculated suggestion until the
-  // user manually edits it themselves â after that, we leave their number alone.
+  // user manually edits it themselves — after that, we leave their number alone.
   const proteinValue = form.proteinTouched ? form.protein : targets.proteinTarget;
   const calorieValue = form.calorieTouched && form.customCalorieTarget ? form.customCalorieTarget : targets.calorieTarget;
   const dishSplit = useMemo(() => splitDishes(form.dishesPerDay, form.meals), [form.dishesPerDay, form.meals]);
@@ -277,7 +277,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       }
       setResult((r) => ({ ...r, days: data.days, groceries: data.groceries, stats: data.stats, usage: data.usage }));
     } catch (err) {
-      setError('Network error â please try again.');
+      setError('Network error — please try again.');
     }
   }
 
@@ -285,7 +285,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
     setError('');
     if (!user) {
       requestSignIn();
-      setError('Sign in to generate your personalised plan â use the panel that just opened.');
+      setError('Sign in to generate your personalised plan — use the panel that just opened.');
       return;
     }
     setLoading(true);
@@ -329,7 +329,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
         window.dispatchEvent(new Event('plan-generated'));
       }
     } catch (err) {
-      setError('Network error â please try again.');
+      setError('Network error — please try again.');
     } finally {
       setLoading(false);
     }
@@ -341,15 +341,15 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       <p className="mb-5 text-sm text-ink-soft">Choose your goal and diet. We'll handle the rest.</p>
 
       <div className="mb-5 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
-                    <b className="mb-1 block">ð¢ {statsTouched ? 'Your calculated daily targets' : 'Example daily targets'}</b>
+                    <b className="mb-1 block">🔢 {statsTouched ? 'Your calculated daily targets' : 'Example daily targets'}</b>
                     {!statsTouched && (
-                      <p className="-mt-1 mb-2 text-xs text-green-700">Based on placeholder stats â add your weight, height and age below for a personalised target.</p>
+                      <p className="-mt-1 mb-2 text-xs text-green-700">Based on placeholder stats — add your weight, height and age below for a personalised target.</p>
                     )}
                     <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
-                    <span className="mx-2 text-green-700/50">Â·</span>
+                    <span className="mx-2 text-green-700/50">·</span>
                     <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
                     <div className="mt-1 text-xs text-green-700">
-                      BMR {targets.bmr} kcal Â· maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
+                      BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
                     </div>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-green-700">
                       {form.calorieTouched && (
@@ -375,13 +375,13 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
 
       {prefilled && (
         <div className="mb-4 rounded-lg bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-800">
-          â Calorie &amp; protein targets pre-filled from your macro calculator results.
+          ✓ Calorie &amp; protein targets pre-filled from your macro calculator results.
         </div>
       )}
 
       <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-extrabold text-green-700">
-        <span>Start here â pick a goal</span>
-        <span className="inline-block animate-bounce">ð</span>
+        <span>Start here — pick a goal</span>
+        <span className="inline-block animate-bounce">👇</span>
       </div>
 
       <div className="mb-5">
@@ -408,7 +408,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       </div>
 
       <div className="mb-5">
-        <Field label="Dietary preference" hint="â select all that apply">
+        <Field label="Dietary preference" hint="— select all that apply">
           <div className="flex flex-wrap gap-1.5">
             {DIET_OPTIONS.map((d) => (
               <label
@@ -423,7 +423,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
             ))}
           </div>
           <p className="mt-1.5 text-[11px] text-ink-soft">
-            Combine any options â e.g. Vegetarian + Gluten-free, or Dairy-free + your protein target.
+            Combine any options — e.g. Vegetarian + Gluten-free, or Dairy-free + your protein target.
           </p>
         </Field>
       </div>
@@ -434,12 +434,12 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           disabled={loading}
           className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          {loading ? LOADING_STEPS[loadingStep] : 'Generate My Plan â'}
+          {loading ? LOADING_STEPS[loadingStep] : 'Generate My Plan →'}
         </button>
       </div>
       <p className="text-right text-[11px] font-semibold text-ink-soft">
-        â Every plan includes automatically calculated macros
-          {!isPremium && ' Â· This will use 1 of your 3 free monthly plans'}
+        ✓ Every plan includes automatically calculated macros
+          {!isPremium && ' · This will use 1 of your 3 free monthly plans'}
       </p>
 
       {error && <p className="mt-2 text-sm font-semibold text-amber-700">{error}</p>}
@@ -451,11 +451,11 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           aria-expanded={showCustomize}
           className="flex w-full items-center justify-between rounded-xl border-2 border-green-300 bg-green-50 px-5 py-4 text-left shadow-sm transition duration-200 hover:border-green-400 hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
         >
-          <span className="text-base font-extrabold text-green-800">âï¸ Customise My Plan</span>
-          <span className="text-xs font-semibold text-green-700">{showCustomize ? 'Hide â²' : 'Show â¼'}</span>
+          <span className="text-base font-extrabold text-green-800">⚙️ Customise My Plan</span>
+          <span className="text-xs font-semibold text-green-700">{showCustomize ? 'Hide ▲' : 'Show ▼'}</span>
         </button>
         <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
-          Add your weight, cook time, household size, dishes per day, ingredients to avoid and more â we use sensible defaults (30 min cook time, 1 person, a balanced ingredient mix, four meals a day) for anything you skip.
+          Add your weight, cook time, household size, dishes per day, ingredients to avoid and more — we use sensible defaults (30 min cook time, 1 person, a balanced ingredient mix, four meals a day) for anything you skip.
         </p>
 
         {showCustomize && (
@@ -559,13 +559,13 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                     </label>
                   ))}
                 </div>
-                <p className="mt-1.5 text-[11px] text-ink-soft">This is a preference filter, not a certified allergy check â always double-check ingredients yourself if you have a serious allergy.</p>
+                <p className="mt-1.5 text-[11px] text-ink-soft">This is a preference filter, not a certified allergy check — always double-check ingredients yourself if you have a serious allergy.</p>
               </Field>
               <Field label="Grocery list size">
                 <label className="flex items-start gap-2 rounded-lg border-[1.5px] border-gray-200 px-3 py-2 text-xs font-semibold text-ink">
                   <input type="checkbox" className="mt-0.5" checked={form.minimiseIngredients} onChange={() => setForm((f) => ({ ...f, minimiseIngredients: !f.minimiseIngredients }))} />
-                  <span>ð§º Minimise my grocery list
-                    <span className="mt-0.5 block font-normal text-ink-soft">Reuses the same recipes more across the week so you buy fewer different ingredients â expect less day-to-day variety.</span>
+                  <span>🧺 Minimise my grocery list
+                    <span className="mt-0.5 block font-normal text-ink-soft">Reuses the same recipes more across the week so you buy fewer different ingredients — expect less day-to-day variety.</span>
                   </span>
                 </label>
               </Field>
@@ -587,7 +587,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                   ))}
                 </div>
                 <p className="mt-1.5 text-[11px] text-ink-soft">
-                  â {form.meals.map((s) => `${dishSplit[s] || 0} ${MEAL_LABELS[s]}`).join(' Â· ')}
+                  ≈ {form.meals.map((s) => `${dishSplit[s] || 0} ${MEAL_LABELS[s]}`).join(' · ')}
                 </p>
               </Field>
             </div>
@@ -612,8 +612,8 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
                 aria-expanded={showPersonalize}
                 className="flex w-full items-center justify-between rounded-xl border-2 border-blue-200 bg-blue-50 px-4 py-3 text-left text-sm font-bold text-blue-800 transition duration-200 hover:border-blue-300 hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
-                <span>âï¸ Add your weight, height & age (optional, for personalised targets)</span>
-                <span className="text-xs font-semibold text-blue-700">{showPersonalize ? 'Hide â²' : 'Show â¼'}</span>
+                <span>⚖️ Add your weight, height & age (optional, for personalised targets)</span>
+                <span className="text-xs font-semibold text-blue-700">{showPersonalize ? 'Hide ▲' : 'Show ▼'}</span>
               </button>
               <p className="mt-1.5 text-[11px] leading-tight text-ink-soft">
                 Add your weight, height, age &amp; activity level for calorie and protein targets calculated just for you.
@@ -622,9 +622,9 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
               {showPersonalize && (
                 <div className="mt-4">
                   <div className="mb-4 flex items-start gap-2 rounded-lg bg-gray-50 px-3.5 py-2.5 text-xs text-ink-soft">
-                    <span>ð</span>
+                    <span>🔒</span>
                     <span>
-                      Your weight, height, age, and sex are used only in your browser to calculate the targets below â the raw
+                      Your weight, height, age, and sex are used only in your browser to calculate the targets below — the raw
                       numbers are never sent to our servers or to the AI that builds your plan.{' '}
                       <a href="/privacy" className="font-semibold text-green-700 underline">Read our privacy policy</a>.
                     </span>
@@ -727,7 +727,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
             disabled={loading}
             className="pointer-events-auto flex items-center gap-2 rounded-full bg-green-600 px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_30px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-px hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-60 disabled:hover:translate-y-0"
           >
-            {loading ? LOADING_STEPS[loadingStep] : 'Generate My Plan â'}
+            {loading ? LOADING_STEPS[loadingStep] : 'Generate My Plan →'}
           </button>
         </div>
       )}
@@ -749,11 +749,11 @@ function PlanLoadingModal({ step }) {
           <span className="absolute inset-0 animate-ping rounded-full bg-green-200 opacity-75" />
           <span className="absolute inset-0 animate-spin rounded-full border-4 border-green-100 border-t-green-600" />
           <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-2xl">
-            ð½ï¸
+            🍽️
           </span>
         </div>
         <h3 id="plan-loading-title" className="mb-1.5 text-lg font-extrabold text-green-900">
-          Preparing your planâ¦
+          Preparing your plan…
         </h3>
         <p className="mb-5 text-sm text-ink-soft">{LOADING_STEPS[step]}</p>
         <div className="flex flex-wrap items-center justify-center gap-2">
@@ -766,9 +766,9 @@ function PlanLoadingModal({ step }) {
                     state === 'pending' ? 'bg-gray-100 text-ink-soft' : 'bg-green-600 text-white'
                   }`}
                 >
-                  {state === 'done' ? 'â' : i + 1} {stage}
+                  {state === 'done' ? '✓' : i + 1} {stage}
                 </span>
-                {i < PROGRESS_STAGES.length - 1 && <span className="text-gray-300">â</span>}
+                {i < PROGRESS_STAGES.length - 1 && <span className="text-gray-300">→</span>}
               </div>
             );
           })}
@@ -796,9 +796,9 @@ function PlanReadyModal({ onClose, onJumpToPlan, onJumpToGroceries }) {
           aria-label="Close"
           className="absolute right-3 top-3 rounded-full p-1.5 text-lg leading-none text-ink-soft transition duration-200 hover:bg-gray-100"
         >
-          â
+          ✕
         </button>
-        <div className="mb-3 text-4xl">ð</div>
+        <div className="mb-3 text-4xl">🎉</div>
         <h3 id="plan-ready-title" className="mb-1.5 text-lg font-extrabold text-green-900">Your plan is ready!</h3>
         <p className="mb-5 text-sm text-ink-soft">Your personalised week and grocery list have been generated.</p>
         <div className="flex flex-col gap-2.5">
@@ -807,14 +807,14 @@ function PlanReadyModal({ onClose, onJumpToPlan, onJumpToGroceries }) {
             onClick={onJumpToPlan}
             className="rounded-full bg-green-600 px-5 py-3 text-sm font-bold text-white shadow-md transition duration-200 hover:-translate-y-px hover:bg-green-700"
           >
-            ð Jump to my plan
+            📅 Jump to my plan
           </button>
           <button
             type="button"
             onClick={onJumpToGroceries}
             className="rounded-full border-[1.5px] border-green-600 bg-white px-5 py-3 text-sm font-bold text-green-700 transition duration-200 hover:bg-green-50"
           >
-            ð Jump to grocery list
+            🛒 Jump to grocery list
           </button>
         </div>
       </div>
@@ -894,23 +894,23 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3.5 py-1.5 text-xs font-extrabold text-white">
-            â¨ Your plan is ready
+            ✨ Your plan is ready
           </span>
           <p className="mt-2 text-sm font-semibold text-green-800">
-            {mealSlots.map((s) => `${days.length} ${MEAL_LABELS[s]}`).join(' Â· ')} Â· shopping list included
-            {calorieOnTarget ? ' Â· calories on target' : ''}
-            {proteinOnTarget ? ' Â· protein target hit' : ''}
+            {mealSlots.map((s) => `${days.length} ${MEAL_LABELS[s]}`).join(' · ')} · shopping list included
+            {calorieOnTarget ? ' · calories on target' : ''}
+            {proteinOnTarget ? ' · protein target hit' : ''}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-50 disabled:opacity-60">ð Download grocery list (CSV)</button>
+          <button type="button" onClick={handleDownloadCsv} disabled={downloading} className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-50 disabled:opacity-60">📄 Download grocery list (CSV)</button>
           <button
             type="button"
             onClick={handleDownloadPdf}
             disabled={downloading}
             className="rounded-full border-[1.5px] border-green-600 bg-white px-4 py-2 text-xs font-bold text-green-700 shadow-sm transition duration-200 hover:bg-green-50 disabled:opacity-60"
           >
-            {downloading ? 'Preparing PDFâ¦' : 'â¬ï¸ Download plan & grocery list (PDF)'}
+            {downloading ? 'Preparing PDF…' : '⬇️ Download plan & grocery list (PDF)'}
           </button>
         </div>
       </div>
@@ -922,15 +922,15 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
 
       {coachNote && (
         <div className="mb-7 rounded-xl bg-green-50 p-4 text-sm text-green-900">
-          <b className="mb-1 block">ð Plan notes</b>
+          <b className="mb-1 block">📝 Plan notes</b>
           {coachNote}
         </div>
       )}
 
-      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">ðï¸ Your {days.length}-day menu</h3>
+      <h3 className="mb-3 mt-7 text-xl font-extrabold text-green-900">🗓️ Your {days.length}-day menu</h3>
       <p className="mb-3 text-xs text-ink-soft">
         Some meals include more than one dish, and portions are sometimes scaled up, so each day reaches your calorie target.
-        Not happy with a day? Use the ð next to it to regenerate just that day.
+        Not happy with a day? Use the 🔄 next to it to regenerate just that day.
       </p>
       <div className="overflow-x-auto rounded-xl border border-gray-200">
         <table className="w-full border-collapse bg-white text-sm">
@@ -954,7 +954,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
                     title="Regenerate this day"
                     className="ml-1.5 align-middle text-xs font-normal text-green-600 underline disabled:opacity-50"
                   >
-                    {regeneratingDay === dayIndex ? 'â³' : 'ð'}
+                    {regeneratingDay === dayIndex ? '⏳' : '🔄'}
                   </button>
                 </td>
                 {mealSlots.map((slot) => {
@@ -963,7 +963,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
                     .filter((d) => d.recipe);
                   return (
                     <td key={slot} className="px-3 py-2.5">
-                      {dishes.length === 0 && <span className="text-ink-soft">â</span>}
+                      {dishes.length === 0 && <span className="text-ink-soft">—</span>}
                       {dishes.map((d, idx) => (
                         <div
                           key={`${slot}-${d.id}`}
@@ -977,7 +977,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
                             {d.recipe.name}
                           </div>
                           <div className="text-xs text-ink-soft">
-                            {Math.round(d.recipe.protein * d.servings)}g protein Â· {d.recipe.time}min
+                            {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min
                           </div>
                         </div>
                       ))}
@@ -1000,7 +1000,7 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
 
       <h3 id="grocery-list-section" className="mb-3 mt-7 text-lg font-extrabold text-green-900">Optimised grocery list</h3>
       <p className="mb-3 text-xs text-ink-soft">
-        {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy{family > 1 ? ` â quantities scaled for ${family} people` : ''}.
+        {rawIngredientCount} ingredient entries across the week consolidated into {consolidatedCount} grocery items to buy{family > 1 ? ` — quantities scaled for ${family} people` : ''}.
       </p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {groceryBuckets.map((b) => (
@@ -1020,15 +1020,15 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
 
       <div className="mt-4">
         <div className="rounded-xl border border-green-100 bg-green-50 p-4">
-          <p className="text-sm font-extrabold text-green-900">ð Smart repetition, not random repetition</p>
+          <p className="text-sm font-extrabold text-green-900">🔁 Smart repetition, not random repetition</p>
           <p className="mt-1 text-xs text-ink-soft">
             Just {stats.distinctRecipes} distinct recipes across the week, repeated by design.
           </p>
           <div className="mt-2.5 flex flex-wrap gap-1.5 text-[11px] font-semibold text-green-700">
-            <span className="rounded-full bg-white px-2.5 py-1">â»ï¸ Less food waste</span>
-            <span className="rounded-full bg-white px-2.5 py-1">ð Simpler shopping</span>
-            <span className="rounded-full bg-white px-2.5 py-1">â±ï¸ Easier meal prep</span>
-            <span className="rounded-full bg-white px-2.5 py-1">ð° Saves money</span>
+            <span className="rounded-full bg-white px-2.5 py-1">♻️ Less food waste</span>
+            <span className="rounded-full bg-white px-2.5 py-1">🛒 Simpler shopping</span>
+            <span className="rounded-full bg-white px-2.5 py-1">⏱️ Easier meal prep</span>
+            <span className="rounded-full bg-white px-2.5 py-1">💰 Saves money</span>
           </div>
         </div>
       </div>
