@@ -8,13 +8,13 @@ import { getRecipeSlug } from '../lib/recipeSlug';
 import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero, isMealPrepFriendly, isFreezerFriendly, isOnePan, isBeginnerFriendly, isQuick } from '../lib/recipeMeta';
 
 const DIET_ICON = {
-  vegan: 'ð±',
-  vegetarian: 'ð¥',
-  'dairy-free': 'ð¥',
-  'gluten-free': 'ð¾',
+  vegan: '🌱',
+  vegetarian: '🥗',
+  'dairy-free': '🥛',
+  'gluten-free': '🌾',
 };
 
-// Minimum real ratings before an aggregate is shown â a 1-2 review average
+// Minimum real ratings before an aggregate is shown — a 1-2 review average
 // isn't meaningful social proof and can be misleading either direction, so
 // we stay quiet on a recipe's rating until enough genuine reviews exist.
 const MIN_RATINGS_TO_SHOW = 5;
@@ -23,21 +23,21 @@ const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
 const TIME_OPTIONS = [
-  { value: 'any', label: 'â±ï¸ Any time' },
+  { value: 'any', label: '⏱️ Any time' },
   { value: '20', label: 'Under 20 min' },
   { value: '30', label: 'Under 30 min' },
   { value: '45', label: 'Under 45 min' },
 ];
 
 const CAL_OPTIONS = [
-  { value: 'any', label: 'ð¥ Any calories' },
+  { value: 'any', label: '🔥 Any calories' },
   { value: '400', label: 'Under 400 kcal' },
   { value: '600', label: 'Under 600 kcal' },
   { value: '800', label: 'Under 800 kcal' },
 ];
 
 const PROTEIN_OPTIONS = [
-  { value: 'any', label: 'ð¥© Any protein' },
+  { value: 'any', label: '🥩 Any protein' },
   { value: '20', label: '20g+ protein' },
   { value: '30', label: '30g+ protein' },
   { value: '40', label: '40g+ protein' },
@@ -50,13 +50,13 @@ const SORT_OPTIONS = [
   { value: 'lowestCal', label: 'Lowest calories' },
 ];
 
-// Hand-picked homepage teaser â a compact mix of free recipes to prove
+// Hand-picked homepage teaser — a compact mix of free recipes to prove
 // quality, plus a couple of premium ones (shown locked/blurred) to create
 // FOMO toward upgrading. Kept short on purpose so the homepage stays light;
 // the full library is one click away via the "Browse Recipes" CTA below.
 const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6'];
 
-// Editorial picks used purely to make cards easier to scan while browsing â
+// Editorial picks used purely to make cards easier to scan while browsing —
 // not derived from any popularity/view-tracking data (the app doesn't
 // collect any), so these are clearly decorative rather than a factual claim.
 const POPULAR_IDS = new Set(['nr1', 'b2', 'nr2', 'b1']);
@@ -64,28 +64,28 @@ const CHEFS_PICK_IDS = new Set(['nr4', 'ps1', 'b12']);
 
 // One extra "special" badge per card, in priority order. The editorial picks
 // above take priority; the rest are computed live from real recipe data so
-// they stay honest â only shown on the full library page where the matching
+// they stay honest — only shown on the full library page where the matching
 // sort options ("Highest protein", "Quickest", "Lowest calories") live too.
 function specialBadge(r, superlatives, compact) {
-  if (POPULAR_IDS.has(r.id)) return { icon: 'â­', label: 'Most popular', decorative: true };
-  if (CHEFS_PICK_IDS.has(r.id)) return { icon: 'ð¨âð³', label: "Chef's pick", decorative: true };
+  if (POPULAR_IDS.has(r.id)) return { icon: '⭐', label: 'Most popular', decorative: true };
+  if (CHEFS_PICK_IDS.has(r.id)) return { icon: '👨‍🍳', label: "Chef's pick", decorative: true };
   if (!compact && superlatives) {
-    if (r.id === superlatives.highestProtein) return { icon: 'ðª', label: 'Highest protein', decorative: false };
-    if (r.id === superlatives.fastest) return { icon: 'â¡', label: 'Fastest', decorative: false };
-    if (r.id === superlatives.lowestCal) return { icon: 'ð¥', label: 'Lowest calories', decorative: false };
+    if (r.id === superlatives.highestProtein) return { icon: '💪', label: 'Highest protein', decorative: false };
+    if (r.id === superlatives.fastest) return { icon: '⚡', label: 'Fastest', decorative: false };
+    if (r.id === superlatives.lowestCal) return { icon: '🥗', label: 'Lowest calories', decorative: false };
   }
   return null;
 }
 
 // Priority order for which single extra attribute badge to show alongside
-// High Protein â cards stay compact, so only the two most useful badges
+// High Protein — cards stay compact, so only the two most useful badges
 // per recipe are surfaced instead of every attribute that applies.
 function extraBadge(r) {
-  if (isQuick(r)) return { label: 'Under 20 Minutes', icon: 'â±ï¸' };
-  if (isOnePan(r)) return { label: 'One Pan', icon: 'ð³' };
-  if (isBeginnerFriendly(r)) return { label: 'Beginner Friendly', icon: 'ð±' };
-  if (isMealPrepFriendly(r)) return { label: 'Meal Prep Friendly', icon: 'ð¦' };
-  if (isFreezerFriendly(r)) return { label: 'Freezer Friendly', icon: 'âï¸' };
+  if (isQuick(r)) return { label: 'Under 20 Minutes', icon: '⏱️' };
+  if (isOnePan(r)) return { label: 'One Pan', icon: '🍳' };
+  if (isBeginnerFriendly(r)) return { label: 'Beginner Friendly', icon: '🌱' };
+  if (isMealPrepFriendly(r)) return { label: 'Meal Prep Friendly', icon: '📦' };
+  if (isFreezerFriendly(r)) return { label: 'Freezer Friendly', icon: '❄️' };
   return null;
 }
 
@@ -190,7 +190,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
 
   function handleCardClick(r) {
     // Opening the modal for a locked recipe now shows a real preview
-    // (photo, macros, badges) with only ingredients/instructions gated â
+    // (photo, macros, badges) with only ingredients/instructions gated —
     // visitors can judge recipe quality before being asked to upgrade.
     setActive(r);
   }
@@ -242,8 +242,8 @@ return (
         </h2>
         <p className="mb-8 text-center text-white/70">
           {compact
-            ? `${RECIPES.length} fitness recipes â a photo, full macros and AI meal planning for every one`
-            : 'Search, filter, and sort â find exactly the recipe you need'}
+            ? `${RECIPES.length} fitness recipes — a photo, full macros and AI meal planning for every one`
+            : 'Search, filter, and sort — find exactly the recipe you need'}
         </p>
 
         {!compact && planRecipes.length > 0 && (
@@ -313,7 +313,7 @@ return (
                       : 'border-white/25 bg-white/10 text-white'
                   }`}
                 >
-                  {f === 'all' ? 'All' : f === 'premium' ? 'â­ Premium' : f === 'favorites' ? 'â¤ï¸ Favorites' : f}
+                  {f === 'all' ? 'All' : f === 'premium' ? '⭐ Premium' : f === 'favorites' ? '❤️ Favorites' : f}
                 </button>
               ))}
             </div>
@@ -323,7 +323,7 @@ return (
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ð Search recipesâ¦"
+                placeholder="🔍 Search recipes…"
                 className="w-full max-w-xs rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm text-white placeholder-white/60 focus:border-white/50 focus:outline-none sm:w-64"
               />
               <select
@@ -365,15 +365,15 @@ return (
             </div>
 
             <div className="mb-8 flex flex-wrap justify-center gap-2">
-              <ToggleChip active={mealPrepOnly} onClick={() => setMealPrepOnly((v) => !v)} label="ð¦ Meal-prep friendly" />
-              <ToggleChip active={freezerOnly} onClick={() => setFreezerOnly((v) => !v)} label="âï¸ Freezer friendly" />
-              <ToggleChip active={freeOnly} onClick={() => setFreeOnly((v) => !v)} label="ð Free recipes only" />
+              <ToggleChip active={mealPrepOnly} onClick={() => setMealPrepOnly((v) => !v)} label="📦 Meal-prep friendly" />
+              <ToggleChip active={freezerOnly} onClick={() => setFreezerOnly((v) => !v)} label="❄️ Freezer friendly" />
+              <ToggleChip active={freeOnly} onClick={() => setFreeOnly((v) => !v)} label="🆓 Free recipes only" />
             </div>
           </>
         )}
 
         {!compact && list.length === 0 && (
-          <p className="mb-8 text-center text-sm text-white/70">No recipes match those filters â try loosening one.</p>
+          <p className="mb-8 text-center text-sm text-white/70">No recipes match those filters — try loosening one.</p>
         )}
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-4">
@@ -397,19 +397,19 @@ return (
                     className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm shadow transition duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                     aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                   >
-                    {isFav ? 'â¤ï¸' : 'ð¤'}
+                    {isFav ? '❤️' : '🤍'}
                   </button>
                   {locked && (
                     <span
-                      title="Premium â preview available"
+                      title="Premium — preview available"
                       className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs text-amber-950 shadow"
                     >
-                      ð
+                      🔒
                     </span>
                   )}
                   {summary && summary.count >= MIN_RATINGS_TO_SHOW && (
                     <span className="rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-extrabold text-amber-600 shadow">
-                      â­ {summary.average}
+                      ⭐ {summary.average}
                     </span>
                   )}
                 </div>
@@ -432,10 +432,10 @@ return (
                     <h4 className="my-1.5 text-sm font-extrabold text-green-900">{r.name}</h4>
                     <div className="mb-2 flex flex-wrap gap-1">
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${r.premium ? 'bg-amber-50 text-amber-700' : 'bg-green-50 text-green-700'}`}>
-                        {r.premium ? 'â­ Premium recipe' : 'ð Free recipe'}
+                        {r.premium ? '⭐ Premium recipe' : '🆓 Free recipe'}
                       </span>
                       {highProtein && (
-                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">ðª High Protein</span>
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">💪 High Protein</span>
                       )}
                       {badge && (
                         <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">{badge.icon} {badge.label}</span>
@@ -470,10 +470,10 @@ return (
                 <div className="px-4 pb-3">
                   {locked ? (
                     <span className="flex items-center gap-1 text-xs font-bold text-amber-600">
-                      ð Premium â preview available
+                      🔒 Premium — preview available
                     </span>
                   ) : (
-                    <span className="block text-xs font-bold text-green-600">View recipe â</span>
+                    <span className="block text-xs font-bold text-green-600">View recipe →</span>
                   )}
                 </div>
               </Link>
@@ -487,17 +487,17 @@ return (
               href="/recipes"
               className="inline-block rounded-full border border-white/25 bg-white/10 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900"
             >
-              Browse Recipes â
+              Browse Recipes →
             </Link>
           </div>
         )}
 
         {compact && !isPremium && (
           <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 p-8 text-center">
-            <p className="mb-1 text-lg font-extrabold text-white">ð Unlock all {RECIPES.length} macro-tracked recipes</p>
+            <p className="mb-1 text-lg font-extrabold text-white">🔒 Unlock all {RECIPES.length} macro-tracked recipes</p>
             <p className="mx-auto mb-3 max-w-lg text-sm text-white/70">
-              Meal prep, high-protein, quick, vegetarian, and family meals â every recipe photo, ingredient swap,
-              and freezer tag, plus unlimited meal plans for â¬7.77/mo.
+              Meal prep, high-protein, quick, vegetarian, and family meals — every recipe photo, ingredient swap,
+              and freezer tag, plus unlimited meal plans for €7.77/mo.
             </p>
             <div className="mb-5 flex flex-wrap justify-center gap-1.5">
               {['Meal prep', 'High-protein', 'Quick', 'Vegetarian', 'Family meals'].map((c) => (
@@ -511,16 +511,16 @@ return (
                 href="/recipes"
                 className="rounded-full bg-white px-6 py-3 text-sm font-bold text-green-900 transition hover:bg-gray-100"
               >
-                Browse Recipes â
+                Browse Recipes →
               </Link>
               <button
                 onClick={() => goTo('pricing')}
                 className="rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-green-400"
               >
-                See Premium plans â
+                See Premium plans →
               </button>
             </div>
-            <p className="mt-3 text-center text-xs text-white/60">7 days free Â· Cancel anytime, no fees</p>
+            <p className="mt-3 text-center text-xs text-white/60">7 days free · Cancel anytime, no fees</p>
           </div>
         )}
       </div>
