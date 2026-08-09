@@ -306,7 +306,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
               <Link
                 key={r.id}
                 href={'/recipes/' + getRecipeSlug(r)}
-                className="relative block cursor-pointer overflow-hidden rounded-2xl bg-white transition hover:-translate-y-0.5 hover:shadow-xl"
+                className="group relative block cursor-pointer overflow-hidden rounded-2xl bg-white transition hover:-translate-y-0.5 hover:shadow-xl"
               >
                 <div className="absolute right-2 top-2 z-10 flex flex-col items-end gap-1.5">
                   <button
@@ -332,7 +332,9 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
                   {r.image ? (
-                    <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-[88px] w-full object-cover" />
+                    <div className="h-[88px] w-full overflow-hidden">
+                      <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                    </div>
                   ) : (
                     <div className={`flex h-[88px] items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
                       {hero.emoji}
