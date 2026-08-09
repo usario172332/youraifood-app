@@ -117,6 +117,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   const [sortBy, setSortBy] = useState('default');
   const [active, setActive] = useState(null);
   const [reviewSummaries, setReviewSummaries] = useState({});
+  const [hoverPreview, setHoverPreview] = useState(null);
 
   const superlatives = useMemo(() => {
     if (!RECIPES.length) return null;
@@ -188,6 +189,20 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
       return;
     }
     onToggleFavorite?.(r.id);
+  }
+  function handleImageHover(e, r, locked) {
+    if (!r.image) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const popupW = 240;
+    const showBelow = rect.top < 280;
+    const rawLeft = rect.left + rect.width / 2;
+    const left = Math.min(Math.max(rawLeft, popupW / 2 + 12), window.innerWidth - popupW / 2 - 12);
+    const top = showBelow ? rect.bottom + 10 : rect.top - 10;
+    setHoverPreview({ src: r.image, alt: r.name, left, top, showBelow, locked });
+  }
+
+  function handleImageLeave() {
+    setHoverPreview(null);
   }
 
   return (
@@ -332,8 +347,12 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                 </div>
                 <div className={locked ? 'blur-[3px] select-none' : ''}>
                   {r.image ? (
-                    <div className="h-[88px] w-full overflow-hidden">
-                      <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                    <div
+                      className="h-[88px] w-full overflow-hidden"
+                      onMouseEnter={(e) => handleImageHover(e, r, locked)}
+                      onMouseLeave={handleImageLeave}
+                    >
+                      <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     </div>
                   ) : (
                     <div className={`flex h-[88px] items-center justify-center bg-gradient-to-br ${hero.gradient} text-3xl`}>
@@ -444,6 +463,18 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
         isPremium={isPremium}
         onToggleFavorite={active ? (e) => handleHeartClick(e, active) : undefined}
       />
+    {hoverPreview && (
+      <div
+        className={`pointer-events-none fixed z-50 -translate-x-1/2 ${hoverPreview.showBelow ? '' : '-translate-y-full'}`}
+        style={{ left: hoverPreview.left, top: hoverPreview.top }}
+      >
+        <img
+          src={hoverPreview.src}
+          alt={hoverPreview.alt}
+          className={`h-44 w-60 rounded-2xl border-4 border-white object-cover shadow-2xl ring-1 ring-black/10 ${hoverPreview.locked ? 'blur-[3px]' : ''}`}
+        />
+      </div>
+    )}
     </section>
   );
 }
