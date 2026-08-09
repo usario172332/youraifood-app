@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../lib/AuthContext';
 import { RECIPES } from '../lib/recipes';
 import { getRecipeSlug } from '../lib/recipeSlug';
@@ -88,6 +89,7 @@ function RelatedCard({ recipe }) {
 
 export default function RecipeDetailContent({ recipe }) {
   const { user, session, isPremium, favorites, toggleFavorite } = useAuth();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [reviewsData, setReviewsData] = useState(null);
   const [myRating, setMyRating] = useState(0);
@@ -167,6 +169,13 @@ export default function RecipeDetailContent({ recipe }) {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="mb-3 inline-flex items-center gap-1 text-xs font-bold text-green-700 hover:underline"
+      >
+        ← Back
+      </button>
       <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-ink-soft">
         <Link href="/" className="text-green-700 hover:underline">Home</Link>
         <span>/</span>
