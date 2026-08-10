@@ -281,6 +281,46 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
     }
   }
 
+  // Swaps a single dish (identified by day index + meal slot + dish id) for
+  // a different one from the same avoid-meat/avoid-ingredient-filtered
+  // catalog, then re-syncs that day's calorie/protein targets. Much faster
+  // than a full day regenerate (no AI call) and doesn't use up any of the
+  // free monthly plan slots, since no new plan is being generated.
+  async function swapDish(dayIndex, slot, dishId) {
+    if (!result) return;
+    try {
+      const res = await fetch('/api/swap-dish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          days: result.days,
+          dayIndex,
+          slot,
+          dishId,
+          goal: form.goal,
+          proteinTarget: proteinValue,
+          calorieTarget: calorieValue,
+          budgetLevel: form.budgetLevel,
+          maxTime: form.time,
+          family: form.family,
+          diets: form.diets,
+          meals: form.meals,
+          avoidMeats: form.avoidMeats,
+          avoidIngredients: form.avoidIngredients,
+          minimiseIngredients: form.minimiseIngredients,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Could not swap that dish.');
+        return;
+      }
+      setResult((r) => ({ ...r, days: data.days, groceries: data.groceries, stats: data.stats }));
+    } catch (err) {
+      setError('Network error — please try again.');
+    }
+  }
+
   async function generate() {
     setError('');
     if (!user) {
@@ -341,37 +381,37 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       <p className="mb-5 text-sm text-ink-soft">Choose your goal and diet. We'll handle the rest.</p>
 
       <div className="mb-5 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
-                    <b className="mb-1 block">🔢 {statsTouched ? 'Your calculated daily targets' : 'Example daily targets'}</b>
-                    {!statsTouched && (
-                      <p className="-mt-1 mb-2 text-xs text-green-700">Based on placeholder stats — add your weight, height and age below for a personalised target.</p>
-                    )}
-                    <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
-                    <span className="mx-2 text-green-700/50">·</span>
-                    <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
-                    <div className="mt-1 text-xs text-green-700">
-                      BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-green-700">
-                      {form.calorieTouched && (
-                        <button
-                          type="button"
-                          onClick={() => setForm((f) => ({ ...f, calorieTouched: false, customCalorieTarget: null }))}
-                          className="font-bold underline"
-                        >
-                          Use calculated calorie target ({targets.calorieTarget} kcal)
-                        </button>
-                      )}
-                      {form.proteinTouched && form.protein !== targets.proteinTarget && (
-                        <button
-                          type="button"
-                          onClick={() => setForm((f) => ({ ...f, protein: targets.proteinTarget, proteinTouched: false }))}
-                          className="font-bold underline"
-                        >
-                          Use calculated protein target ({targets.proteinTarget}g)
-                        </button>
-                      )}
-                    </div>
-                  </div>
+        <b className="mb-1 block">🔢 {statsTouched ? 'Your calculated daily targets' : 'Example daily targets'}</b>
+        {!statsTouched && (
+          <p className="-mt-1 mb-2 text-xs text-green-700">Based on placeholder stats — add your weight, height and age below for a personalised target.</p>
+        )}
+        <span className="text-lg font-extrabold">{targets.calorieTarget} kcal</span>
+        <span className="mx-2 text-green-700/50">·</span>
+        <span className="text-lg font-extrabold">{targets.proteinTarget}g protein</span>
+        <div className="mt-1 text-xs text-green-700">
+          BMR {targets.bmr} kcal · maintenance (TDEE) {targets.tdee} kcal, based on the Mifflin-St Jeor formula.
+        </div>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-green-700">
+          {form.calorieTouched && (
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, calorieTouched: false, customCalorieTarget: null }))}
+              className="font-bold underline"
+            >
+              Use calculated calorie target ({targets.calorieTarget} kcal)
+            </button>
+          )}
+          {form.proteinTouched && form.protein !== targets.proteinTarget && (
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, protein: targets.proteinTarget, proteinTouched: false }))}
+              className="font-bold underline"
+            >
+              Use calculated protein target ({targets.proteinTarget}g)
+            </button>
+          )}
+        </div>
+      </div>
 
       {prefilled && (
         <div className="mb-4 rounded-lg bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-800">
@@ -439,7 +479,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
       </div>
       <p className="text-right text-[11px] font-semibold text-ink-soft">
         ✓ Every plan includes automatically calculated macros
-          {!isPremium && ' · This will use 1 of your 3 free monthly plans'}
+        {!isPremium && ' · This will use 1 of your 3 free monthly plans'}
       </p>
 
       {error && <p className="mt-2 text-sm font-semibold text-amber-700">{error}</p>}
@@ -686,6 +726,7 @@ export default function Planner({ user, session, isPremium, favorites, onToggleF
           goal={form.goal}
           onOpenRecipe={setActiveRecipe}
           onRegenerateDay={regenerateDay}
+          onSwapDish={swapDish}
         />
       )}
 
@@ -833,13 +874,14 @@ function Field({ label, hint, id, children }) {
   );
 }
 
-function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget, goal, onOpenRecipe, onRegenerateDay }) {
+function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget, goal, onOpenRecipe, onRegenerateDay, onSwapDish }) {
   const { days, coachNote, groceries, stats, usage, meals } = result;
   const mealSlots = Array.isArray(meals) && meals.length ? meals : ['breakfast', 'main', 'snack'];
   const calorieOnTarget = Math.abs(stats.avgCal - calorieTarget) <= calorieTarget * 0.1;
   const proteinOnTarget = stats.avgProtein >= proteinTarget * 0.9;
   const [downloading, setDownloading] = useState(false);
   const [regeneratingDay, setRegeneratingDay] = useState(null);
+  const [swappingKey, setSwappingKey] = useState(null);
 
   const byCat = {};
   Object.entries(groceries).forEach(([name, info]) => {
@@ -870,6 +912,13 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
     setRegeneratingDay(dayIndex);
     await onRegenerateDay(dayIndex);
     setRegeneratingDay(null);
+  }
+
+  async function handleSwap(dayIndex, slot, dishId) {
+    const key = `${dayIndex}-${slot}-${dishId}`;
+    setSwappingKey(key);
+    await onSwapDish(dayIndex, slot, dishId);
+    setSwappingKey(null);
   }
 
   async function handleDownloadCsv() {
@@ -964,23 +1013,37 @@ function PlanResults({ result, family, budgetLevel, proteinTarget, calorieTarget
                   return (
                     <td key={slot} className="px-3 py-2.5">
                       {dishes.length === 0 && <span className="text-ink-soft">—</span>}
-                      {dishes.map((d, idx) => (
-                        <div
-                          key={`${slot}-${d.id}`}
-                          className={idx > 0 ? 'mt-2.5 border-t border-dashed border-gray-100 pt-2' : ''}
-                        >
+                      {dishes.map((d, idx) => {
+                        const swapKey = `${dayIndex}-${slot}-${d.id}`;
+                        return (
                           <div
-                            onClick={() => onOpenRecipe(d.recipe)}
-                            className="cursor-pointer font-semibold underline decoration-dotted underline-offset-2 hover:text-green-700"
+                            key={`${slot}-${d.id}`}
+                            className={idx > 0 ? 'mt-2.5 border-t border-dashed border-gray-100 pt-2' : ''}
                           >
-                            {idx > 0 && '+ '}
-                            {d.recipe.name}
+                            <div className="flex items-start justify-between gap-1.5">
+                              <div
+                                onClick={() => onOpenRecipe(d.recipe)}
+                                className="cursor-pointer font-semibold underline decoration-dotted underline-offset-2 hover:text-green-700"
+                              >
+                                {idx > 0 && '+ '}
+                                {d.recipe.name}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleSwap(dayIndex, slot, d.id)}
+                                disabled={swappingKey !== null}
+                                title="Swap this dish for a different one"
+                                className="shrink-0 whitespace-nowrap text-[11px] font-normal text-green-600 underline disabled:opacity-50"
+                              >
+                                {swappingKey === swapKey ? '⏳' : '🔁 Swap'}
+                              </button>
+                            </div>
+                            <div className="text-xs text-ink-soft">
+                              {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min
+                            </div>
                           </div>
-                          <div className="text-xs text-ink-soft">
-                            {Math.round(d.recipe.protein * d.servings)}g protein · {d.recipe.time}min
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </td>
                   );
                 })}
