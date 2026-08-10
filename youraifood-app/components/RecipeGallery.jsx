@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { RECIPES } from '../lib/recipes';
 import RecipeModal from './RecipeModal';
+import FitMacrosModal from './FitMacrosModal';
 import { getRecipeSlug } from '../lib/recipeSlug';
 import { getDifficulty, DIFFICULTY_ICON, isHighProtein, getHero, isMealPrepFriendly, isFreezerFriendly, isOnePan, isBeginnerFriendly, isQuick } from '../lib/recipeMeta';
 
@@ -62,6 +63,11 @@ const TEASER_IDS = ['nr1', 'b2', 'nr14', 'b12', 'nr71', 'b19', 'nr108', 'b6'];
 const POPULAR_IDS = new Set(['nr1', 'b2', 'nr2', 'b1']);
 const CHEFS_PICK_IDS = new Set(['nr4', 'ps1', 'b12']);
 
+// Recipe selection for the "Fit to my macros" tool is capped so the portion
+// -scaling math (and the results list) stays readable — matches the max
+// dishes/day already used elsewhere in the planner.
+const MAX_FIT_RECIPES = 6;
+
 // One extra "special" badge per card, in priority order. The editorial picks
 // above take priority; the rest are computed live from real recipe data so
 // they stay honest — only shown on the full library page where the matching
@@ -119,6 +125,8 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
   const [reviewSummaries, setReviewSummaries] = useState({});
   const [hoverPreview, setHoverPreview] = useState(null);
   const [latestPlanIds, setLatestPlanIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [showFit, setShowFit] = useState(false);
 
   useEffect(() => {
     try {
@@ -131,7 +139,6 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
       // ignore malformed/unavailable localStorage
     }
   }, []);
-
 
   const superlatives = useMemo(() => {
     if (!RECIPES.length) return null;
@@ -153,10 +160,10 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
     filter === 'all'
       ? byMeal
       : filter === 'premium'
-      ? byMeal.filter((r) => r.premium)
-      : filter === 'favorites'
-      ? byMeal.filter((r) => favorites?.has(r.id))
-      : byMeal.filter((r) => r.diets.includes(filter));
+        ? byMeal.filter((r) => r.premium)
+        : filter === 'favorites'
+          ? byMeal.filter((r) => favorites?.has(r.id))
+          : byMeal.filter((r) => r.diets.includes(filter));
 
   if (!compact) {
     if (freeOnly) filtered = filtered.filter((r) => !r.premium);
@@ -204,6 +211,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
     }
     onToggleFavorite?.(r.id);
   }
+
   function handleImageHover(e, r, locked) {
     if (!r.image) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -219,7 +227,22 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
     setHoverPreview(null);
   }
 
-  
+  // Toggles a recipe in/out of the "Fit to my macros" selection tray. Capped
+  // at MAX_FIT_RECIPES so the portion-scaling results stay readable.
+  function toggleSelect(e, id) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else if (next.size < MAX_FIT_RECIPES) {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
   const planRecipes = useMemo(
     () => latestPlanIds.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean),
     [latestPlanIds]
@@ -234,7 +257,12 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
     setLatestPlanIds([]);
   }
 
-return (
+  const selectedRecipes = useMemo(
+    () => [...selectedIds].map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean),
+    [selectedIds]
+  );
+
+  return (
     <section id="recipes" className="bg-green-900 px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
         <h2 className="text-center text-2xl font-extrabold text-white">
@@ -283,7 +311,6 @@ return (
             </div>
           </div>
         )}
-
 
         {!compact && (
           <>
@@ -376,10 +403,17 @@ return (
           <p className="mb-8 text-center text-sm text-white/70">No recipes match those filters — try loosening one.</p>
         )}
 
+        {!compact && (
+          <p className="mb-4 text-center text-xs text-white/60">
+            🎯 Tap the + on any recipe to select it, then fit your picks to a calorie and protein target.
+          </p>
+        )}
+
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-4">
           {list.map((r) => {
             const locked = r.premium && !isPremium;
             const isFav = favorites?.has(r.id);
+            const isSelected = selectedIds.has(r.id);
             const hero = getHero(r);
             const highProtein = isHighProtein(r);
             const badge = extraBadge(r);
@@ -389,8 +423,25 @@ return (
               <Link
                 key={r.id}
                 href={'/recipes/' + getRecipeSlug(r)}
-                className="group relative block cursor-pointer overflow-hidden rounded-2xl bg-white transition hover:-translate-y-0.5 hover:shadow-xl"
+                className={`group relative block cursor-pointer overflow-hidden rounded-2xl bg-white transition hover:-translate-y-0.5 hover:shadow-xl ${
+                  isSelected ? 'ring-2 ring-green-500' : ''
+                }`}
               >
+                {!compact && !locked && (
+                  <div className="absolute left-2 top-2 z-10">
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSelect(e, r.id)}
+                      aria-pressed={isSelected}
+                      title="Select to fit into your daily macros"
+                      className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold shadow transition duration-200 ${
+                        isSelected ? 'bg-green-500 text-white' : 'bg-white/90 text-ink-soft hover:bg-white'
+                      }`}
+                    >
+                      {isSelected ? '✓' : '+'}
+                    </button>
+                  </div>
+                )}
                 <div className="absolute right-2 top-2 z-10 flex flex-col items-end gap-1.5">
                   <button
                     onClick={(e) => handleHeartClick(e, r)}
@@ -531,18 +582,45 @@ return (
         isPremium={isPremium}
         onToggleFavorite={active ? (e) => handleHeartClick(e, active) : undefined}
       />
-    {hoverPreview && (
-      <div
-        className={`pointer-events-none fixed z-50 -translate-x-1/2 ${hoverPreview.showBelow ? '' : '-translate-y-full'}`}
-        style={{ left: hoverPreview.left, top: hoverPreview.top }}
-      >
-        <img
-          src={hoverPreview.src}
-          alt={hoverPreview.alt}
-          className={`h-44 w-60 rounded-2xl border-4 border-white object-cover shadow-2xl ring-1 ring-black/10 ${hoverPreview.locked ? 'blur-[3px]' : ''}`}
-        />
-      </div>
-    )}
+      {hoverPreview && (
+        <div
+          className={`pointer-events-none fixed z-50 -translate-x-1/2 ${hoverPreview.showBelow ? '' : '-translate-y-full'}`}
+          style={{ left: hoverPreview.left, top: hoverPreview.top }}
+        >
+          <img
+            src={hoverPreview.src}
+            alt={hoverPreview.alt}
+            className={`h-44 w-60 rounded-2xl border-4 border-white object-cover shadow-2xl ring-1 ring-black/10 ${hoverPreview.locked ? 'blur-[3px]' : ''}`}
+          />
+        </div>
+      )}
+      {!compact && selectedIds.size > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-green-800 bg-green-950/98 px-6 py-3 backdrop-blur">
+          <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-3">
+            <span className="text-sm font-bold text-white">
+              {selectedIds.size} recipe{selectedIds.size !== 1 ? 's' : ''} selected
+              {selectedIds.size >= MAX_FIT_RECIPES ? ' (max)' : ''}
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+                className="rounded-full border border-white/25 px-4 py-2 text-xs font-bold text-white hover:bg-white/10"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowFit(true)}
+                className="rounded-full bg-green-500 px-5 py-2 text-xs font-bold text-white hover:bg-green-400"
+              >
+                🎯 Fit to my macros →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showFit && <FitMacrosModal recipes={selectedRecipes} onClose={() => setShowFit(false)} />}
     </section>
   );
 }
