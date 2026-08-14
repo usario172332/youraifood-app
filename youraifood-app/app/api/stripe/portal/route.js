@@ -38,6 +38,19 @@ export async function POST(req) {
     return NextResponse.json({ url: portalSession.url });
   } catch (err) {
     console.error('stripe portal error:', err);
+
+    const isMissingCustomer =
+      err?.code === 'resource_missing' ||
+      (err?.type === 'StripeInvalidRequestError' && err?.param === 'customer') ||
+      /No such customer/i.test(err?.message || '');
+
+    if (isMissingCustomer) {
+      return NextResponse.json(
+        { error: 'No active subscription found for your account. Please contact support if you believe this is a mistake.' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({ error: err.message || 'Could not open billing portal.' }, { status: 500 });
   }
 }
