@@ -17,9 +17,12 @@ function collectPlanRecipes(days, mealSlots) {
       (row[`${slot}Dishes`] || []).forEach((d) => {
         const recipe = findRecipe(d.id);
         if (!recipe) return;
-        const entry = map.get(recipe.id) || { recipe, servings: 0, meals: 0 };
-        entry.servings += d.servings || 1;
+        const s = d.servings || 1;
+        const entry = map.get(recipe.id) || { recipe, servings: 0, meals: 0, minS: s, maxS: s };
+        entry.servings += s;
         entry.meals += 1;
+        entry.minS = Math.min(entry.minS, s);
+        entry.maxS = Math.max(entry.maxS, s);
         map.set(recipe.id, entry);
       });
     });
@@ -171,10 +174,20 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.setTextColor(110, 110, 110);
-    doc.text('Ingredient amounts are per 1 serving. Your plan notes how many servings of each dish you need.', margin, y);
+    doc.text('Portions in your plan are scaled to hit your targets, so each meal can be more than 1 serving. Ingredient tables show 1 serving and the amount per meal in your plan.', margin, y);
     y += 18;
 
-    planRecipes.forEach(({ recipe, servings, meals }) => {
+    const fmtS = (n) => `${Math.round(n * 10) / 10}`;
+    planRecipes.forEach(({ recipe, servings, meals, minS, maxS }) => {
+      // Portion used per meal in the plan (a single number or a range).
+      const sameS = minS === maxS;
+      const perMealLabel = sameS ? `${fmtS(minS)}×` : `${fmtS(minS)}–${fmtS(maxS)}×`;
+      const perMealCal = sameS
+        ? `${Math.round(recipe.cal * minS)} kcal`
+        : `${Math.round(recipe.cal * minS)}–${Math.round(recipe.cal * maxS)} kcal`;
+      const perMealProtein = sameS
+        ? `${Math.round(recipe.protein * minS)}g`
+        : `${Math.round(recipe.protein * minS)}–${Math.round(recipe.protein * maxS)}g`;
       const steps = recipe.steps || [];
       const ingredients = recipe.ingredients || [];
 
@@ -195,21 +208,34 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
       doc.setTextColor(100, 100, 100);
       const servingsLabel = Math.round(servings * 10) / 10;
       doc.text(
-        `${recipe.cal} kcal · ${recipe.protein}g protein per serving · ${recipe.time} min  ·  In your plan: ${meals} meal${meals === 1 ? '' : 's'}, ${servingsLabel} serving${servingsLabel === 1 ? '' : 's'} total`,
+        `1 serving: ${recipe.cal} kcal · ${recipe.protein}g protein  ·  ${recipe.time} min`,
         margin,
         y
       );
+      y += 11;
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(20, 100, 60);
+      doc.text(
+        `In your plan: ${meals} meal${meals === 1 ? '' : 's'} at ${perMealLabel} serving → ${perMealCal} · ${perMealProtein} protein per meal  (${servingsLabel} servings in total)`,
+        margin,
+        y
+      );
+      doc.setFont('helvetica', 'normal');
       y += 8;
 
       if (ingredients.length) {
         autoTable(doc, {
           startY: y,
-          head: [['Ingredient', 'Per serving']],
-          body: ingredients.map((ing) => [ing.n, formatQty(ing.q, ing.u)]),
+          head: [['Ingredient', '1 serving', `Per meal in your plan (${perMealLabel})`]],
+          body: ingredients.map((ing) => [
+            ing.n,
+            formatQty(ing.q, ing.u),
+            sameS ? formatQty(ing.q * minS, ing.u) : `${formatQty(ing.q * minS, ing.u)} – ${formatQty(ing.q * maxS, ing.u)}`,
+          ]),
           theme: 'striped',
           styles: { fontSize: 8.5, cellPadding: 3 },
           headStyles: { fillColor: [22, 101, 52], textColor: 255, fontSize: 8.5 },
-          columnStyles: { 1: { cellWidth: 90, halign: 'right' } },
+          columnStyles: { 1: { cellWidth: 80, halign: 'right' }, 2: { cellWidth: 170, halign: 'right' } },
           margin: { left: margin, right: margin },
         });
         y = doc.lastAutoTable.finalY + 10;
