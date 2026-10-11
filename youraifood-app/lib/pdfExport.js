@@ -8,6 +8,30 @@ const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Sn
 const GOAL_LABELS = { lose: 'Lose weight', muscle: 'Build muscle', maintain: 'Maintain / general health' };
 const CAT_ORDER = ['Protein', 'Produce', 'Pantry', 'Dairy/Alt', 'Spices'];
 
+// Collect every distinct recipe used in the plan (in order of first
+// appearance) together with the total servings planned across the week.
+function collectPlanRecipes(days, mealSlots) {
+  const map = new Map();
+  days.forEach((row) => {
+    mealSlots.forEach((slot) => {
+      (row[`${slot}Dishes`] || []).forEach((d) => {
+        const recipe = findRecipe(d.id);
+        if (!recipe) return;
+        const entry = map.get(recipe.id) || { recipe, servings: 0, meals: 0 };
+        entry.servings += d.servings || 1;
+        entry.meals += 1;
+        map.set(recipe.id, entry);
+      });
+    });
+  });
+  return [...map.values()];
+}
+
+function formatQty(q, u) {
+  const n = Math.round(q * 10) / 10;
+  return u === 'pc' ? `${n} pc` : `${n}${u}`;
+}
+
 export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coachNote, goal, proteinTarget, calorieTarget, budgetLevel }) {
   const [{ jsPDF }, autoTableModule] = await Promise.all([import('jspdf'), import('jspdf-autotable')]);
   const autoTable = autoTableModule.default;
@@ -133,10 +157,102 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
     },
   });
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(150, 150, 150);
-  doc.text('YourAiFood — AI-generated meal plan. Not medical or dietary advice.', margin, pageHeight - 20);
+  // Recipes section: one block per distinct dish in the plan, with its
+  // ingredients (per serving) and the cooking steps.
+  const planRecipes = collectPlanRecipes(days, mealSlots);
+  if (planRecipes.length) {
+    doc.addPage();
+    y = 48;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(20, 60, 40);
+    doc.text('Recipes in your plan', margin, y);
+    y += 14;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(110, 110, 110);
+    doc.text('Ingredient amounts are per 1 serving. Your plan notes how many servings of each dish you need.', margin, y);
+    y += 18;
+
+    planRecipes.forEach(({ recipe, servings, meals }) => {
+      const steps = recipe.steps || [];
+      const ingredients = recipe.ingredients || [];
+
+      // Keep a recipe header together with the start of its content.
+      if (y > pageHeight - 150) {
+        doc.addPage();
+        y = 48;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(20, 83, 45);
+      doc.text(recipe.name, margin, y);
+      y += 13;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(100, 100, 100);
+      const servingsLabel = Math.round(servings * 10) / 10;
+      doc.text(
+        `${recipe.cal} kcal · ${recipe.protein}g protein per serving · ${recipe.time} min  ·  In your plan: ${meals} meal${meals === 1 ? '' : 's'}, ${servingsLabel} serving${servingsLabel === 1 ? '' : 's'} total`,
+        margin,
+        y
+      );
+      y += 8;
+
+      if (ingredients.length) {
+        autoTable(doc, {
+          startY: y,
+          head: [['Ingredient', 'Per serving']],
+          body: ingredients.map((ing) => [ing.n, formatQty(ing.q, ing.u)]),
+          theme: 'striped',
+          styles: { fontSize: 8.5, cellPadding: 3 },
+          headStyles: { fillColor: [22, 101, 52], textColor: 255, fontSize: 8.5 },
+          columnStyles: { 1: { cellWidth: 90, halign: 'right' } },
+          margin: { left: margin, right: margin },
+        });
+        y = doc.lastAutoTable.finalY + 10;
+      }
+
+      if (steps.length) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(40, 40, 40);
+        if (y > pageHeight - 60) {
+          doc.addPage();
+          y = 48;
+        }
+        doc.text('Method', margin, y);
+        y += 12;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(50, 50, 50);
+        steps.forEach((step, i) => {
+          const lines = doc.splitTextToSize(`${i + 1}. ${step}`, pageWidth - margin * 2 - 10);
+          if (y + lines.length * 11 > pageHeight - 40) {
+            doc.addPage();
+            y = 48;
+          }
+          doc.text(lines, margin + 6, y);
+          y += lines.length * 11 + 3;
+        });
+      }
+
+      y += 16;
+    });
+  }
+
+  // Footer on every page
+  const pageCount = doc.getNumberOfPages();
+  for (let p = 1; p <= pageCount; p += 1) {
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('YourAiFood — AI-generated meal plan. Not medical or dietary advice.', margin, pageHeight - 20);
+    doc.text(`Page ${p} of ${pageCount}`, pageWidth - margin, pageHeight - 20, { align: 'right' });
+  }
 
   doc.save('youraifood-weekly-plan.pdf');
 }
