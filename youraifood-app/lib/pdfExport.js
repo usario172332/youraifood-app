@@ -2,7 +2,7 @@
 // jsPDF and its autotable plugin are only pulled in when this module is
 // actually imported (Planner.jsx does that lazily, on click), so the PDF
 // libraries never bloat the main bundle for people who don't use the button.
-import { findRecipe } from './recipes';
+import { resolveDish } from './planRecipes';
 
 const MEAL_LABELS = { breakfast: 'Breakfast', main: 'Lunch & Dinner', snack: 'Snack' };
 const GOAL_LABELS = { lose: 'Lose weight', muscle: 'Build muscle', maintain: 'Maintain / general health' };
@@ -15,7 +15,7 @@ function collectPlanRecipes(days, mealSlots) {
   days.forEach((row) => {
     mealSlots.forEach((slot) => {
       (row[`${slot}Dishes`] || []).forEach((d) => {
-        const recipe = findRecipe(d.id);
+        const recipe = resolveDish(d);
         if (!recipe) return;
         const s = d.servings || 1;
         const entry = map.get(recipe.id) || { recipe, servings: 0, meals: 0, minS: s, maxS: s };
@@ -86,7 +86,7 @@ export async function downloadPlanPdf({ days, mealSlots, groceries, stats, coach
   const body = days.map((row) => {
     const cells = mealSlots.map((slot) => {
       const dishes = (row[`${slot}Dishes`] || [])
-        .map((d) => ({ ...d, recipe: findRecipe(d.id) }))
+        .map((d) => ({ ...d, recipe: resolveDish(d) }))
         .filter((d) => d.recipe);
       if (!dishes.length) return '—';
       return dishes
