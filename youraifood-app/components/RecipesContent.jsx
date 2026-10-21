@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import RecipeGallery from './RecipeGallery';
 import { useAuth } from '../lib/AuthContext';
 
@@ -16,6 +17,15 @@ export default function RecipesContent() {
           Open 24 complete recipes free, or preview the full Premium collection — filter by meal, diet, or
           favourites.
         </p>
+        <div className="mx-auto mt-5 flex max-w-xl flex-col items-center gap-3 rounded-2xl border border-green-100 bg-green-50/60 px-5 py-4 sm:flex-row sm:justify-between">
+          <p className="text-sm font-semibold text-green-900">Can&apos;t find what you&apos;re looking for? Create your own recipe with AI.</p>
+          <Link
+            href="/recipe-generator"
+            className="whitespace-nowrap rounded-full bg-green-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+          >
+            Generate My Recipe
+          </Link>
+        </div>
       </section>
 
       <RecipeGallery isPremium={isPremium} user={user} favorites={favorites} onToggleFavorite={toggleFavorite} />

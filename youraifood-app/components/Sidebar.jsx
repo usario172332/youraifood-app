@@ -11,6 +11,7 @@ import { useAuth } from '../lib/AuthContext';
 function getLinks(user) {
   const base = [
     { href: '/recipes', label: '🍽️ Recipes' },
+    { href: '/recipe-generator', label: '✨ AI Recipe Generator' },
     { href: '/tips', label: '🧰 Guides' },
     { href: '/#how-it-works', label: '📋 How It Works' },
     { href: '/#pricing', label: '💳 Pricing' },
@@ -73,16 +74,16 @@ export default function Sidebar() {
               key={l.href}
               href={l.href}
               onClick={(e) => {
-                              setMobileOpen(false);
-                              if (l.href.startsWith('/#') && window.location.pathname === '/') {
-                                                const targetId = l.href.slice(2);
-                                                const targetEl = document.getElementById(targetId);
-                                                if (targetEl) {
-                                                                    e.preventDefault();
-                                                                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                                                    window.history.pushState(null, '', l.href);
-                                                }
-                              }
+                setMobileOpen(false);
+                if (l.href.startsWith('/#') && window.location.pathname === '/') {
+                  const targetId = l.href.slice(2);
+                  const targetEl = document.getElementById(targetId);
+                  if (targetEl) {
+                    e.preventDefault();
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    window.history.pushState(null, '', l.href);
+                  }
+                }
               }}
               className={l.cta ? 'mt-2 rounded-full bg-green-600 px-3 py-2.5 text-center text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-px hover:bg-green-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2' : 'rounded-lg px-3 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2'}
             >
