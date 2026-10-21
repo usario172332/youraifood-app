@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import { RECIPES, findRecipe } from '../lib/recipes';
+import { resolveDish } from '../lib/planRecipes';
 import RecipeModal from './RecipeModal';
 import { getHero } from '../lib/recipeMeta';
-import { maskEmail } from '../lib/maskEmail';
 
 export default function ProfileContent() {
   const { user, session, isPremium, favorites, toggleFavorite, authReady } = useAuth();
@@ -71,7 +71,7 @@ function AccountCard({ user, session, isPremium }) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="text-sm text-ink-soft">Signed in as</div>
-          <div className="font-semibold text-ink" title={user.email}>{maskEmail(user.email)}</div>
+          <div className="font-semibold text-ink">{user.email}</div>
           <span
             className={`mt-2 inline-block rounded-full px-3 py-1 text-[11px] font-extrabold ${
               isPremium ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-ink-soft'
@@ -117,8 +117,7 @@ function FavoritesSection({ favorites, onToggleFavorite }) {
       <h2 className="mb-4 text-lg font-extrabold text-green-900">Favorited recipes</h2>
       {favRecipes.length === 0 ? (
         <p className="text-sm text-ink-soft">
-          No favorites yet — tap the heart icon on any recipe card to save it here.{' '}
-          <a href="/recipes" className="font-semibold text-green-700 underline">Browse the recipe library →</a>
+          No favorites yet — tap the heart icon on any recipe card in the recipe library to save it here.
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -191,10 +190,7 @@ function PastPlansSection({ session }) {
       {plans === null ? (
         <p className="text-sm text-ink-soft">Loading…</p>
       ) : plans.length === 0 ? (
-        <p className="text-sm text-ink-soft">
-          No plans generated yet.{' '}
-          <a href="/#planner" className="font-semibold text-green-700 underline">Build your first week →</a>
-        </p>
+        <p className="text-sm text-ink-soft">No plans generated yet — build one from the planner to see it here.</p>
       ) : (
         <>
           <div className="flex flex-col gap-3">
@@ -225,7 +221,8 @@ function PastPlansSection({ session }) {
                           if (key === 'day') return;
                           if (Array.isArray(value)) {
                             value.forEach((dish) => {
-                              const name = findRecipe(dish?.id)?.name;
+                              const r = resolveDish(dish);
+                              const name = r ? `${r.ai ? '✨ ' : ''}${r.name}` : null;
                               if (name) names.push(dish.servings > 1 ? `${name} (×${dish.servings})` : name);
                             });
                           } else {

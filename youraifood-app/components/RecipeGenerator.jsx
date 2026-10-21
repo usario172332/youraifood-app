@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../lib/AuthContext';
+import AddToPlanModal from './AddToPlanModal';
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Dessert', 'Any'];
 const TIME_OPTIONS = [
@@ -46,6 +47,8 @@ export default function RecipeGenerator() {
   const [saved, setSaved] = useState([]);
   const [openSaved, setOpenSaved] = useState(null);
   const [toast, setToast] = useState('');
+  const [planModal, setPlanModal] = useState(null); // { data, savedId }
+  const [savedId, setSavedId] = useState(null); // id of the currently shown result once saved
   const busy = useRef(false);
 
   // restore preferences (never anything sensitive)
@@ -121,6 +124,7 @@ export default function RecipeGenerator() {
         return;
       }
       setResult(data);
+      setSavedId(null);
       if (data.usage) setUsage(data.usage);
       setPhase('result');
     } catch {
@@ -131,19 +135,29 @@ export default function RecipeGenerator() {
     }
   }
 
-  async function save() {
-    if (!result) return false;
+  // Saves the current result (idempotent). Returns the saved recipe id or null.
+  async function save(quiet = false) {
+    if (!result) return null;
+    if (savedId) return savedId;
     try {
       const res = await fetch('/api/ai-recipe/save', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ requestKey: result.requestKey }) });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setError(data.error || 'Could not save the recipe.'); return false; }
-      setToast('Recipe saved to My Recipes.');
+      if (!res.ok) { setError(data.error || 'Could not save the recipe.'); return null; }
+      setSavedId(data.id);
+      if (!quiet) setToast('Recipe saved to My Recipes.');
       refresh();
-      return true;
+      return data.id;
     } catch {
       setError('Could not save the recipe. Please try again.');
-      return false;
+      return null;
     }
+  }
+
+  // Add to Meal Plan needs a saved recipe (the plan keeps its own snapshot).
+  async function openPlanModalForResult() {
+    setError(null);
+    const id = await save(true);
+    if (id) setPlanModal({ data: result, savedId: id });
   }
 
   async function remove(id) {
@@ -292,7 +306,9 @@ export default function RecipeGenerator() {
             footerNote={remaining !== null ? `${usage.remaining} of ${usage.limit} AI recipes remaining this month.` : null}
             actions={
               <ResultActions
-                onSave={save}
+                onSave={() => save()}
+                onAddToPlan={openPlanModalForResult}
+                alreadySaved={!!savedId}
                 onRegenerate={() => generate(true)}
                 onEdit={() => setPhase('form')}
                 canRegenerate={usage ? usage.remaining > 0 : true}
@@ -301,6 +317,15 @@ export default function RecipeGenerator() {
           />
           {error && <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>}
         </>
+      )}
+
+      {planModal && (
+        <AddToPlanModal
+          data={planModal.data}
+          savedRecipeId={planModal.savedId}
+          authHeaders={authHeaders}
+          onClose={() => setPlanModal(null)}
+        />
       )}
 
       {phase !== 'loading' && user && saved.length > 0 && (
@@ -321,7 +346,12 @@ export default function RecipeGenerator() {
                     <RecipeView
                       data={s.recipe_json}
                       compact
-                      actions={<button type="button" onClick={() => remove(s.id)} className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700 hover:bg-red-50">Delete recipe</button>}
+                      actions={
+                        <div className="flex flex-wrap gap-2">
+                          <button type="button" onClick={() => setPlanModal({ data: s.recipe_json, savedId: s.id })} className="rounded-full bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700">Add to Meal Plan</button>
+                          <button type="button" onClick={() => remove(s.id)} className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700 hover:bg-red-50">Delete recipe</button>
+                        </div>
+                      }
                     />
                   </div>
                 )}
@@ -334,15 +364,16 @@ export default function RecipeGenerator() {
   );
 }
 
-function ResultActions({ onSave, onRegenerate, onEdit, canRegenerate }) {
+function ResultActions({ onSave, onAddToPlan, alreadySaved, onRegenerate, onEdit, canRegenerate }) {
   const [saving, setSaving] = useState(false);
-  const [done, setDone] = useState(false);
+  const [planBusy, setPlanBusy] = useState(false);
+  const done = alreadySaved;
   return (
     <div className="flex flex-wrap gap-2">
-      <button type="button" disabled={saving || done} onClick={async () => { setSaving(true); const ok = await onSave(); setSaving(false); if (ok) setDone(true); }} className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-60">
+      <button type="button" disabled={saving || done} onClick={async () => { setSaving(true); await onSave(); setSaving(false); }} className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-60">
         {done ? 'Saved ✓' : saving ? 'Saving...' : 'Save to My Recipes'}
       </button>
-      <button type="button" disabled title="Coming soon" className="cursor-not-allowed rounded-full border border-gray-200 px-5 py-2.5 text-sm font-bold text-ink-soft opacity-70">Add to Meal Plan (soon)</button>
+      <button type="button" disabled={planBusy} onClick={async () => { setPlanBusy(true); await onAddToPlan(); setPlanBusy(false); }} className="rounded-full border border-green-600 px-5 py-2.5 text-sm font-bold text-green-700 hover:bg-green-50 disabled:opacity-60">Add to Meal Plan</button>
       <button type="button" disabled={!canRegenerate} onClick={onRegenerate} className="rounded-full border border-green-600 px-5 py-2.5 text-sm font-bold text-green-700 hover:bg-green-50 disabled:opacity-50">Regenerate</button>
       <button type="button" onClick={onEdit} className="rounded-full border border-gray-200 px-5 py-2.5 text-sm font-bold text-ink hover:bg-gray-50">Edit Preferences</button>
     </div>
