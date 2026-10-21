@@ -56,6 +56,9 @@ export const AI_RECIPE_CONFIG = {
 
   input: {
     maxDescriptionChars: 300,
+    maxAvailable: 25,
+    minAvailable: 2,
+    maxExtras: 3,
     maxExcludedTerms: 10,
     maxTermChars: 40,
     calories: { min: 100, max: 2000 },
@@ -63,6 +66,13 @@ export const AI_RECIPE_CONFIG = {
     servings: { min: 1, max: 6 },
   },
 };
+
+// Basics assumed available in "Cook With What You Have" mode (when the user
+// ticks "I have basic pantry staples"). Never counted as "missing".
+export const PANTRY_STAPLES = [
+  'water', 'salt', 'black_pepper', 'olive_oil', 'paprika', 'cumin', 'oregano_dried',
+  'chilli_flakes', 'turmeric', 'cinnamon', 'garlic_powder', 'curry_powder',
+];
 
 export const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Dessert', 'Any'];
 export const TIME_OPTIONS = [15, 30, 45, 60, 0]; // 0 = no preference

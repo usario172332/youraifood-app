@@ -4,7 +4,7 @@
 // The LLM is injected as a function so the whole pipeline is unit-testable
 // and the provider can be swapped without touching this file.
 
-import { AI_RECIPE_CONFIG, MEAL_TYPES, TIME_OPTIONS, DIET_OPTIONS } from './aiRecipeConfig.js';
+import { AI_RECIPE_CONFIG, MEAL_TYPES, TIME_OPTIONS, DIET_OPTIONS, PANTRY_STAPLES } from './aiRecipeConfig.js';
 import { INGREDIENTS, ALLOWED_UNITS, toGrams, resolveIngredientKey } from './ingredientNutrition.js';
 
 const round1 = (n) => Math.round(n * 10) / 10;
@@ -22,7 +22,20 @@ export function sanitizeInput(body, cfg = AI_RECIPE_CONFIG) {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, lim.maxDescriptionChars);
-  if (description.length < 3) return { error: 'Tell us what you would like to eat (at least a few words).' };
+  // "Cook With What You Have": ingredient keys the user picked from our table.
+  const available = [];
+  if (Array.isArray(b.available)) {
+    for (const raw of b.available) {
+      const key = resolveIngredientKey(String(raw || '').slice(0, 60));
+      if (key && !available.includes(key)) available.push(key);
+      if (available.length >= lim.maxAvailable) break;
+    }
+  }
+  const pantryMode = available.length > 0;
+  if (pantryMode && available.length < lim.minAvailable) {
+    return { error: `Pick at least ${lim.minAvailable} ingredients you have.` };
+  }
+  if (!pantryMode && description.length < 3) return { error: 'Tell us what you would like to eat (at least a few words).' };
 
   const numOrNull = (v, range, label) => {
     if (v === '' || v === null || v === undefined) return { value: null };
@@ -55,9 +68,19 @@ export function sanitizeInput(body, cfg = AI_RECIPE_CONFIG) {
     if (excluded.length >= lim.maxExcludedTerms) break;
   }
 
-  return {
-    input: { description, calories: cal.value, protein: pro.value, servings, mealType, maxTime, diets: uniqueDiets, excluded },
-  };
+  const input = { description: description || 'A recipe made from my ingredients', calories: cal.value, protein: pro.value, servings, mealType, maxTime, diets: uniqueDiets, excluded };
+
+  if (pantryMode) {
+    // Drop items the user also excluded (e.g. allergy) so they can never be used.
+    const usable = available.filter((k) => findExclusionHits({ ingredients: [{ key: k }], title: '', description: '', storage: '', instructions: [], substitutions: [] }, excluded).length === 0);
+    if (usable.length < lim.minAvailable) return { error: 'Too many of your ingredients conflict with your excluded ingredients. Remove an exclusion or pick more ingredients.' };
+    input.available = usable;
+    input.pantryMode = true;
+    input.strictPantry = b.strictPantry !== false; // default: only what I have (+ staples)
+    input.staples = b.staples !== false; // default: assume basic staples
+    input.dropped = available.filter((k) => !usable.includes(k));
+  }
+  return { input };
 }
 
 const MEAT_WORDS = ['chicken', 'beef', 'pork', 'lamb', 'turkey', 'bacon', 'ham', 'sausage', 'steak', 'fish', 'salmon', 'tuna', 'cod', 'prawn', 'prawns', 'shrimp', 'anchovy', 'anchovies'];
@@ -244,6 +267,38 @@ export function verifiedDietTags(recipe, perServing, cfg = AI_RECIPE_CONFIG) {
   return tags;
 }
 
+// ---------------------------------------------------- pantry ("what I have") ---
+
+export function pantrySplit(recipe, input) {
+  const have = new Set(input.available || []);
+  const staples = new Set(input.staples ? PANTRY_STAPLES : []);
+  const used = [];
+  const missing = [];
+  for (const ing of recipe.ingredients) {
+    if (have.has(ing.key)) used.push(ing.key);
+    else if (!staples.has(ing.key)) missing.push(ing.key);
+  }
+  const unused = (input.available || []).filter((k) => !used.includes(k));
+  return { used: [...new Set(used)], missing: [...new Set(missing)], unused };
+}
+
+export function minPantryUse(input) {
+  const n = (input.available || []).filter((k) => !PANTRY_STAPLES.includes(k)).length || (input.available || []).length;
+  return Math.min(n, Math.max(2, Math.ceil(n / 2)));
+}
+
+function pantryErrors(recipe, input, cfg = AI_RECIPE_CONFIG) {
+  const errs = [];
+  const { used, missing } = pantrySplit(recipe, input);
+  const maxMissing = input.strictPantry ? 0 : cfg.input.maxExtras;
+  if (missing.length > maxMissing) {
+    errs.push(`Uses ingredients the user does not have: ${missing.map((k) => INGREDIENTS[k].name).join(', ')}. ${input.strictPantry ? 'Use ONLY the available ingredients' + (input.staples ? ' plus basic staples' : '') : `At most ${maxMissing} extra ingredients are allowed`}.`);
+  }
+  const need = minPantryUse(input);
+  if (used.length < need) errs.push(`Only ${used.length} of the user's ingredients were used; use at least ${need}.`);
+  return errs;
+}
+
 export function validateHard(recipe, input, nutrition, tags) {
   const errors = [];
   errors.push(...findExclusionHits(recipe, input.excluded));
@@ -269,6 +324,8 @@ export function validateHard(recipe, input, nutrition, tags) {
     if (spice && i.grams / recipe.servings > 15) errors.push(`${it.name} quantity is implausibly high.`);
     if (i.grams / recipe.servings > 600) errors.push(`${it.name} quantity per serving is implausibly high.`);
   }
+  if (input.pantryMode) errors.push(...pantryErrors(recipe, input));
+
   const k = nutrition.perServing.kcal;
   if (k < 60 || k > 1800) errors.push(`Calculated ${k} kcal per serving is outside a plausible range.`);
   if (input.maxTime && recipe.totalMinutes > input.maxTime) errors.push(`Total time ${recipe.totalMinutes} min exceeds the ${input.maxTime} min limit.`);
@@ -412,5 +469,10 @@ export function buildResult({ recipe, nutrition, tags, evalRes }, input) {
     nutrition: { total: nutrition.total, perServing: nutrition.perServing },
     validation: { status: targetsMet ? 'targets_met' : 'closest_alternative', targets: { calories: evalRes.calories, protein: evalRes.protein }, notes },
     request: { calories: input.calories, protein: input.protein, servings: input.servings },
+    ...(input.pantryMode ? (() => {
+      const s = pantrySplit(recipe, input);
+      const nm = (k) => INGREDIENTS[k].name;
+      return { pantry: { used: s.used.map(nm), missing: s.missing.map(nm), unused: s.unused.map(nm), dropped: (input.dropped || []).map(nm), strict: !!input.strictPantry } };
+    })() : {}),
   };
 }

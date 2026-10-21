@@ -5,7 +5,7 @@
 // Runs server-side only; the API key never reaches the browser.
 
 import Anthropic from '@anthropic-ai/sdk';
-import { AI_RECIPE_CONFIG } from './aiRecipeConfig.js';
+import { AI_RECIPE_CONFIG, PANTRY_STAPLES } from './aiRecipeConfig.js';
 import { INGREDIENT_KEYS, ALLOWED_UNITS } from './ingredientNutrition.js';
 
 let client = null;
@@ -54,6 +54,16 @@ const RECIPE_TOOL = {
   },
 };
 
+// In strict pantry mode the model can only pick from the user's ingredients
+// (+ staples) — enforced by the tool schema AND re-validated server-side.
+function toolFor(input) {
+  if (!input.pantryMode || !input.strictPantry) return RECIPE_TOOL;
+  const allowed = [...new Set([...input.available, ...(input.staples ? PANTRY_STAPLES : [])])];
+  const clone = JSON.parse(JSON.stringify(RECIPE_TOOL));
+  clone.input_schema.properties.ingredients.items.properties.ingredient.enum = allowed;
+  return clone;
+}
+
 function buildPrompts(input, feedback) {
   const system = `You are the recipe-composition engine of YourAiFood, a fitness meal-planning app.
 Create ONE practical, tasty, home-cookable recipe by calling the submit_recipe tool.
@@ -74,6 +84,15 @@ Rules:
     dietary_requirements: input.diets,
     excluded_ingredients: input.excluded,
   };
+  if (input.pantryMode) {
+    req.cook_with_what_i_have = {
+      available_ingredient_keys: input.available,
+      basic_staples_assumed: input.staples ? PANTRY_STAPLES : [],
+      rule: input.strictPantry
+        ? 'Use ONLY the available ingredient keys' + (input.staples ? ' plus the assumed staples' : '') + '. Build a coherent dish around the main ones; you do not have to use every item, but use most of the substantial ones.'
+        : 'Build the dish mainly from the available keys. You may add at most 3 other ingredients if truly needed. Use most of the substantial available items.',
+    };
+  }
   let user = `Recipe request (JSON data):\n${JSON.stringify(req)}`;
   if (feedback) user += `\n\nCorrection needed: ${feedback}`;
   return { system, user };
@@ -89,7 +108,7 @@ async function callAnthropic({ input, feedback }, cfg) {
       max_tokens: cfg.maxOutputTokens,
       system,
       messages: [{ role: 'user', content: user }],
-      tools: [RECIPE_TOOL],
+      tools: [toolFor(input)],
       tool_choice: { type: 'tool', name: RECIPE_TOOL.name },
     },
     { timeout: cfg.attemptTimeoutMs }
