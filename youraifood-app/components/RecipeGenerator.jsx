@@ -153,6 +153,36 @@ export default function RecipeGenerator() {
     }
   }
 
+  async function suggestSwaps(fromKey) {
+    try {
+      const res = await fetch('/api/ai-recipe/substitute', {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ requestKey: result.requestKey, action: 'suggest', fromKey, excluded: form.excluded.split(',').map((s) => s.trim()).filter(Boolean) }),
+      });
+      const data = await res.json().catch(() => ({}));
+      return res.ok ? data.suggestions : [];
+    } catch { return []; }
+  }
+
+  async function applySwap(fromKey, toKey) {
+    setError(null);
+    try {
+      const res = await fetch('/api/ai-recipe/substitute', {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ requestKey: result.requestKey, action: 'apply', fromKey, toKey, excluded: form.excluded.split(',').map((s) => s.trim()).filter(Boolean) }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(data.error || 'Could not apply that swap.'); return false; }
+      setResult(data);
+      setSavedId(null);
+      if (data.usage) setUsage(data.usage);
+      return true;
+    } catch {
+      setError('Network problem. Please try again.');
+      return false;
+    }
+  }
+
   // Saves the current result (idempotent). Returns the saved recipe id or null.
   async function save(quiet = false) {
     if (!result) return null;
@@ -316,7 +346,9 @@ export default function RecipeGenerator() {
       {phase === 'result' && result && (
         <>
           <RecipeView
+            key={result.requestKey}
             data={result}
+            onSwap={{ suggest: suggestSwaps, apply: applySwap }}
             footerNote={remaining !== null ? `${usage.remaining} of ${usage.limit} AI recipes remaining this month.` : null}
             actions={
               <ResultActions
@@ -401,12 +433,32 @@ function ResultActions({ onSave, onAddToPlan, alreadySaved, onRegenerate, onImpr
   );
 }
 
-function RecipeView({ data, actions, footerNote, compact = false }) {
+function RecipeView({ data, actions, footerNote, compact = false, onSwap = null }) {
   const recipe = data.recipe || data; // saved rows store recipe fields at top level
   const nutrition = data.nutrition || { perServing: {}, total: {} };
   const validation = data.validation;
   const base = recipe.servings || 1;
   const [view, setView] = useState(base);
+  const [swapKey, setSwapKey] = useState(null);
+  const [swapList, setSwapList] = useState([]);
+  const [swapLoading, setSwapLoading] = useState(false);
+  const [swapBusy, setSwapBusy] = useState(false);
+
+  async function openSwap(key) {
+    if (swapKey === key) { setSwapKey(null); return; }
+    setSwapKey(key);
+    setSwapList([]);
+    setSwapLoading(true);
+    const list = await onSwap.suggest(key);
+    setSwapList(list || []);
+    setSwapLoading(false);
+  }
+  async function applySwap(fromKey, toKey) {
+    setSwapBusy(true);
+    const ok = await onSwap.apply(fromKey, toKey);
+    setSwapBusy(false);
+    if (ok) setSwapKey(null);
+  }
   const factor = view / base;
   const ps = nutrition.perServing || {};
   const total = nutrition.total || {};
@@ -475,14 +527,47 @@ function RecipeView({ data, actions, footerNote, compact = false }) {
           </select>
         </label>
       </div>
+      {data.substituted && (
+        <p className="mt-2 rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-900">
+          Swapped <b>{data.substituted.from}</b> for <b>{data.substituted.to}</b>: {data.substituted.before?.kcal} → {ps.kcal} kcal and {data.substituted.before?.protein} → {ps.protein} g protein per serving. Please re-read the method for wording.
+        </p>
+      )}
       <ul className="mt-2 divide-y divide-gray-100 text-sm">
         {(recipe.ingredients || []).map((i) => (
-          <li key={i.key} className="flex justify-between gap-3 py-2">
-            <span>{i.name}{i.note ? <span className="text-ink-soft">, {i.note}</span> : null}</span>
-            <span className="whitespace-nowrap font-semibold text-ink">
-              {fmtQty(i.quantity * factor)} {i.unit}
-              {i.unit !== 'g' && i.unit !== 'ml' && <span className="font-normal text-ink-soft"> ({Math.round(i.grams * factor)} g)</span>}
-            </span>
+          <li key={i.key} className="py-2">
+            <div className="flex justify-between gap-3">
+              <span>{i.name}{i.note ? <span className="text-ink-soft">, {i.note}</span> : null}</span>
+              <span className="whitespace-nowrap font-semibold text-ink">
+                {fmtQty(i.quantity * factor)} {i.unit}
+                {i.unit !== 'g' && i.unit !== 'ml' && <span className="font-normal text-ink-soft"> ({Math.round(i.grams * factor)} g)</span>}
+                {onSwap && (
+                  <button type="button" onClick={() => openSwap(i.key)} aria-expanded={swapKey === i.key} className="ml-3 text-xs font-bold text-violet-700 underline hover:text-violet-900">
+                    Swap
+                  </button>
+                )}
+              </span>
+            </div>
+            {onSwap && swapKey === i.key && (
+              <div className="mt-2 rounded-xl border border-violet-100 bg-violet-50/60 p-3">
+                {swapLoading && <p className="text-xs text-ink-soft">Finding substitutes...</p>}
+                {!swapLoading && swapList.length === 0 && <p className="text-xs text-ink-soft">No like-for-like substitutes available for this ingredient.</p>}
+                {!swapLoading && swapList.length > 0 && (
+                  <>
+                    <p className="mb-2 text-xs text-ink-soft">Pick a substitute (free, no AI recipe used). Amounts are adjusted to keep the macros close.</p>
+                    <ul className="space-y-1">
+                      {swapList.map((c) => (
+                        <li key={c.key}>
+                          <button type="button" disabled={swapBusy} onClick={() => applySwap(i.key, c.key)} className="flex w-full items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-left text-sm hover:bg-violet-100 disabled:opacity-60">
+                            <span className="font-semibold text-ink">{c.name} <span className="font-normal text-ink-soft">· {c.grams} g</span></span>
+                            <span className="text-xs text-ink-soft">{c.kcal} kcal · {c.protein} g protein</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )}
           </li>
         ))}
       </ul>
