@@ -35,7 +35,8 @@ export function sanitizeInput(body, cfg = AI_RECIPE_CONFIG) {
   if (pantryMode && available.length < lim.minAvailable) {
     return { error: `Pick at least ${lim.minAvailable} ingredients you have.` };
   }
-  if (!pantryMode && description.length < 3) return { error: 'Tell us what you would like to eat (at least a few words).' };
+  const isImprove = b.healthier === 'lighter' || b.healthier === 'protein';
+  if (!pantryMode && !isImprove && description.length < 3) return { error: 'Tell us what you would like to eat (at least a few words).' };
 
   const numOrNull = (v, range, label) => {
     if (v === '' || v === null || v === undefined) return { value: null };
@@ -68,7 +69,43 @@ export function sanitizeInput(body, cfg = AI_RECIPE_CONFIG) {
     if (excluded.length >= lim.maxExcludedTerms) break;
   }
 
+  // "Healthier version": improve an existing recipe. Targets are derived server-side
+  // from the base ingredients (never from client-supplied numbers).
+  let improve = null;
+  if (b.healthier === 'lighter' || b.healthier === 'protein') {
+    const base = b.base && typeof b.base === 'object' ? b.base : {};
+    const baseIngs = [];
+    for (const r of (Array.isArray(base.ingredients) ? base.ingredients : []).slice(0, 25)) {
+      const key = resolveIngredientKey(String((r && r.key) || '').slice(0, 60));
+      const grams = Number(r && r.grams);
+      if (key && Number.isFinite(grams) && grams > 0 && grams < 5000) baseIngs.push({ key, grams });
+    }
+    const baseServings = Math.min(12, Math.max(1, Math.round(Number(base.servings) || servings)));
+    if (baseIngs.length < 2) return { error: 'Could not read the original recipe. Generate it again and retry.' };
+    const baseN = computeNutrition({ servings: baseServings, ingredients: baseIngs });
+    const ps = baseN.perServing;
+    const clamp = (v, r) => Math.min(r.max, Math.max(r.min, Math.round(v)));
+    if (b.healthier === 'lighter') {
+      cal.value = clamp(ps.kcal * 0.8, lim.calories);
+      pro.value = clamp(ps.protein, lim.protein) || null; // keep protein while cutting calories
+    } else {
+      cal.value = clamp(ps.kcal, lim.calories);
+      pro.value = clamp(ps.protein * 1.3, lim.protein);
+    }
+    improve = {
+      goal: b.healthier,
+      title: clampStr(base.title, 80),
+      baseServings,
+      ingredients: baseIngs,
+      base: { kcal: ps.kcal, protein: ps.protein },
+    };
+  }
+
   const input = { description: description || 'A recipe made from my ingredients', calories: cal.value, protein: pro.value, servings, mealType, maxTime, diets: uniqueDiets, excluded };
+  if (improve) {
+    input.improve = improve;
+    if (!description) input.description = `${improve.goal === 'lighter' ? 'Lighter' : 'Higher-protein'} version of ${improve.title || 'my recipe'}`;
+  }
 
   if (pantryMode) {
     // Drop items the user also excluded (e.g. allergy) so they can never be used.
@@ -469,6 +506,7 @@ export function buildResult({ recipe, nutrition, tags, evalRes }, input) {
     nutrition: { total: nutrition.total, perServing: nutrition.perServing },
     validation: { status: targetsMet ? 'targets_met' : 'closest_alternative', targets: { calories: evalRes.calories, protein: evalRes.protein }, notes },
     request: { calories: input.calories, protein: input.protein, servings: input.servings },
+    ...(input.improve ? { improved: { goal: input.improve.goal, fromTitle: input.improve.title, baseKcal: input.improve.base.kcal, baseProtein: input.improve.base.protein } } : {}),
     ...(input.pantryMode ? (() => {
       const s = pantrySplit(recipe, input);
       const nm = (k) => INGREDIENTS[k].name;

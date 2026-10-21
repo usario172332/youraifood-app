@@ -93,6 +93,16 @@ Rules:
         : 'Build the dish mainly from the available keys. You may add at most 3 other ingredients if truly needed. Use most of the substantial available items.',
     };
   }
+  if (input.improve) {
+    req.improve_existing_recipe = {
+      original_title: input.improve.title,
+      original_servings: input.improve.baseServings,
+      original_ingredients: input.improve.ingredients.map((i) => ({ ingredient: i.key, grams: Math.round(i.grams) })),
+      goal: input.improve.goal === 'lighter'
+        ? 'Make a lighter version: about 20% fewer calories per serving while keeping protein about the same. Reduce oil/fat/refined carbs, add volume with vegetables, keep it tasty and recognisably the same dish.'
+        : 'Make a higher-protein version: about 30% more protein per serving at about the same calories. Swap or add lean protein sources and trim fat/carbs to compensate; keep it recognisably the same dish.',
+    };
+  }
   let user = `Recipe request (JSON data):\n${JSON.stringify(req)}`;
   if (feedback) user += `\n\nCorrection needed: ${feedback}`;
   return { system, user };
