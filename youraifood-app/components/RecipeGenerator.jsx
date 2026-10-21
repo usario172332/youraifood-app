@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../lib/AuthContext';
 import AddToPlanModal from './AddToPlanModal';
+import PantryPicker from './PantryPicker';
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Dessert', 'Any'];
 const TIME_OPTIONS = [
@@ -18,7 +19,7 @@ const QUICK_EXCLUDE = ['Mushrooms', 'Chicken', 'Peanuts', 'Seafood', 'Dairy', 'E
 const PREFS_KEY = 'yaf_ai_recipe_prefs_v1';
 const LOADING_STEPS = ['Checking your preferences...', 'Creating your recipe...', 'Calculating your macros...'];
 
-const DEFAULTS = { description: '', calories: '', protein: '', mealType: 'Any', maxTime: 0, diets: [], excluded: '', servings: 1 };
+const DEFAULTS = { description: '', calories: '', protein: '', mealType: 'Any', maxTime: 0, diets: [], excluded: '', servings: 1, mode: 'describe', available: [], strictPantry: true, staples: true };
 
 function newKey() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -102,6 +103,7 @@ export default function RecipeGenerator() {
   async function generate(regenerate = false) {
     if (busy.current) return;
     if (!user || !session) { requestSignIn(); setError('Sign in (left menu) to generate a recipe.'); return; }
+    if (form.mode === 'pantry' && form.available.length < 2) { setError('Pick at least 2 ingredients you have.'); return; }
     busy.current = true;
     setError(null);
     setLimitHit(false);
@@ -113,7 +115,7 @@ export default function RecipeGenerator() {
       const res = await fetch('/api/ai-recipe', {
         method: 'POST',
         headers: authHeaders(),
-        body: JSON.stringify({ ...form, idempotencyKey: newKey(), regenerate }),
+        body: JSON.stringify({ ...form, available: form.mode === 'pantry' ? form.available : [], idempotencyKey: newKey(), regenerate }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -212,6 +214,29 @@ export default function RecipeGenerator() {
               onSubmit={(e) => { e.preventDefault(); generate(false); }}
               className="space-y-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
             >
+              <div role="tablist" aria-label="How do you want to start?" className="flex flex-wrap gap-2">
+                <button type="button" role="tab" aria-selected={form.mode === 'describe'} onClick={() => set({ mode: 'describe' })} className={chip(form.mode === 'describe')}>Describe a recipe</button>
+                <button type="button" role="tab" aria-selected={form.mode === 'pantry'} onClick={() => set({ mode: 'pantry' })} className={chip(form.mode === 'pantry')}>🥕 Cook with what I have</button>
+              </div>
+
+              {form.mode === 'pantry' ? (
+                <>
+                  <PantryPicker
+                    value={form.available} onChange={(v) => set({ available: v })}
+                    strict={form.strictPantry} onStrict={(v) => set({ strictPantry: v })}
+                    staples={form.staples} onStaples={(v) => set({ staples: v })}
+                  />
+                  <div>
+                    <label htmlFor="rg-desc" className="mb-1.5 block text-sm font-bold text-green-900">Any style or mood? <span className="font-normal text-ink-soft">(optional)</span></label>
+                    <input
+                      id="rg-desc" type="text" maxLength={300} value={form.description}
+                      onChange={(e) => set({ description: e.target.value })}
+                      placeholder="e.g. a quick stir-fry, something creamy"
+                      className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-200"
+                    />
+                  </div>
+                </>
+              ) : (
               <div>
                 <label htmlFor="rg-desc" className="mb-1.5 block text-sm font-bold text-green-900">Recipe description</label>
                 <textarea
@@ -221,6 +246,7 @@ export default function RecipeGenerator() {
                   className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-200"
                 />
               </div>
+              )}
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -400,6 +426,20 @@ function RecipeView({ data, actions, footerNote, compact = false }) {
       </div>
       <h2 className={`${compact ? 'text-xl' : 'text-2xl'} font-extrabold text-green-900`}>{recipe.title}</h2>
       {recipe.description && <p className="mt-1 text-ink-soft">{recipe.description}</p>}
+      {data.pantry && (
+        <div className="mt-3 rounded-xl border border-green-100 bg-green-50 p-3 text-sm">
+          <p><b className="text-green-900">Uses from your kitchen:</b> {data.pantry.used.join(', ') || '—'}</p>
+          {data.pantry.missing.length > 0 && (
+            <p className="mt-1"><b className="text-amber-800">You&apos;ll need to pick up:</b> {data.pantry.missing.join(', ')}</p>
+          )}
+          {data.pantry.unused.length > 0 && (
+            <p className="mt-1 text-ink-soft">Not used this time: {data.pantry.unused.join(', ')}</p>
+          )}
+          {data.pantry.dropped && data.pantry.dropped.length > 0 && (
+            <p className="mt-1 text-ink-soft">Skipped because of your exclusions: {data.pantry.dropped.join(', ')}</p>
+          )}
+        </div>
+      )}
       <p className="mt-2 text-sm text-ink-soft">
         Prep {recipe.prepMinutes} min · Cook {recipe.cookMinutes} min · Total {recipe.totalMinutes} min · {recipe.difficulty} · Makes {base} {base === 1 ? 'serving' : 'servings'}
       </p>
