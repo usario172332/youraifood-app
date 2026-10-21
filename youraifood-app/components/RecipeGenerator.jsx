@@ -100,10 +100,10 @@ export default function RecipeGenerator() {
     set({ excluded: (has ? list.filter((s) => s.toLowerCase() !== term.toLowerCase()) : [...list, term]).join(', ') });
   };
 
-  async function generate(regenerate = false) {
+  async function generate(regenerate = false, improve = null) {
     if (busy.current) return;
     if (!user || !session) { requestSignIn(); setError('Sign in (left menu) to generate a recipe.'); return; }
-    if (form.mode === 'pantry' && form.available.length < 2) { setError('Pick at least 2 ingredients you have.'); return; }
+    if (!improve && form.mode === 'pantry' && form.available.length < 2) { setError('Pick at least 2 ingredients you have.'); return; }
     busy.current = true;
     setError(null);
     setLimitHit(false);
@@ -115,7 +115,23 @@ export default function RecipeGenerator() {
       const res = await fetch('/api/ai-recipe', {
         method: 'POST',
         headers: authHeaders(),
-        body: JSON.stringify({ ...form, available: form.mode === 'pantry' ? form.available : [], idempotencyKey: newKey(), regenerate }),
+        body: JSON.stringify(
+          improve
+            ? {
+                healthier: improve,
+                description: '',
+                excluded: form.excluded,
+                servings: result.recipe.servings,
+                base: {
+                  title: result.recipe.title,
+                  servings: result.recipe.servings,
+                  ingredients: result.recipe.ingredients.map((i) => ({ key: i.key, grams: i.grams })),
+                },
+                idempotencyKey: newKey(),
+                regenerate: true,
+              }
+            : { ...form, available: form.mode === 'pantry' ? form.available : [], idempotencyKey: newKey(), regenerate }
+        ),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -308,6 +324,7 @@ export default function RecipeGenerator() {
                 onAddToPlan={openPlanModalForResult}
                 alreadySaved={!!savedId}
                 onRegenerate={() => generate(true)}
+                onImprove={(goal) => generate(true, goal)}
                 onEdit={() => setPhase('form')}
                 canRegenerate={usage ? usage.remaining > 0 : true}
               />
@@ -362,7 +379,7 @@ export default function RecipeGenerator() {
   );
 }
 
-function ResultActions({ onSave, onAddToPlan, alreadySaved, onRegenerate, onEdit, canRegenerate }) {
+function ResultActions({ onSave, onAddToPlan, alreadySaved, onRegenerate, onImprove, onEdit, canRegenerate }) {
   const [saving, setSaving] = useState(false);
   const [planBusy, setPlanBusy] = useState(false);
   const done = alreadySaved;
@@ -374,6 +391,12 @@ function ResultActions({ onSave, onAddToPlan, alreadySaved, onRegenerate, onEdit
       <button type="button" disabled={planBusy} onClick={async () => { setPlanBusy(true); await onAddToPlan(); setPlanBusy(false); }} className="rounded-full border border-green-600 px-5 py-2.5 text-sm font-bold text-green-700 hover:bg-green-50 disabled:opacity-60">Add to Meal Plan</button>
       <button type="button" disabled={!canRegenerate} onClick={onRegenerate} className="rounded-full border border-green-600 px-5 py-2.5 text-sm font-bold text-green-700 hover:bg-green-50 disabled:opacity-50">Regenerate</button>
       <button type="button" onClick={onEdit} className="rounded-full border border-gray-200 px-5 py-2.5 text-sm font-bold text-ink hover:bg-gray-50">Edit Preferences</button>
+      <div className="flex w-full flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+        <span className="text-sm font-bold text-green-900">Make it healthier:</span>
+        <button type="button" disabled={!canRegenerate} onClick={() => onImprove('lighter')} className="rounded-full border border-violet-300 px-4 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50 disabled:opacity-50">Lighter (~20% fewer calories)</button>
+        <button type="button" disabled={!canRegenerate} onClick={() => onImprove('protein')} className="rounded-full border border-violet-300 px-4 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50 disabled:opacity-50">Higher protein (+30%)</button>
+        <span className="text-xs text-ink-soft">Uses 1 AI recipe.</span>
+      </div>
     </div>
   );
 }
@@ -397,6 +420,11 @@ function RecipeView({ data, actions, footerNote, compact = false }) {
         ))}
       </div>
       <h2 className={`${compact ? 'text-xl' : 'text-2xl'} font-extrabold text-green-900`}>{recipe.title}</h2>
+      {data.improved && (
+        <p className="mt-2 rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-900">
+          {data.improved.goal === 'lighter' ? 'Lighter' : 'Higher-protein'} version of <b>{data.improved.fromTitle || 'your recipe'}</b>: was {data.improved.baseKcal} kcal and {data.improved.baseProtein} g protein per serving, now {ps.kcal} kcal and {ps.protein} g.
+        </p>
+      )}
       {recipe.description && <p className="mt-1 text-ink-soft">{recipe.description}</p>}
       {data.pantry && (
         <div className="mt-3 rounded-xl border border-green-100 bg-green-50 p-3 text-sm">
