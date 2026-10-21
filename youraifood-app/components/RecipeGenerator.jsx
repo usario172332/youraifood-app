@@ -259,34 +259,6 @@ export default function RecipeGenerator() {
                 </div>
               </div>
 
-              <fieldset>
-                <legend className="mb-1.5 text-sm font-bold text-green-900">Meal type</legend>
-                <div className="flex flex-wrap gap-2">
-                  {MEAL_TYPES.map((m) => (
-                    <button type="button" key={m} aria-pressed={form.mealType === m} onClick={() => set({ mealType: m })} className={chip(form.mealType === m)}>{m}</button>
-                  ))}
-                </div>
-              </fieldset>
-
-              <fieldset>
-                <legend className="mb-1.5 text-sm font-bold text-green-900">Cooking time</legend>
-                <div className="flex flex-wrap gap-2">
-                  {TIME_OPTIONS.map((t) => (
-                    <button type="button" key={t.v} aria-pressed={form.maxTime === t.v} onClick={() => set({ maxTime: t.v })} className={chip(form.maxTime === t.v)}>{t.l}</button>
-                  ))}
-                </div>
-              </fieldset>
-
-              <fieldset>
-                <legend className="mb-1.5 text-sm font-bold text-green-900">Dietary preferences</legend>
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" aria-pressed={form.diets.length === 0} onClick={() => set({ diets: [] })} className={chip(form.diets.length === 0)}>No preference</button>
-                  {DIETS.map((d) => (
-                    <button type="button" key={d} aria-pressed={form.diets.includes(d)} onClick={() => toggleDiet(d)} className={chip(form.diets.includes(d))}>{d}</button>
-                  ))}
-                </div>
-              </fieldset>
-
               <div>
                 <label htmlFor="rg-ex" className="mb-1.5 block text-sm font-bold text-green-900">Excluded ingredients / allergies</label>
                 <input id="rg-ex" type="text" maxLength={200} value={form.excluded} onChange={(e) => set({ excluded: e.target.value })} placeholder="e.g. mushrooms, peanuts (comma separated)" className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-200" />
