@@ -3,6 +3,7 @@
 import { AuthProvider } from '../lib/AuthContext';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
+import OnboardingWizard from './OnboardingWizard';
 
 export default function AppShell({ children }) {
   return (
@@ -14,6 +15,7 @@ export default function AppShell({ children }) {
           <Footer />
         </main>
       </div>
+      <OnboardingWizard />
     </AuthProvider>
   );
 }

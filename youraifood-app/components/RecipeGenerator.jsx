@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '../lib/AuthContext';
 import AddToPlanModal from './AddToPlanModal';
 import PantryPicker from './PantryPicker';
+import { excludedText, loadProfile, sanitizeProfile } from '../lib/onboarding';
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Dessert', 'Any'];
 const TIME_OPTIONS = [
@@ -57,6 +58,13 @@ export default function RecipeGenerator() {
     try {
       const raw = localStorage.getItem(PREFS_KEY);
       if (raw) setForm((f) => ({ ...f, ...JSON.parse(raw), description: '' }));
+    } catch { /* ignore */ }
+    // First visit: seed exclusions from the onboarding wizard (browser-only data).
+    try {
+      if (!localStorage.getItem(PREFS_KEY)) {
+        const ex = excludedText(sanitizeProfile(loadProfile()));
+        if (ex) setForm((f) => ({ ...f, excluded: ex }));
+      }
     } catch { /* ignore */ }
   }, []);
 

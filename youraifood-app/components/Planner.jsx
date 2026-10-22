@@ -7,6 +7,7 @@ import { calculateTargets, ACTIVITY_OPTIONS } from '../lib/nutrition';
 import RecipeModal from './RecipeModal';
 import { MEAT_CATEGORIES } from '../lib/meatType';
 import { AVOID_INGREDIENT_OPTIONS } from '../lib/avoidIngredients';
+import { loadProfile, sanitizeProfile } from '../lib/onboarding';
 
 const DIET_OPTIONS = [
 { key: 'vegan', label: 'Vegan' },
@@ -193,6 +194,32 @@ proteinTouched: pro ? true : f.proteinTouched,
 }));
 setShowCustomize(true);
 setPrefilled(true);
+}, []);
+
+// Apply answers from the onboarding wizard (stored only in this browser).
+// URL params from the macro calculator win for calories/protein.
+useEffect(() => {
+if (typeof window === 'undefined') return undefined;
+function applyProfile() {
+const p = sanitizeProfile(loadProfile());
+if (!p) return;
+const hasStats = p.weight && p.height && p.age;
+setForm((f) => ({
+...f,
+goal: p.goal || f.goal,
+weight: p.weight || f.weight,
+height: p.height || f.height,
+age: p.age || f.age,
+sex: p.sex || f.sex,
+activityLevel: p.activityLevel || f.activityLevel,
+avoidMeats: p.avoidMeats.length ? p.avoidMeats : f.avoidMeats,
+avoidIngredients: p.avoidIngredients.length ? p.avoidIngredients : f.avoidIngredients,
+}));
+if (hasStats) setStatsTouched(true);
+}
+applyProfile();
+window.addEventListener('yaf-profile-updated', applyProfile);
+return () => window.removeEventListener('yaf-profile-updated', applyProfile);
 }, []);
 
 const targets = useMemo(
