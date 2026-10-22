@@ -6,7 +6,7 @@ import { useAuth } from '../lib/AuthContext';
 import { maskEmail } from '../lib/maskEmail';
 
 export default function AuthWidget({ compact, openSignal }) {
- const { user, handleAuthChange, signOut } = useAuth();
+  const { user, handleAuthChange, signOut } = useAuth();
   const [open, setOpen] = useState(false);
 
   // A parent (Sidebar) bumps openSignal when something elsewhere on the site
@@ -20,7 +20,7 @@ export default function AuthWidget({ compact, openSignal }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [unconfirmed, setUnconfirmed] = useState(false);
-                                                 const [resendStatus, setResendStatus] = useState('');
+  const [resendStatus, setResendStatus] = useState('');
 
   if (!supabase) {
     return (
@@ -99,8 +99,8 @@ export default function AuthWidget({ compact, openSignal }) {
       </button>
       {open && (
         <div
-          className={`absolute mt-2 w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-xl z-50 ${
-            compact ? 'left-0' : 'right-0'
+          className={`absolute w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-xl z-50 ${
+            compact ? 'left-0 bottom-full mb-2 max-h-[80vh] overflow-y-auto' : 'right-0 mt-2'
           }`}
         >
           <div className="flex gap-2 mb-3 text-sm font-semibold">
@@ -138,10 +138,10 @@ export default function AuthWidget({ compact, openSignal }) {
             />
             {error && <p className="text-xs text-red-600">{error}</p>}
             {unconfirmed && (
-          <button type="button" onClick={resendConfirmation} className="text-left text-xs font-semibold text-green-700 hover:text-green-900">
-          Resend confirmation email
-          </button>
-          )}
+              <button type="button" onClick={resendConfirmation} className="text-left text-xs font-semibold text-green-700 hover:text-green-900">
+                Resend confirmation email
+              </button>
+            )}
             {resendStatus && <p className="text-xs text-ink-soft">{resendStatus}</p>}
             <button
               type="submit"
