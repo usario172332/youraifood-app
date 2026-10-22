@@ -48,6 +48,15 @@ export default function AuthWidget({ compact, openSignal }) {
     setUnconfirmed(false);
     setResendStatus('');
     setLoading(true);
+    if (mode === 'forgot') {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setLoading(false);
+      if (resetError) setError(resetError.message);
+      else setResendStatus('If that email has an account, a reset link is on its way. Check your inbox.');
+      return;
+    }
     try {
       const { data, error: authError } =
         mode === 'signup'
@@ -127,15 +136,35 @@ export default function AuthWidget({ compact, openSignal }) {
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
             />
-            <input
-              type="password"
-              required
-              minLength={6}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
-            />
+            {mode !== 'forgot' && (
+              <input
+                type="password"
+                required
+                minLength={6}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              />
+            )}
+            {mode === 'signin' && (
+              <button
+                type="button"
+                onClick={() => { setMode('forgot'); setError(''); setResendStatus(''); }}
+                className="text-left text-xs font-semibold text-green-700 hover:text-green-900"
+              >
+                Forgot password?
+              </button>
+            )}
+            {mode === 'forgot' && (
+              <button
+                type="button"
+                onClick={() => { setMode('signin'); setError(''); setResendStatus(''); }}
+                className="text-left text-xs font-semibold text-green-700 hover:text-green-900"
+              >
+                Back to sign in
+              </button>
+            )}
             {error && <p className="text-xs text-red-600">{error}</p>}
             {unconfirmed && (
               <button type="button" onClick={resendConfirmation} className="text-left text-xs font-semibold text-green-700 hover:text-green-900">
@@ -148,7 +177,7 @@ export default function AuthWidget({ compact, openSignal }) {
               disabled={loading}
               className="mt-1 rounded-full bg-green-600 py-2 text-sm font-bold text-white disabled:opacity-60"
             >
-              {loading ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Sign in'}
+              {loading ? 'Please wait…' : mode === 'signup' ? 'Create account' : mode === 'forgot' ? 'Send reset link' : 'Sign in'}
             </button>
           </form>
         </div>
