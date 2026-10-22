@@ -17,7 +17,8 @@ export default function ResetPassword() {
   useEffect(() => {
     if (!supabase) { setChecked(true); return; }
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) setReady(true);
+      if (event === 'SIGNED_OUT') setReady(false);
+      else if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) setReady(true);
     });
     supabase.auth.getSession().then(({ data }) => {
       if (data && data.session) setReady(true);
