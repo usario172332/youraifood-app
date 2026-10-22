@@ -8,9 +8,11 @@ import { supabase } from '../../../lib/supabaseClient';
 export default function BroadcastAdmin() {
   const [busy, setBusy] = useState(false);
   const [out, setOut] = useState('');
+  const [armed, setArmed] = useState(false);
 
   async function run(mode) {
-    if (mode === 'all' && !window.confirm('Send the update email to ALL subscribed accounts now?')) return;
+    if (mode === 'all' && !armed) { setArmed(true); return; }
+    setArmed(false);
     setBusy(true);
     setOut('Working...');
     try {
@@ -38,7 +40,7 @@ export default function BroadcastAdmin() {
       <div className="mt-6 flex flex-wrap gap-3">
         <button type="button" disabled={busy} onClick={() => run('preview')} className={`${btn} bg-gray-600`}>Preview audience</button>
         <button type="button" disabled={busy} onClick={() => run('test')} className={`${btn} bg-green-600`}>Send test to me</button>
-        <button type="button" disabled={busy} onClick={() => run('all')} className={`${btn} bg-red-600`}>Send to all</button>
+        <button type="button" disabled={busy} onClick={() => run('all')} className={`${btn} bg-red-600`}>{armed ? 'Click again to confirm: send to all' : 'Send to all'}</button>
       </div>
       <pre className="mt-6 whitespace-pre-wrap rounded-xl bg-gray-50 p-4 text-xs text-gray-800">{out}</pre>
     </div>
