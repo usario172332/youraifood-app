@@ -14,8 +14,11 @@ export const maxDuration = 60;
 export async function POST(req) {
   const token = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
   const user = await getUserFromToken(token);
-  const adminEmail = (process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_USER || '').toLowerCase();
-  if (!user || !adminEmail || (user.email || '').toLowerCase() !== adminEmail) {
+  const allowed = [
+    process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_USER || '',
+    'support@youraifood.com',
+  ].map((e) => e.toLowerCase()).filter(Boolean);
+  if (!user || !allowed.includes((user.email || '').toLowerCase())) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
