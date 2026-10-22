@@ -82,6 +82,7 @@ export async function sendUpdateEmail(to, unsubUrl) {
     await t.sendMail({
       from: `"YourAiFood" <${process.env.SMTP_USER}>`,
       to,
+      replyTo: 'support@youraifood.com',
       subject: SUBJECT,
       html,
       text,
