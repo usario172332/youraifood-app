@@ -1171,7 +1171,7 @@ const HIGH_PROTEIN_VARIANTS_V2 = {
     },
     nr20: {
           ingredients: [
-            { n: 'Chicken breast', q: 240, u: 'g', cat: 'Protein' },
+            { n: 'Chicken thigh', q: 240, u: 'g', cat: 'Protein' },
             { n: 'Chickpeas', q: 150, u: 'g', cat: 'Pantry' },
             { n: 'Spinach', q: 90, u: 'g', cat: 'Produce' },
             { n: 'Tomato passata', q: 100, u: 'g', cat: 'Pantry' },
@@ -1187,7 +1187,7 @@ const HIGH_PROTEIN_VARIANTS_V2 = {
                   'Stir in the chickpeas, red lentils and tomato passata, and simmer for 15-18 minutes until the lentils soften.',
                   'Fold in the spinach until wilted, then serve.',
                 ],
-          protein: 55, cal: 482, carbs: 38, fat: 12,
+          protein: 48, cal: 484, carbs: 38, fat: 16,
     },
     nr28: {
           ingredients: [
@@ -1395,7 +1395,8 @@ const HIGH_PROTEIN_VARIANTS_V2 = {
     nr83: {
           ingredients: [
             { n: 'Chicken breast', q: 260, u: 'g', cat: 'Protein' },
-            { n: 'Lime', q: 1, u: 'pc', cat: 'Produce' },
+            { n: 'Lemon', q: 1, u: 'pc', cat: 'Produce' },
+            { n: 'Fresh ginger', q: 8, u: 'g', cat: 'Produce' },
             { n: 'Fresh coriander', q: 8, u: 'g', cat: 'Produce' },
             { n: 'Red chilli', q: 5, u: 'g', cat: 'Produce' },
             { n: 'Cooked rice', q: 90, u: 'g', cat: 'Pantry' },
@@ -1403,9 +1404,9 @@ const HIGH_PROTEIN_VARIANTS_V2 = {
             { n: 'Edamame', q: 40, u: 'g', cat: 'Protein' },
                 ],
           steps: [
-                  'Pan-sear the chicken with the garlic and red chilli until golden and cooked through.',
+                  'Pan-sear the chicken with the garlic, ginger and red chilli until golden and cooked through.',
                   'Add the edamame to the pan for the final 3-4 minutes to warm through.',
-                  'Squeeze over the lime juice and toss to coat.',
+                  'Squeeze over the lemon juice and toss to coat.',
                   'Scatter with fresh coriander.',
                   'Serve over the cooked rice.',
                 ],
