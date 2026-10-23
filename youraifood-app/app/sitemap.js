@@ -1,7 +1,7 @@
 import { RECIPES } from '../lib/recipes';
 import { getRecipeSlug } from '../lib/recipeSlug';
 
-const SITE_URL = 'https://youraifood.com';
+const SITE_URL = 'https://www.youraifood.com';
 
 // Static, mostly-stable pages. Recipe URLs are appended separately below
 // since there are 235 of them, generated from the same catalog the rest of
@@ -9,6 +9,7 @@ const SITE_URL = 'https://youraifood.com';
 const STATIC_PATHS = [
   { path: '', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/recipes', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/recipe-generator', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/tips', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/about', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/roadmap', priority: 0.4, changeFrequency: 'monthly' },
