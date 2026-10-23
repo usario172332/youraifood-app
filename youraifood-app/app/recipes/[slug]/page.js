@@ -3,7 +3,7 @@ import { RECIPES } from '../../../lib/recipes';
 import { findRecipeBySlug, getRecipeSlug } from '../../../lib/recipeSlug';
 import RecipeDetailContent from '../../../components/RecipeDetailContent';
 
-const SITE_URL = 'https://youraifood.com';
+const SITE_URL = 'https://www.youraifood.com';
 
 // Statically generate all 235 recipe pages at build time — recipe data is
 // fixed/curated (not user-generated), so full static generation is safe and
