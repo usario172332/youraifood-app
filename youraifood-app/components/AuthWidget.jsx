@@ -67,7 +67,7 @@ export default function AuthWidget({ compact, openSignal }) {
         fetch('/api/notify-signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email, userId: data?.user?.id }),
         }).catch(() => {});
       }
       if (data.user) {
