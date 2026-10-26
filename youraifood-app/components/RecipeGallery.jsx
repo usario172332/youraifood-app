@@ -21,6 +21,27 @@ const DIET_ICON = {
 const MIN_RATINGS_TO_SHOW = 5;
 
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
+const CUISINES = ['Chinese', 'Indian', 'Thai', 'Japanese', 'Korean', 'Italian', 'Mexican', 'Mediterranean', 'American', 'Other'];
+
+const CUISINE_PREFIX = { cn: 'Chinese', in: 'Indian', th: 'Thai', jp: 'Japanese' };
+const CUISINE_RULES = [
+  ['Korean', /korean|bulgogi|bibimbap|kimchi|gochujang/i],
+  ['Japanese', /teriyaki|miso|ramen|soba|udon|sushi|katsu|poke|yakitori|donburi|onigiri|matcha|kinako|japanese|edamame/i],
+  ['Thai', /\bthai\b|pad thai|satay|tom yum|tom kha|larb|lemongrass/i],
+  ['Chinese', /stir[- ]fry|fried rice|chow mein|lo mein|kung pao|general tso|orange chicken|sweet (&|and) sour|dumpling|congee|mapo|hot (&|and) sour|egg drop|sesame chicken|szechuan|sichuan|chinese|spring roll|wonton|cashew chicken|moo shu/i],
+  ['Indian', /curry|tikka|masala|\bdal\b|dhal|tandoori|paneer|biryani|korma|saag|vindaloo|chana|raita|khichdi|bhurji|chilla|kheer|indian|lassi|sambar|palak|rajma|aloo/i],
+  ['Mexican', /burrito|taco|fajita|quesadilla|enchilada|southwest|salsa|nacho|huevos|mexican|guacamole|chipotle|tortilla/i],
+  ['Italian', /risotto|pizza|pasta|spaghetti|penne|lasagn|parmesan|caprese|italian|pesto|marinara|bolognese|gnocchi|purgatory|calzone|bruschetta|carbonara|minestrone|ricotta|frittata|zucchini noodle/i],
+  ['Mediterranean', /shakshuka|menemen|mediterranean|greek|hummus|falafel|tzatziki|harissa|bulgur|pita|tabbouleh|feta|souvlaki|gyro|shawarma|moroccan|tagine|lebanese|turkish|za'atar|cassoulet/i],
+  ['American', /burger|bbq|barbecue|meatloaf|buffalo|caesar|sloppy|pancake|waffle|french toast|hash|club|philly|mac |chili|sandwich|casserole|pot roast|ranch|bagel|steak/i],
+];
+function cuisineOf(r) {
+  const p = CUISINE_PREFIX[String(r.id).replace(/\d+$/, '')];
+  if (p) return p;
+  for (const [label, re] of CUISINE_RULES) if (re.test(r.name)) return label;
+  return 'Other';
+}
+
 const FILTERS = ['all', 'vegan', 'vegetarian', 'dairy-free', 'gluten-free', 'premium', 'favorites'];
 
 const TIME_OPTIONS = [
@@ -113,6 +134,7 @@ function ToggleChip({ active, onClick, label }) {
 export default function RecipeGallery({ isPremium, user, favorites, onToggleFavorite, compact = false }) {
   const [meal, setMeal] = useState('all');
   const [filter, setFilter] = useState('all');
+  const [cuisine, setCuisine] = useState('all');
   const [search, setSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('any');
   const [calFilter, setCalFilter] = useState('any');
@@ -164,6 +186,7 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
         : filter === 'favorites'
           ? byMeal.filter((r) => favorites?.has(r.id))
           : byMeal.filter((r) => r.diets.includes(filter));
+  if (cuisine !== 'all') filtered = filtered.filter((r) => cuisineOf(r) === cuisine);
 
   if (!compact) {
     if (freeOnly) filtered = filtered.filter((r) => !r.premium);
@@ -341,6 +364,21 @@ export default function RecipeGallery({ isPremium, user, favorites, onToggleFavo
                   }`}
                 >
                   {f === 'all' ? 'All' : f === 'premium' ? '⭐ Premium' : f === 'favorites' ? '❤️ Favorites' : f}
+                </button>
+              ))}
+            </div>
+            <div className="mb-3 flex flex-wrap justify-center gap-2" aria-label="Filter by cuisine">
+              {['all', ...CUISINES.filter((c) => RECIPES.some((r) => cuisineOf(r) === c))].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCuisine(c)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-green-900 ${
+                    cuisine === c
+                      ? 'border-amber-400 bg-amber-400 text-green-950'
+                      : 'border-white/20 bg-transparent text-white/90'
+                  }`}
+                >
+                  {c === 'all' ? '🌍 All cuisines' : c}
                 </button>
               ))}
             </div>
