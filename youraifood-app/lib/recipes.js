@@ -4,6 +4,7 @@
 
 import { matchesAvoidedMeat } from './meatType';
 import { matchesAvoidedIngredient } from './avoidIngredients';
+import { EXTRA_RECIPES } from './recipesExtra';
 
 export const RECIPES = [
   // BREAKFASTS
@@ -735,6 +736,7 @@ export const RECIPES = [
   { id: 'ps4', name: 'Greek Yogurt Ranch Dip', meal: 'Snack', diets: ['vegetarian', 'gluten-free'], time: 5, cost: 1.1, protein: 15, cal: 110, carbs: 6, fat: 2, image: '/recipes/ps4.jpg', premium: true,
     ingredients: [{ n: 'Greek yogurt', q: 150, u: 'g', cat: 'Dairy/Alt' }, { n: 'Dill', q: 3, u: 'g', cat: 'Spices' }, { n: 'Garlic powder', q: 2, u: 'g', cat: 'Spices' }, { n: 'Onion powder', q: 2, u: 'g', cat: 'Spices' }, { n: 'Chives', q: 3, u: 'g', cat: 'Produce' }, { n: 'Lemon juice', q: 10, u: 'ml', cat: 'Pantry' }],
     steps: ['Spoon the Greek yogurt into a bowl.', 'Stir in the dill, garlic powder, onion powder and chopped chives.', 'Add the lemon juice and mix well.', 'Chill for at least 10 minutes before serving with vegetable sticks.'] },
+  ...EXTRA_RECIPES,
 ];
 
 export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
