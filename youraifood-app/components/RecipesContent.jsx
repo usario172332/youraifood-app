@@ -3,6 +3,9 @@
 import Link from 'next/link';
 import RecipeGallery from './RecipeGallery';
 import { useAuth } from '../lib/AuthContext';
+import { RECIPES } from '../lib/recipes';
+
+const FREE_COUNT = RECIPES.filter((r) => !r.premium).length;
 
 export default function RecipesContent() {
   const { user, isPremium, favorites, toggleFavorite } = useAuth();
@@ -11,10 +14,10 @@ export default function RecipesContent() {
     <>
       <section className="px-6 pb-4 pt-14 text-center">
         <h1 className="mx-auto mb-3 max-w-2xl text-3xl font-extrabold leading-tight text-green-900 sm:text-4xl">
-          Browse all 235 recipes
+          Browse all {RECIPES.length} recipes
         </h1>
         <p className="mx-auto max-w-xl text-ink-soft">
-          Open 24 complete recipes free, or preview the full Premium collection — filter by meal, diet, or
+          Open {FREE_COUNT} complete recipes free, or preview the full Premium collection — filter by meal, diet, or
           favourites.
         </p>
         <div className="mx-auto mt-5 flex max-w-xl flex-col items-center gap-3 rounded-2xl border border-green-100 bg-green-50/60 px-5 py-4 sm:flex-row sm:justify-between">
