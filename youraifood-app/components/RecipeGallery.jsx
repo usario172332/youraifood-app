@@ -21,19 +21,21 @@ const DIET_ICON = {
 const MIN_RATINGS_TO_SHOW = 5;
 
 const MEALS = ['all', 'Breakfast', 'Lunch & Dinner', 'Snack'];
-const CUISINES = ['Chinese', 'Indian', 'Thai', 'Japanese', 'Korean', 'Italian', 'Mexican', 'Mediterranean', 'American', 'Other'];
+const CUISINES = ['Chinese', 'Indian', 'Thai', 'Japanese', 'Korean', 'Italian', 'French', 'Mexican', 'Mediterranean', 'American', 'Other'];
 
 const CUISINE_PREFIX = { cn: 'Chinese', in: 'Indian', th: 'Thai', jp: 'Japanese' };
 const CUISINE_RULES = [
   ['Korean', /korean|bulgogi|bibimbap|kimchi|gochujang/i],
-  ['Japanese', /teriyaki|miso|ramen|soba|udon|sushi|katsu|poke|yakitori|donburi|onigiri|matcha|kinako|japanese|edamame/i],
-  ['Thai', /\bthai\b|pad thai|satay|tom yum|tom kha|larb|lemongrass/i],
-  ['Chinese', /stir[- ]fry|fried rice|chow mein|lo mein|kung pao|general tso|orange chicken|sweet (&|and) sour|dumpling|congee|mapo|hot (&|and) sour|egg drop|sesame chicken|szechuan|sichuan|chinese|spring roll|wonton|cashew chicken|moo shu/i],
+  ['Japanese', /teriyaki|miso|ramen|soba|udon|sushi|katsu|poke|yakitori|donburi|onigiri|matcha|kinako|japanese|seaweed|nori\b/i],
+  ['Thai', /\bthai\b|pad thai|satay|tom yum|tom kha|larb|lemongrass|massaman|sweet chil/i],
+  ['Chinese', /beef (&|and) broccoli|stir[- ]fry|fried rice|chow mein|lo mein|kung pao|general tso|orange chicken|sweet (&|and) sour|dumpling|congee|mapo|hot (&|and) sour|egg drop|sesame chicken|szechuan|sichuan|chinese|spring roll|wonton|cashew chicken|moo shu/i],
+  ['American', /cajun|bbq|barbecue|buffalo/i],
   ['Indian', /curry|tikka|masala|\bdal\b|dhal|tandoori|paneer|biryani|korma|saag|vindaloo|chana|raita|khichdi|bhurji|chilla|kheer|indian|lassi|sambar|palak|rajma|aloo/i],
-  ['Mexican', /burrito|taco|fajita|quesadilla|enchilada|southwest|salsa|nacho|huevos|mexican|guacamole|chipotle|tortilla/i],
-  ['Italian', /risotto|pizza|pasta|spaghetti|penne|lasagn|parmesan|caprese|italian|pesto|marinara|bolognese|gnocchi|purgatory|calzone|bruschetta|carbonara|minestrone|ricotta|frittata|zucchini noodle/i],
-  ['Mediterranean', /shakshuka|menemen|mediterranean|greek|hummus|falafel|tzatziki|harissa|bulgur|pita|tabbouleh|feta|souvlaki|gyro|shawarma|moroccan|tagine|lebanese|turkish|za'atar|cassoulet/i],
-  ['American', /burger|bbq|barbecue|meatloaf|buffalo|caesar|sloppy|pancake|waffle|french toast|hash|club|philly|mac |chili|sandwich|casserole|pot roast|ranch|bagel|steak/i],
+  ['Mexican', /burrito|taco|fajita|quesadilla|enchilada|southwest|salsa|nacho|huevos|mexican|guacamole|chipotle/i],
+  ['French', /cassoulet|french(?! toast)|ratatouille|quiche|crepe|cr\u00eape/i],
+  ['Italian', /risotto|pizza|pasta|spaghetti|penne|lasagn|caprese|italian|pesto|marinara|bolognese|gnocchi|purgatory|calzone|bruschetta|carbonara|minestrone|ricotta|frittata|orzo/i],
+  ['Mediterranean', /shakshuka|menemen|mediterranean|greek(?! yogurt)|hummus|falafel|tzatziki|harissa|bulgur|pita|tabbouleh|feta|souvlaki|gyro|shawarma|moroccan|tagine|lebanese|turkish|za'atar/i],
+  ['American', /burger|meatloaf|caesar|sloppy|pancake|waffle|french toast|hash|club|philly|mac |chili|sandwich|casserole|pot roast|ranch|bagel|steak/i],
 ];
 function cuisineOf(r) {
   const p = CUISINE_PREFIX[String(r.id).replace(/\d+$/, '')];
